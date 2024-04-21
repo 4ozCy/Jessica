@@ -98,13 +98,13 @@ async def send_joke(ctx):
 @client.command(name='cmd')
 async def send_help(ctx):
     embed = discord.Embed(title="** Commands list **", color=0x3498db)
-    embed.add_field(name="```quote", value="send a random inspirational quote.", inline=False)
+    embed.add_field(name="quote", value="send a random inspirational quote.", inline=False)
     embed.add_field(name="rizz", value="Rizz You Up", inline=False)
     embed.add_field(name="joke", value="Tells a random joke.", inline=False)
     embed.add_field(name="insult/in", value="send a random insult", inline=False)
     embed.add_field(name="animequote/aq", value="send a random anime quote.", inline=False)
     embed.add_field(name="slap", value="Slap you in the face", inline=False)
-    embed.add_field(name="Breakup/bp", value="If you want to breakup with your love use this command.```", inline=False)
+    embed.add_field(name="Breakup/bp", value="If you want to breakup with your love use this command.", inline=False)
     await ctx.send(embed=embed)
 
 @client.command(name='insult', aliases=['in'])
@@ -128,7 +128,7 @@ async def send_anime_quote(ctx):
                 quote = data['quote']
                 character = data['character']
                 anime = data['anime']
-                embed = discord.Embed(title="** Anime Quote **", description=f'"```{quote}"\n- {character}``` ({anime})', color=0x3498db)
+                embed = discord.Embed(title="** Anime Quote **", description=f'"{quote}"\n- {character} ({anime})', color=0x3498db)
                 await ctx.send(embed=embed)
     except Exception as e:
         print(f"An error occurred while fetching anime quote: {e}")
