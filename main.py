@@ -29,9 +29,11 @@ client = commands.Bot(command_prefix='.', intents=discord.Intents.all())
 async def fetch_pickup_line():
     try:
         async with aiohttp.ClientSession() as session:
-            async with session.get("https://vinuxd.vercel.app/api/pickup") as response:
-                data = await response.json()
-                return data.get("pickup")
+            async with session.get("https://api.jcwyt.com/pickup") as response:
+                data = await response.text()
+        lines = data.split("{answer}")
+        pickup_line = "\n".join(lines)
+        return pickup_line
     except Exception as e:
         print(f"An error occurred while fetching pickup line: {e}")
         return None
