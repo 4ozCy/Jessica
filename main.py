@@ -110,10 +110,11 @@ async def send_insult(ctx):
         async with aiohttp.ClientSession() as session:
             async with session.get("https://insult.mattbas.org/api/insult") as response:
                 insult = await response.text()
-                await ctx.send(insult)
+        embed = discord.Embed(title="Insult", description=insult, color=0x3498db)
+        await ctx.send(embed=embed)
     except Exception as e:
         print(f"An error occurred while fetching insult: {e}")
-        await ctx.send("you're too weak to insult someone")
+        await ctx.send("You're too weak to insult someone")
       
 @client.command(name='animequote', aliases=['aq'])
 async def send_anime_quote(ctx):
