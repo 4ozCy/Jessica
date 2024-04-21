@@ -97,13 +97,14 @@ async def send_joke(ctx):
 
 @client.command(name='cmd')
 async def send_help(ctx):
-    embed = discord.Embed(title="Help - Bot Commands", color=0x3498db)
+    embed = discord.Embed(title=" ``` Commands list", color=0x3498db)
     embed.add_field(name="quote", value="send a random inspirational quote.", inline=False)
     embed.add_field(name="rizz", value="Rizz You Up", inline=False)
     embed.add_field(name="joke", value="Tells a random joke.", inline=False)
     embed.add_field(name="insult/in", value="send a random insult", inline=False)
     embed.add_field(name="animequote/aq", value="send a random anime quote.", inline=False)
     embed.add_field(name="slap", value="Slap you in the face", inline=False)
+    embed.add_field(name="Breakup/bp", value="If you want to breakup with your love use this command. ``` ", inline=False)
     await ctx.send(embed=embed)
 
 @client.command(name='insult', aliases=['in'])
@@ -112,7 +113,7 @@ async def send_insult(ctx):
         async with aiohttp.ClientSession() as session:
             async with session.get("https://insult.mattbas.org/api/insult") as response:
                 insult = await response.text()
-        embed = discord.Embed(title="Insult", description=insult, color=0x3498db)
+        embed = discord.Embed(title="Insulting You because why not", description=insult, color=0x3498db)
         await ctx.send(embed=embed)
     except Exception as e:
         print(f"An error occurred while fetching insult: {e}")
@@ -127,7 +128,7 @@ async def send_anime_quote(ctx):
                 quote = data['quote']
                 character = data['character']
                 anime = data['anime']
-                embed = discord.Embed(title="Anime Quote", description=f'"{quote}"\n- {character} ({anime})', color=0x3498db)
+                embed = discord.Embed(title="Anime Quote", description=f'" ``` {quote}"\n- {character} ({anime}) ``` ', color=0x3498db)
                 await ctx.send(embed=embed)
     except Exception as e:
         print(f"An error occurred while fetching anime quote: {e}")
@@ -144,10 +145,22 @@ async def slap(ctx, member: discord.Member):
             if response.status == 200:
                 data = await response.json()
                 gif_url = data['url']
-                embed = discord.Embed(title="Slap", description=f"{ctx.author.mention} slaps {member.mention}!!", color=0x3498db)
+                embed = discord.Embed(title="Slap You in the face because I'm bored", description=f"{ctx.author.mention} slaps {member.mention}!!", color=0x3498db)
                 embed.set_image(url=gif_url)  # Set the GIF URL as an image in the embed
                 await ctx.send(embed=embed)
             else:
                 await ctx.send("You're too weak to slap someone")
+
+@client.command(name='breakup', aliases=['bp'])
+async def send_breakup(ctx):
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get("https://api.jcwyt.com/breakup") as response:
+                breakup_line = await response.text()
+        embed = discord.Embed(title="Breakup Line", description=breakup_line, color=0xFF5733)
+        await ctx.send(embed=embed)
+    except Exception as e:
+        print(f"An error occurred while fetching breakup line: {e}")
+        await ctx.send("You're Not Ready to breakup yet.")
 
 client.run(os.getenv('TOKEN'))
