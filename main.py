@@ -128,7 +128,7 @@ async def send_anime_quote(ctx):
                 quote = data['quote']
                 character = data['character']
                 anime = data['anime']
-                embed = discord.Embed(title="** Anime Quote **", description=f'"{quote}"\n- {character} ({anime})', color=0x3498db)
+                embed = discord.Embed(title="** Anime Quote **", description=f'"{quote}"\n-{character} ({anime})', color=0x3498db)
                 await ctx.send(embed=embed)
     except Exception as e:
         print(f"An error occurred while fetching anime quote: {e}")
