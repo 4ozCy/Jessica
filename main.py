@@ -212,4 +212,21 @@ async def punch_member(ctx, member: discord.Member):
             else:
                 await ctx.send("You're to weak you can't punch someone")
 
+@client.command(name='giverole', aliases ['gr'])
+async def give_role(ctx, member: discord.Member, role: discord.Role):
+    if ctx.author.guild_permissions.manage_roles:
+        if role:
+            if role in member.roles:
+                embed = discord.Embed(description=f"{member.mention} already has the {role.mention} role.", color=discord.Color.orange())
+            else:
+                await member.add_roles(role)
+                embed = discord.Embed(description=f"{member.mention} has been given the {role.mention} role.", color=discord.Color.green())
+        else:
+            embed = discord.Embed(description="Role not found.", color=discord.Color.red())
+    else:
+        embed = discord.Embed(description="You do not have permission to manage roles.", color=discord.Color.red())
+
+    await ctx.send(embed=embed)
+
+
 client.run(os.getenv('TOKEN'))
