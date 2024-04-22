@@ -105,6 +105,7 @@ async def send_help(ctx):
     embed.add_field(name="animequote/aq", value="send a random anime quote.", inline=False)
     embed.add_field(name="slap", value="Slap you in the face", inline=False)
     embed.add_field(name="Breakup/bp", value="If you want to breakup with your love use this command.", inline=False)
+    embed.add_field(name="autorole/ar", value="setup an auto-role", inline=False)
     await ctx.send(embed=embed)
 
 @client.command(name='insult', aliases=['in'])
@@ -162,5 +163,13 @@ async def send_breakup(ctx):
     except Exception as e:
         print(f"An error occurred while fetching breakup line: {e}")
         await ctx.send("You're Not Ready to breakup yet.")
+        
+@client.command(name='autorole', aliases=['ar'])
+async def set_autorole(ctx, *, role: discord.Role):
+    if ctx.author.guild_permissions.manage_roles:
+        autorole_role_id = role.id
+        await ctx.send(f"Autorole set to {role.name}.")
+    else:
+        await ctx.send("You don't have permission to use this command.")
 
 client.run(os.getenv('TOKEN'))
