@@ -213,7 +213,7 @@ async def punch_member(ctx, member: discord.Member):
             else:
                 await ctx.send("You're to weak you can't punch someone")
 
-@client.command(name='giverole', aliases ['gr'])
+@client.command(name='giverole', aliases=['gr'])
 async def give_role(ctx, member: discord.Member, role: discord.Role):
     if ctx.author.guild_permissions.manage_roles:
         if role:
