@@ -107,6 +107,7 @@ async def send_help(ctx):
     embed.add_field(name="Breakup/bp", value="If you want to breakup with your love use this command.", inline=False)
     embed.add_field(name="autorole/ar", value="setup an auto-role here how to use this cmd (use .ar and mention role that you want to put to Autorole and mention channel for Autorole log)", inline=False)
     embed.add_field(name="punch/p", value="punch you in the f**king face", inline=False)
+    embed.add_field(name="giverole/gr", value="give role to someone", inline=False)
     await ctx.send(embed=embed)
 
 @client.command(name='insult', aliases=['in'])
