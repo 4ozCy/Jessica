@@ -192,7 +192,7 @@ async def on_member_join(member):
             else:
                 print("Channel not found.")
             
-            print(f"{member.name} has been assigned the autorole.")
+            print(f"{member.name} has been given rolw.")
         else:
             print("Autorole role not found.")
     else:
