@@ -167,9 +167,30 @@ async def send_breakup(ctx):
 @client.command(name='autorole', aliases=['ar'])
 async def set_autorole(ctx, *, role: discord.Role):
     if ctx.author.guild_permissions.manage_roles:
+        global autorole_role_id
         autorole_role_id = role.id
-        await ctx.send(f"Autorole set to {role.name}.")
+        
+        embed = discord.Embed(title="Autorole Set", description=f"Autorole set to {role.mention}.", color=0x00ff00)
+        await ctx.send(embed=embed)
     else:
         await ctx.send("You don't have permission to use this command.")
+
+
+@client.event
+async def on_member_join(member):
+    global autorole_role_id
+    if autorole_role_id:
+        autorole_role = member.guild.get_role(autorole_role_id)
+        if autorole_role:
+            await member.add_roles(autorole_role)
+            
+            embed = discord.Embed(title="Autorole Assigned", description=f"{member.mention} has been given role", color=0x00ff00)
+            await member.guild.system_channel.send(embed=embed)
+            
+            print(f"{member.name} has been assigned the autorole.")
+        else:
+            print("Autorole role not found.")
+    else:
+        print("Autorole not set.")
 
 client.run(os.getenv('TOKEN'))
