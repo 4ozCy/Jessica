@@ -105,7 +105,7 @@ async def send_help(ctx):
     embed.add_field(name="animequote/aq", value="send a random anime quote.", inline=False)
     embed.add_field(name="slap", value="Slap you in the face", inline=False)
     embed.add_field(name="Breakup/bp", value="If you want to breakup with your love use this command.", inline=False)
-    embed.add_field(name="autorole/ar", value="setup an auto-role", inline=False)
+    embed.add_field(name="autorole/ar", value="setup an auto-role here how to use this cmd (use .ar and mention role that you want to put to Autorole and mention channel for Autorole log)", inline=False)
     await ctx.send(embed=embed)
 
 @client.command(name='insult', aliases=['in'])
@@ -164,33 +164,39 @@ async def send_breakup(ctx):
         print(f"An error occurred while fetching breakup line: {e}")
         await ctx.send("You're Not Ready to breakup yet.")
         
+
 @client.command(name='autorole', aliases=['ar'])
-async def set_autorole(ctx, *, role: discord.Role):
+async def set_autorole(ctx, role: discord.Role, channel: discord.TextChannel):
     if ctx.author.guild_permissions.manage_roles:
-        global autorole_role_id
+        global autorole_role_id, autorole_channel_id
         autorole_role_id = role.id
+        autorole_channel_id = channel.id
         
-        embed = discord.Embed(title="Autorole Set", description=f"Autorole set to {role.mention}.", color=0x00ff00)
+        embed = discord.Embed(title="Autorole Set", description=f"Autorole set to {role.mention} in {channel.mention}.", color=0x00ff00)
         await ctx.send(embed=embed)
     else:
         await ctx.send("You don't have permission to use this command.")
 
-
 @client.event
 async def on_member_join(member):
-    global autorole_role_id
+    global autorole_role_id, autorole_channel_id
     if autorole_role_id:
         autorole_role = member.guild.get_role(autorole_role_id)
         if autorole_role:
             await member.add_roles(autorole_role)
             
-            embed = discord.Embed(title="Autorole Assigned", description=f"{member.mention} has been given role", color=0x00ff00)
-            await member.guild.system_channel.send(embed=embed)
+            channel = member.guild.get_channel(autorole_channel_id)
+            if channel:
+                embed = discord.Embed(title="Autorole Assigned", description=f"{member.mention} has been assigned the autorole.", color=0x00ff00)
+                await channel.send(embed=embed)
+            else:
+                print("Channel not found.")
             
             print(f"{member.name} has been assigned the autorole.")
         else:
             print("Autorole role not found.")
     else:
         print("Autorole not set.")
+
 
 client.run(os.getenv('TOKEN'))
