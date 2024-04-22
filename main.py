@@ -115,7 +115,7 @@ async def send_insult(ctx):
         async with aiohttp.ClientSession() as session:
             async with session.get("https://insult.mattbas.org/api/insult") as response:
                 insult = await response.text()
-        embed = discord.Embed(title="Insulting You because why not", description=insult, color=0x3498db)
+        embed = discord.Embed(description=insult, color=0x3498db)
         await ctx.send(embed=embed)
     except Exception as e:
         print(f"An error occurred while fetching insult: {e}")
@@ -147,7 +147,7 @@ async def slap(ctx, member: discord.Member):
             if response.status == 200:
                 data = await response.json()
                 gif_url = data['url']
-                embed = discord.Embed(description=f"{ctx.author.mention} slaps {member.mention}!!", color=0x3498db)
+                embed = discord.Embed(title="slap you in the face because i wanted to.", description=f"{ctx.author.mention} slaps {member.mention}!!", color=0x3498db)
                 embed.set_image(url=gif_url)  # Set the GIF URL as an image in the embed
                 await ctx.send(embed=embed)
             else:
@@ -206,7 +206,7 @@ async def punch_member(ctx, member: discord.Member):
             if response.status == 200:
                 data = await response.json()
                 gif_url = data['url']
-                embed = discord.Embed(description=f"{ctx.author.mention} punches {member.mention}!", color=0xFF5733)
+                embed = discord.Embed(title="punch you in the face because I'm bored.", description=f"{ctx.author.mention} punches {member.mention}!", color=0xFF5733)
                 embed.set_image(url=gif_url)
                 await ctx.send(embed=embed)
             else:
