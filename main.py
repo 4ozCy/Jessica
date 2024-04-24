@@ -243,7 +243,7 @@ async def ping(ctx):
         # Get the server's latency (API response time)
         server_latency = round(client.latency * 1000)
         # Edit the temporary message with the actual latency
-        embed = discord.Embed(title="Server and Bot Ping, color=discord.Color.green())
+        embed = discord.Embed(title="Server and Bot Ping", color=discord.Color.green())
         embed.add_field(name="Bot Ping", value=f"{latency:.2f} ms", inline=False)
         embed.add_field(name="Server Ping", value=f"{server_latency} ms", inline=False)
         await message.edit(content="", embed=embed)
