@@ -109,8 +109,7 @@ async def send_help(ctx):
     embed.add_field(name="punch/p", value="punch you in the f**king face", inline=False)
     embed.add_field(name="giverole/gr", value="give role to someone", inline=False)
     embed.add_field(name="auditlog/al", value="send an audit log to the specific channel", inline=False)
-    embed.add_field(name="purge", value="deleted the message in the specific channel", inline=False)
-    embed.add_field(name="purgeall/all", value=" deleted all the massage in the specific channel", inline=False)
+    embed.add_field(name="Ping", value="Show Bot And Server Ping", inline=False)
     await ctx.send(embed=embed)
 
 @client.command(name='insult', aliases=['in'])
@@ -232,23 +231,22 @@ async def give_role(ctx, member: discord.Member, role: discord.Role):
 
     await ctx.send(embed=embed)
 
-@client.command(name='purge')
-@commands.has_permissions(manage_messages=True)
-async def purge(ctx):
+@client.command(name='ping')
+async def ping(ctx):
     try:
-        deleted = await ctx.channel.purge(limit=1000)
-        embed = discord.Embed(title="Purge Complete", description=f"{len(deleted)} messages deleted by {ctx.author.mention}.")
-        await ctx.send(embed=embed, delete_after=5)
-    except Exception as e:
-        await ctx.send(f"An error occurred: {e}")
-
-@client.command(name='purgeall', aliases=['all'])
-@commands.has_permissions(manage_messages=True)
-async def purge(ctx):
-    try:
-        deleted = await ctx.channel.purge(limit=None)
-        embed = discord.Embed(title="Purge Complete", description=f"{len(deleted)} messages deleted by {ctx.author.mention}.")
-        await ctx.send(embed=embed, delete_after=5)
+        # Get the current timestamp
+        before = time.monotonic()
+        # Send a temporary message to measure round-trip time
+        message = await ctx.send("Pinging...")
+        # Calculate the round-trip time (latency)
+        latency = (time.monotonic() - before) * 1000
+        # Get the server's latency (API response time)
+        server_latency = round(client.latency * 1000)
+        # Edit the temporary message with the actual latency
+        embed = discord.Embed(title="Server and Bot Ping, color=discord.Color.green())
+        embed.add_field(name="Bot Ping", value=f"{latency:.2f} ms", inline=False)
+        embed.add_field(name="Server Ping", value=f"{server_latency} ms", inline=False)
+        await message.edit(content="", embed=embed)
     except Exception as e:
         await ctx.send(f"An error occurred: {e}")
 
