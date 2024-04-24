@@ -242,7 +242,7 @@ async def purge(ctx):
     except Exception as e:
         await ctx.send(f"An error occurred: {e}")
 
-@client.command(name='purgeall', ['all'])
+@client.command(name='purgeall', aliases=['all'])
 @commands.has_permissions(manage_messages=True)
 async def purge(ctx):
     try:
