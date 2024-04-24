@@ -229,5 +229,25 @@ async def give_role(ctx, member: discord.Member, role: discord.Role):
 
     await ctx.send(embed=embed)
 
+@client.command(name='auditlog', aliases=['al'])
+async def audit_log(ctx, channel: discord.TextChannel):
+    if not ctx.author.guild_permissions.view_audit_log:
+        await ctx.send("You do not have permission to use this command")
+        return
+
+    audit_logs = await ctx.guild.audit_logs(limit=5).flatten()
+    
+    embed = discord.Embed(title="Audit Log", description="Here are the last 5 audit log entries:")
+    for entry in audit_logs:
+        embed.add_field(
+            name=f"Action by {entry.user} (ID: {entry.user.id})",
+            value=(f"Action: {entry.action}\n"
+                   f"Target: {entry.target} (ID: {entry.target.id if entry.target else 'N/A'})\n"
+                   f"Reason: {entry.reason or 'No reason provided.'}\n"
+                   f"Time: {entry.created_at.strftime('%Y-%m-%d %H:%M:%S')}"),
+            inline=False
+        )
+    
+    await channel.send(embed=embed)
 
 client.run(os.getenv('TOKEN'))
