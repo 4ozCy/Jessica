@@ -246,8 +246,7 @@ async def audit_log(ctx, channel: discord.TextChannel):
                    f"Target: {entry.target} (ID: {entry.target.id if entry.target else 'N/A'})\n"
                    f"Reason: {entry.reason or 'No reason provided.'}\n"
                    f"Time: {entry.created_at.strftime('%Y-%m-%d %H:%M:%S')}"),
-            inline=False
-        )
+            inline=False)
     
     await channel.send(embed=embed)
 
