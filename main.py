@@ -109,6 +109,8 @@ async def send_help(ctx):
     embed.add_field(name="punch/p", value="punch you in the f**king face", inline=False)
     embed.add_field(name="giverole/gr", value="give role to someone", inline=False)
     embed.add_field(name="auditlog/al", value="send an audit log to the specific channel", inline=False)
+    embed.add_field(name="purge", value="deleted the message in the specific channel", inline=False)
+    embed.add_field(name="purgeall/all", value=" deleted all the massage in the specific channel", inline=False)
     await ctx.send(embed=embed)
 
 @client.command(name='insult', aliases=['in'])
@@ -230,28 +232,24 @@ async def give_role(ctx, member: discord.Member, role: discord.Role):
 
     await ctx.send(embed=embed)
 
-@client.command(name='auditlog', aliases=['al'])
-async def audit_log(ctx, channel: discord.TextChannel):
+@client.command(name='purge')
+@commands.has_permissions(manage_messages=True)
+async def purge(ctx):
     try:
-        # Fetch the last 5 audit log entries
-        audit_logs = [entry async for entry in ctx.guild.audit_logs(limit=5)]
-        
-        # Create an embed to display the audit logs
-        embed = discord.Embed(title="Audit Log")
-        for entry in audit_logs:
-            embed.add_field(
-                name=f"Action by {entry.user} (ID: {entry.user.id})",
-                value=(f"Action: {entry.action}\n"
-                       f"Target: {entry.target} (ID: {entry.target.id if entry.target else 'N/A'})\n"
-                       f"Reason: {entry.reason or 'No reason provided.'}\n"
-                       f"Time: {entry.created_at.strftime('%Y-%m-%d %H:%M:%S')}"),
-                inline=False
-            )
-        
-        # Send the embed to the specified channel
-        await channel.send(embed=embed)
+        deleted = await ctx.channel.purge(limit=1000)
+        embed = discord.Embed(title="Purge Complete", description=f"{len(deleted)} messages deleted by {ctx.author.mention}.")
+        await ctx.send(embed=embed, delete_after=5)
     except Exception as e:
         await ctx.send(f"An error occurred: {e}")
 
+@client.command(name='purgeall', ['all'])
+@commands.has_permissions(manage_messages=True)
+async def purge(ctx):
+    try:
+        deleted = await ctx.channel.purge(limit=None)
+        embed = discord.Embed(title="Purge Complete", description=f"{len(deleted)} messages deleted by {ctx.author.mention}.")
+        await ctx.send(embed=embed, delete_after=5)
+    except Exception as e:
+        await ctx.send(f"An error occurred: {e}")
 
 client.run(os.getenv('TOKEN'))
