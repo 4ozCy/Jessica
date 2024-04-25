@@ -98,7 +98,7 @@ async def send_joke(ctx):
 
 @client.command(name='cmd')
 async def send_help(ctx):
-    embed = discord.Embed(title="** Commands list **", color=0x3498db)
+    embed = discord.Embed(title="", color=0x3498db)
     embed.add_field(name="quote", value="send a random inspirational quote.", inline=False)
     embed.add_field(name="rizz", value="Rizz You Up", inline=False)
     embed.add_field(name="joke", value="Tells a random joke.", inline=False)
@@ -110,7 +110,7 @@ async def send_help(ctx):
     embed.add_field(name="punch/p", value="punch you in the f**king face", inline=False)
     embed.add_field(name="giverole/gr", value="give role to someone", inline=False)
     embed.add_field(name="auditlog/al", value="send an audit log to the specific channel", inline=False)
-    embed.add_field(name="Ping", value="Show Bot And Server Ping", inline=False)
+    embed.add_field(name="Purge", value="delete massage in specific channel", inline=False)
     await ctx.send(embed=embed)
 
 @client.command(name='insult', aliases=['in'])
@@ -232,18 +232,15 @@ async def give_role(ctx, member: discord.Member, role: discord.Role):
 
     await ctx.send(embed=embed)
 
-@client.command(name='ping')
-async def ping(ctx):
-    start_time = time.time()
-    message = await ctx.send("Pinging...")
-    end_time = time.time()
+@client.command(name='purge')
+async def purge(ctx, amount: int):
+    if ctx.author.guild_permissions.manage_messages:
+        await ctx.message.delete()  # Delete the command message
 
-    bot_latency = round((end_time - start_time) * 1000)  # Bot latency in milliseconds
-    server_latency = round((message.created_at - ctx.message.created_at).total_seconds() * 1000)  # Server latency in milliseconds
-
-    embed = discord.Embed(title="Bot and Server Ping 🟢", color=discord.Color.green())
-    embed.add_field(name="Bot Ping", value=f"```{bot_latency}ms```", inline=True)
-    embed.add_field(name="Server Ping", value=f"```{server_latency}ms```", inline=True)
-    await message.edit(content="", embed=embed)
-
+        # Fetch and delete messages
+        deleted = await ctx.channel.purge(limit=amount)
+        await ctx.send(f"Deleted {len(deleted)} messages.", delete_after=5)
+    else:
+        await ctx.send("You do not have permission to manage messages.")
+        
 client.run(os.getenv('TOKEN'))
