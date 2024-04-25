@@ -234,21 +234,16 @@ async def give_role(ctx, member: discord.Member, role: discord.Role):
 
 @client.command(name='ping')
 async def ping(ctx):
-    try:
-        # Get the current timestamp
-        before = time.monotonic()
-        # Send a temporary message to measure round-trip time
-        message = await ctx.send("Pinging...")
-        # Calculate the round-trip time (latency)
-        latency = (time.monotonic() - before) * 1000
-        # Get the server's latency (API response time)
-        server_latency = round(client.latency * 1000)
-        # Edit the temporary message with the actual latency
-        embed = discord.Embed(title="Server and Bot Ping", color=discord.Color.green())
-        embed.add_field(name="Bot Ping", value=f"{latency:.2f} ms", inline=False)
-        embed.add_field(name="Server Ping", value=f"{server_latency} ms", inline=False)
-        await message.edit(content="", embed=embed)
-    except Exception as e:
-        await ctx.send(f"An error occurred: {e}")
+    start_time = time.time()
+    message = await ctx.send("Pinging...")
+    end_time = time.time()
+
+    bot_latency = round((end_time - start_time) * 1000)  # Bot latency in milliseconds
+    server_latency = round((message.created_at - ctx.message.created_at).total_seconds() * 1000)  # Server latency in milliseconds
+
+    embed = discord.Embed(title="Bot and Server Ping 🟢", color=discord.Color.green())
+    embed.add_field(name="Bot Ping", value=f"```{bot_latency}ms```", inline=True)
+    embed.add_field(name="Server Ping", value=f"```{server_latency}ms```", inline=True)
+    await message.edit(content="", embed=embed)
 
 client.run(os.getenv('TOKEN'))
