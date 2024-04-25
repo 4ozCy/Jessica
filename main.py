@@ -1,4 +1,3 @@
-import time
 import discord
 from discord.ext import commands
 import aiohttp
@@ -98,7 +97,7 @@ async def send_joke(ctx):
 
 @client.command(name='cmd')
 async def send_help(ctx):
-    embed = discord.Embed(title="", color=0x3498db)
+    embed = discord.Embed(title="Commands list", color=0x3498db)
     embed.add_field(name="quote", value="send a random inspirational quote.", inline=False)
     embed.add_field(name="rizz", value="Rizz You Up", inline=False)
     embed.add_field(name="joke", value="Tells a random joke.", inline=False)
