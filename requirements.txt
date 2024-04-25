@@ -2,4 +2,4 @@ discord.py
 aiohttp
 python-dotenv
 Flask
-python
+python==3.10.0
