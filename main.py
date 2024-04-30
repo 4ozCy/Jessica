@@ -109,7 +109,7 @@ async def send_help(ctx):
     embed.add_field(name="punch/p", value="punch you in the f**king face", inline=False)
     embed.add_field(name="giverole/gr", value="give role to someone", inline=False)
     embed.add_field(name="Purge", value="delete massage in specific channel", inline=False)
-    embed.add_field(name="anti_link/al", value=" delete any link", inline=False)
+    embed.add_field(name="anti_link/al", value="delete any link", inline=False)
     await ctx.send(embed=embed)
 
 @client.command(name='insult', aliases=['in'])
