@@ -108,8 +108,8 @@ async def send_help(ctx):
     embed.add_field(name="autorole/ar", value="setup an auto-role here how to use this cmd (use .ar and mention role that you want to put to Autorole and mention channel for Autorole log)", inline=False)
     embed.add_field(name="punch/p", value="punch you in the f**king face", inline=False)
     embed.add_field(name="giverole/gr", value="give role to someone", inline=False)
-    embed.add_field(name="auditlog/al", value="send an audit log to the specific channel", inline=False)
     embed.add_field(name="Purge", value="delete massage in specific channel", inline=False)
+    embed.add_field(name="anti_link/al", value=" delete any link", inline=False)
     await ctx.send(embed=embed)
 
 @client.command(name='insult', aliases=['in'])
@@ -242,4 +242,25 @@ async def purge(ctx, amount: int):
     else:
         await ctx.send("You do not have permission to manage messages.")
         
+@client.command(name='anti_link', aliases=['al')
+async def toggle_antilink(ctx):
+    global anti_link_enabled
+    anti_link_enabled = not anti_link_enabled
+    await ctx.send(f"Anti-link {'enabled' if anti_link_enabled else 'disabled'}.")
+
+async def handle_links(message):
+    global anti_link_enabled
+    if anti_link_enabled and not message.author.bot:
+        if any(word.startswith('http', 'https') for word in message.content.split()):
+            await message.delete()
+            await message.channel.send(f"{message.author.mention}, please do not send links in this server.")
+
+@client.event
+async def on_message(message):
+    await handle_links(message)
+    if message.guild:
+        for channel in message.guild.channels:
+            if isinstance(channel, discord.TextChannel):
+                await handle_links(message)
+  
 client.run(os.getenv('TOKEN'))
