@@ -109,7 +109,6 @@ async def send_help(ctx):
     embed.add_field(name="punch/p", value="punch you in the f**king face", inline=False)
     embed.add_field(name="giverole/gr", value="give role to someone", inline=False)
     embed.add_field(name="Purge", value="delete massage in specific channel", inline=False)
-    embed.add_field(name="anti_link/al", value="delete any link", inline=False)
     await ctx.send(embed=embed)
 
 @client.command(name='insult', aliases=['in'])
@@ -242,11 +241,4 @@ async def purge(ctx, amount: int):
     else:
         await ctx.send("You do not have permission to manage messages.")
         
-@client.command(name='anti_link', aliases=['al'])
-async def delete_links(ctx):
-    async for message in ctx.channel.history(limit=10):
-        if "http://" in message.content or "https://" in message.content:
-            await message.delete()
-            await ctx.send(f"{message.author.mention}, link are not allowed here.")
-
 client.run(os.getenv('TOKEN'))
