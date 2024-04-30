@@ -242,7 +242,7 @@ async def purge(ctx, amount: int):
     else:
         await ctx.send("You do not have permission to manage messages.")
         
-@client.command(name='anti_link', aliases=['al')
+@client.command(name='anti_link', aliases=['al'])
 async def toggle_antilink(ctx):
     global anti_link_enabled
     anti_link_enabled = not anti_link_enabled
