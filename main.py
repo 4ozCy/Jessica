@@ -242,7 +242,7 @@ async def purge(ctx, amount: int):
     else:
         await ctx.send("You do not have permission to manage messages.")
         
-@client.command(name='anti_link', aliases['al'])
+@client.command(name='anti_link', aliases=['al'])
 async def delete_links(ctx):
     async for message in ctx.channel.history(limit=10):
         if "http://" in message.content or "https://" in message.content:
