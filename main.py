@@ -242,25 +242,11 @@ async def purge(ctx, amount: int):
     else:
         await ctx.send("You do not have permission to manage messages.")
         
-@client.command(name='anti_link', aliases=['al'])
-async def toggle_antilink(ctx):
-    global anti_link_enabled
-    anti_link_enabled = not anti_link_enabled
-    await ctx.send(f"Anti-link {'enabled' if anti_link_enabled else 'disabled'}.")
-
-async def handle_links(message):
-    global anti_link_enabled
-    if anti_link_enabled and not message.author.bot:
-        if any(word.startswith('http', 'https') for word in message.content.split()):
+@client.command(name='anti_link', aliases['al'])
+async def delete_links(ctx):
+    async for message in ctx.channel.history(limit=10):
+        if "http://" in message.content or "https://" in message.content:
             await message.delete()
-            await message.channel.send(f"{message.author.mention}, please do not send links in this server.")
+            await ctx.send(f"{message.author.mention}, link are not allowed here.")
 
-@client.event
-async def on_message(message):
-    await handle_links(message)
-    if message.guild:
-        for channel in message.guild.channels:
-            if isinstance(channel, discord.TextChannel):
-                await handle_links(message)
-  
 client.run(os.getenv('TOKEN'))
