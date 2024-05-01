@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from flask import Flask
 from threading import Thread
 from datetime import datetime
+afk_users = {}
 
 load_dotenv()
 
