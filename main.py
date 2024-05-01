@@ -109,6 +109,7 @@ async def send_help(ctx):
     embed.add_field(name="punch/p", value="punch you in the f**king face", inline=False)
     embed.add_field(name="giverole/gr", value="give role to someone", inline=False)
     embed.add_field(name="Purge", value="delete massage in specific channel", inline=False)
+    embed.add_field(name="knock_knock/kk", value=name"send an random knock knock joke", inline=False)
     await ctx.send(embed=embed)
 
 @client.command(name='insult', aliases=['in'])
@@ -240,5 +241,17 @@ async def purge(ctx, amount: int):
         await ctx.send(f"Deleted {len(deleted)} messages.", delete_after=5)
     else:
         await ctx.send("You do not have permission to manage messages.")
+
+@client.command(name='knock_knock', aliases=['kk'])
+async def knockknock(ctx):
+    headers = {'Accept': 'application/json', 'X-RapidAPI-Key': 'c3934e3a3b444f29828fdea8d4520397'}
+    response = requests.get('https://humorapi.com/jokes/random?category=knock-knock', headers=headers)
+    if response.status_code == 200:
+        joke_data = response.json()
+        await ctx.send(joke_data['joke'])
+    else:
+        await ctx.send('Could not send a joke at this time.')
+
+
         
 client.run(os.getenv('TOKEN'))
