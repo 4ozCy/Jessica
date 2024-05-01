@@ -244,7 +244,7 @@ async def purge(ctx, amount: int):
 
 @client.command(name='knock_knock', aliases=['kk'])
 async def knockknock(ctx):
-    headers = {'X-RapidApi-Key': 'c3934e3a3b444f29828fdea8d4520397'}
+    headers = {'x-api-key': 'c3934e3a3b444f29828fdea8d4520397'}
     async with aiohttp.ClientSession() as session:
         async with session.get('https://api.humorapi.com/jokes/random?category=knock-knock') as response:
             if response.status == 200:
