@@ -288,12 +288,11 @@ async def spam(ctx, message: str, member: discord.Member, count: int):
 @client.command(name='meme')
 async def meme(ctx):
     async with aiohttp.ClientSession() as session:
-        async with session.get('https://www.reddit.com/r/memes/new.json?sort=hot') as response:
-            data = await response.json()
-            posts = data['data']['children']
-            random_post = random.choice(posts)
-            meme = random_post['data']
-            embed = discord.Embed(title=meme['title'])
+        async with session.get('https://api.imgflip.com/get_memes') as response:
+            meme_data = await response.json()
+            memes = meme_data['data']['memes']
+            meme = random.choice(memes)
+            embed = discord.Embed(title=meme['name'])
             embed.set_image(url=meme['url'])
             await ctx.send(embed=embed)
 
