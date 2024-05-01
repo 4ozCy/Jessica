@@ -57,7 +57,7 @@ async def fetch_joke():
     try:
         headers = {'x-api-key': 'c3934e3a3b444f29828fdea8d4520397'}
         async with aiohttp.ClientSession() as session:
-            async with session.get("", headers=headers) as response:
+            async with session.get("https://api.humorapi.com/jokes/random", headers=headers) as response:
                 data = await response.json()
                 return data.get("joke")
     except Exception as e:
@@ -110,7 +110,6 @@ async def send_help(ctx):
     embed.add_field(name="punch/p", value="punch you in the f**king face", inline=False)
     embed.add_field(name="giverole/gr", value="give role to someone", inline=False)
     embed.add_field(name="Purge", value="delete massage in specific channel", inline=False)
-    embed.add_field(name="knock_knock/kk", value="send an random knock knock joke", inline=False)
     await ctx.send(embed=embed)
 
 @client.command(name='insult', aliases=['in'])
