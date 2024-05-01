@@ -55,8 +55,9 @@ async def fetch_quote():
 
 async def fetch_joke():
     try:
+        headers = {'x-api-key': 'c3934e3a3b444f29828fdea8d4520397'}
         async with aiohttp.ClientSession() as session:
-            async with session.get("https://icanhazdadjoke.com/", headers={"Accept": "application/json"}) as response:
+            async with session.get("", headers=headers) as response:
                 data = await response.json()
                 return data.get("joke")
     except Exception as e:
@@ -241,16 +242,5 @@ async def purge(ctx, amount: int):
         await ctx.send(f"Deleted {len(deleted)} messages.", delete_after=5)
     else:
         await ctx.send("You do not have permission to manage messages.")
-
-@client.command(name='knock_knock', aliases=['kk'])
-async def knockknock(ctx):
-    headers = {'x-api-key': 'c3934e3a3b444f29828fdea8d4520397'}
-    async with aiohttp.ClientSession() as session:
-        async with session.get('https://api.humorapi.com/jokes/random?category=knock-knock', headers=headers) as response:
-            if response.status == 200:
-                joke_data = await response.json()
-                await ctx.send(joke_data['joke'])
-            else:
-                await ctx.send('Could not fetch a joke at this time.')
                 
 client.run(os.getenv('TOKEN'))
