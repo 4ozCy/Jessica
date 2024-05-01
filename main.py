@@ -5,6 +5,7 @@ import os
 from dotenv import load_dotenv
 from flask import Flask
 from threading import Thread
+from datetime import datetime
 
 load_dotenv()
 
@@ -241,5 +242,36 @@ async def purge(ctx, amount: int):
         await ctx.send(f"Deleted {len(deleted)} messages.", delete_after=5)
     else:
         await ctx.send("You do not have permission to manage messages.")
+
+@client.command(name='afk')
+async def afk(ctx, *, reason="No reason provided"):
+    global afk_users
+    afk_users[ctx.author.id] = {'reason': reason, 'time': datetime.utcnow()}
+    await ctx.send(f"{ctx.author.display_name} is now AFK: {reason}")
+
+@client.event
+async def on_message(message):
+    if message.author.bot:
+        return
+
+    current_time = datetime.utcnow()
+    if message.author.id in afk_users:
+        afk_time = afk_users[message.author.id]['time']
+        duration = current_time - afk_time
+        hours, remainder = divmod(int(duration.total_seconds()), 3600)
+        minutes, seconds = divmod(remainder, 60)
+        await message.channel.send(f"Welcome back {message.author.display_name}, you were AFK for {hours} hours, {minutes} minutes.")
+        afk_users.pop(message.author.id)
+
+    mentions = [mention for mention in message.mentions if mention.id in afk_users]
+    for mention in mentions:
+        afk_time = afk_users[mention.id]['time']
+        duration = current_time - afk_time
+        hours, remainder = divmod(int(duration.total_seconds()), 3600)
+        minutes, seconds = divmod(remainder, 60)
+        await message.channel.send(f"{mention.display_name} is AFK: {afk_users[mention.id]['reason']} - AFK for {hours} hours, {minutes} minutes.")
+
+    await bot.process_commands(message)
+
                 
 client.run(os.getenv('TOKEN'))
