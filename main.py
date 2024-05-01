@@ -244,14 +244,13 @@ async def purge(ctx, amount: int):
 
 @client.command(name='knock_knock', aliases=['kk'])
 async def knockknock(ctx):
-    headers = {'Accept': 'application/json', 'X-RapidAPI-Key': 'c3934e3a3b444f29828fdea8d4520397'}
-    response = requests.get('https://humorapi.com/jokes/random?category=knock-knock', headers=headers)
-    if response.status_code == 200:
-        joke_data = response.json()
-        await ctx.send(joke_data['joke'])
-    else:
-        await ctx.send('Could not send a joke at this time.')
-
-
-        
+    headers = {'X-RapidApi-Key': 'c3934e3a3b444f29828fdea8d4520397'}
+    async with aiohttp.ClientSession() as session:
+        async with session.get('https://api.humorapi.com/jokes/random?category=knock-knock') as response:
+            if response.status == 200:
+                joke_data = await response.json()
+                await ctx.send(joke_data['joke'])
+            else:
+                await ctx.send('Could not fetch a joke at this time.')
+                
 client.run(os.getenv('TOKEN'))
