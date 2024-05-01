@@ -248,7 +248,7 @@ async def purge(ctx, amount: int):
 async def afk(ctx, *, reason="No reason provided"):
     global afk_users
     afk_users[ctx.author.id] = {'reason': reason, 'time': datetime.utcnow()}
-    await ctx.send(f"{ctx.author.display_name} is now AFK: `{reason}`")
+    await ctx.send(f"{ctx.author.mention} is now AFK: `{reason}`")
 
 @client.event
 async def on_message(message):
