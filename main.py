@@ -275,13 +275,12 @@ async def on_message(message):
     await client.process_commands(message)
 
 @client.command(name='spam')
-async def spam(ctx, member: discord.Member, count: int):
+async def spam(ctx, message: str, member: discord.Member, count: int):
     if count > 30:  # Limit the count to prevent abuse
-        await ctx.send("Error: Too many mentions to spam.")
+        await ctx.send("Error: Too many messages to spam.")
         return
 
-    mention = member.mention
     for _ in range(count):
-        await ctx.send(mention)
+        await ctx.send(f"{message} {member.mention}")
 
 client.run(os.getenv('TOKEN'))
