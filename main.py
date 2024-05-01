@@ -248,7 +248,7 @@ async def purge(ctx, amount: int):
 async def afk(ctx, *, reason="No reason provided"):
     global afk_users
     afk_users[ctx.author.id] = {'reason': reason, 'time': datetime.utcnow()}
-    await ctx.send(f"{ctx.author.mention} is now AFK: `{reason}`")
+    await ctx.send(f"{ctx.author.mention} is now AFK Reason: `{reason}`")
 
 @client.event
 async def on_message(message):
@@ -261,7 +261,7 @@ async def on_message(message):
         duration = current_time - afk_time
         hours, remainder = divmod(int(duration.total_seconds()), 3600)
         minutes, seconds = divmod(remainder, 60)
-        await message.channel.send(f"Welcome back {message.author.display_name}, you were AFK for {hours} hours, {minutes} minutes.")
+        await message.channel.send(f"Welcome back {message.author.mention}, you were AFK for {hours} hours, {minutes} minutes.")
         afk_users.pop(message.author.id)
 
     mentions = [mention for mention in message.mentions if mention.id in afk_users]
