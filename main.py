@@ -112,6 +112,8 @@ async def send_help(ctx):
     embed.add_field(name="punch/p", value="punch you in the f**king face", inline=False)
     embed.add_field(name="giverole/gr", value="give role to someone", inline=False)
     embed.add_field(name="Purge", value="delete massage in specific channel", inline=False)
+    embed.add_field(name="afk", value="away from keyboard", inline=False)
+    embed.add_field(name="meme", value="send an random meme", inline=False)
     await ctx.send(embed=embed)
 
 @client.command(name='insult', aliases=['in'])
@@ -282,5 +284,17 @@ async def spam(ctx, message: str, member: discord.Member, count: int):
 
     for _ in range(count):
         await ctx.send(f"{message} {member.mention}")
+
+@client.command(name='meme')
+async def meme(ctx):
+    async with aiohttp.ClientSession() as session:
+        async with session.get('https://www.reddit.com/r/memes/new.json?sort=hot') as response:
+            data = await response.json()
+            posts = data['data']['children']
+            random_post = random.choice(posts)
+            meme = random_post['data']
+            embed = discord.Embed(title=meme['title'])
+            embed.set_image(url=meme['url'])
+            await ctx.send(embed=embed)
 
 client.run(os.getenv('TOKEN'))
