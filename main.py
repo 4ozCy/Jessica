@@ -330,14 +330,14 @@ async def smash_or_pass(ctx):
 async def serverinfo(ctx):
     guild = ctx.guild
     embed = discord.Embed(title=f"{guild.name} Server Information", color=discord.Color.blue())
-    embed.set_thumbnail(url=str(guild.icon_url)
-    embed.add_field(name="Owner", value=guild.owner.mention, inline=True)
+    embed.set_thumbnail(url=str(guild.icon_url))
+    embed.add_field(name="Owner", value=guild.owner.mention if guild.owner else 'N/A', inline=True)
     embed.add_field(name="Server ID", value=guild.id, inline=True)
-    embed.add_field(name="Region", value=str(guild.region), inline=True)
     embed.add_field(name="Member Count", value=guild.member_count, inline=True)
     embed.add_field(name="Creation Date", value=guild.created_at.strftime("%Y-%m-%d %H:%M:%S"), inline=True)
     embed.add_field(name="Role Count", value=len(guild.roles), inline=True)
     embed.add_field(name="Emoji Count", value=len(guild.emojis), inline=True)
+    embed.set_image(url=str(guild.icon_url))
     await ctx.send(embed=embed)
 
 client.run(os.getenv('TOKEN'))
