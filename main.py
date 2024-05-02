@@ -115,6 +115,8 @@ async def send_help(ctx):
     embed.add_field(name="Purge", value="delete massage in specific channel", inline=False)
     embed.add_field(name="afk", value="away from keyboard", inline=False)
     embed.add_field(name="meme", value="send an random meme", inline=False)
+    embed.add_field(name="avatar/av", value="you already what this is", inline=False)
+    embed.add_field(name="server_info/sf", value="get server information", inline=False)
     await ctx.send(embed=embed)
 
 @client.command(name='insult', aliases=['in'])
@@ -297,34 +299,13 @@ async def meme(ctx):
             embed.set_image(url=meme['url'])
             await ctx.send(embed=embed)
 
-class SmashOrPassView(discord.ui.View):
-    def __init__(self, url):
-        super().__init__()
-        self.add_item(discord.ui.Button(style=discord.ButtonStyle.success, label="Smash", custom_id="smash"))
-        self.add_item(discord.ui.Button(style=discord.ButtonStyle.danger, label="Pass", custom_id="pass"))
-        self.url = url
-
-    @discord.ui.button(label="Smash", style=discord.ButtonStyle.success, custom_id="smash")
-    async def smash_button_callback(self, button, interaction):
-        await interaction.response.send_message(f"You chose to Smash! {self.url}", ephemeral=True)
-
-    @discord.ui.button(label="Pass", style=discord.ButtonStyle.danger, custom_id="pass")
-    async def pass_button_callback(self, button, interaction):
-        await interaction.response.send_message("You chose to Pass!", ephemeral=True)
-
-@client.command(name='smash_or_pass', aliases=['sp'])
-async def smash_or_pass(ctx):
-    async with aiohttp.ClientSession() as session:
-        async with session.get('https://api.waifu.im/sfw/waifu/') as response:
-            if response.status == 200:
-                data = await response.json()
-                image_url = data['images'][0]['url']
-                embed = discord.Embed(title="Smash or Pass?", color=discord.Color.blue())
-                embed.set_image(url=image_url)
-                view = SmashOrPassView(url=image_url)
-                await ctx.send(embed=embed, view=view)
-            else:
-                await ctx.send("Couldn't send an image at the moment, please try again later.")
+@client.command(name='avatar', aliases=['av'])
+async def avatar(ctx, *, member: discord.Member = None):
+    if not member:
+        member = ctx.author
+    embed = discord.Embed(title=f"{member.name}'s Avatar", color=discord.Color.blue())
+    embed.set_image(url=member.avatar_url)
+    await ctx.send(embed=embed)
 
 @client.command(name='server_info', aliases=['sf'])
 async def serverinfo(ctx):
