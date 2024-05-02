@@ -320,4 +320,17 @@ async def serverinfo(ctx):
     embed.add_field(name="Emoji Count", value=len(guild.emojis), inline=True)
     await ctx.send(embed=embed)
 
+@client.command(name='random_fact', aliases=['rf'])
+async def randomfact(ctx):
+    async with aiohttp.ClientSession() as session:
+        async with session.get('https://www.boredapi.com/api/activity') as response:
+            if response.status == 200:
+                data = await response.json()
+                fact = data['activity']
+                embed = discord.Embed(title="Random Fact", description=fact, color=discord.Color.blue())
+                await ctx.send(embed=embed)
+            else:
+                await ctx.send("I couldn't send a fact at the moment, please try again later.")
+
+
 client.run(os.getenv('TOKEN'))
