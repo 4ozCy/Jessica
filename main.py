@@ -304,7 +304,7 @@ async def avatar(ctx, *, member: discord.Member = None):
     if not member:
         member = ctx.author
     embed = discord.Embed(title=f"{member.name}'s Avatar", color=discord.Color.blue())
-    embed.set_image(url=member.avatar_url)
+    embed.set_image(url=member.avatar.url if member.avatar else member.default_avatar.url)
     await ctx.send(embed=embed)
 
 @client.command(name='server_info', aliases=['sf'])
