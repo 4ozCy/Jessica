@@ -297,4 +297,47 @@ async def meme(ctx):
             embed.set_image(url=meme['url'])
             await ctx.send(embed=embed)
 
+class SmashOrPassView(discord.ui.View):
+    def __init__(self, url):
+        super().__init__()
+        self.add_item(discord.ui.Button(style=discord.ButtonStyle.success, label="Smash", custom_id="smash"))
+        self.add_item(discord.ui.Button(style=discord.ButtonStyle.danger, label="Pass", custom_id="pass"))
+        self.url = url
+
+    @discord.ui.button(label="Smash", style=discord.ButtonStyle.success, custom_id="smash")
+    async def smash_button_callback(self, button, interaction):
+        await interaction.response.send_message(f"You chose to Smash! {self.url}", ephemeral=True)
+
+    @discord.ui.button(label="Pass", style=discord.ButtonStyle.danger, custom_id="pass")
+    async def pass_button_callback(self, button, interaction):
+        await interaction.response.send_message("You chose to Pass!", ephemeral=True)
+
+@client.command(name='smash_or_pass', aliases=['sp'])
+async def smash_or_pass(ctx):
+    async with aiohttp.ClientSession() as session:
+        async with session.get('https://api.waifu.im/sfw/waifu/') as response:
+            if response.status == 200:
+                data = await response.json()
+                image_url = data['images'][0]['url']
+                embed = discord.Embed(title="Smash or Pass?", color=discord.Color.blue())
+                embed.set_image(url=image_url)
+                view = SmashOrPassView(url=image_url)
+                await ctx.send(embed=embed, view=view)
+            else:
+                await ctx.send("Couldn't send an image at the moment, please try again later.")
+
+@client.command(name='server_info', aliases=['sf'])
+async def serverinfo(ctx):
+    guild = ctx.guild
+    embed = discord.Embed(title=f"{guild.name} Server Information", color=discord.Color.blue())
+    embed.set_thumbnail(url=str(guild.icon_url))
+    embed.add_field(name="Owner", value=guild.owner.mention, inline=True)
+    embed.add_field(name="Server ID", value=guild.id, inline=True)
+    embed.add_field(name="Region", value=str(guild.region), inline=True)
+    embed.add_field(name="Member Count", value=guild.member_count, inline=True)
+    embed.add_field(name="Creation Date", value=guild.created_at.strftime("%Y-%m-%d %H:%M:%S"), inline=True)
+    embed.add_field(name="Role Count", value=len(guild.roles), inline=True)
+    embed.add_field(name="Emoji Count", value=len(guild.emojis), inline=True)
+    await ctx.send(embed=embed)
+
 client.run(os.getenv('TOKEN'))
