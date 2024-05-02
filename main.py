@@ -330,7 +330,7 @@ async def smash_or_pass(ctx):
 async def serverinfo(ctx):
     guild = ctx.guild
     embed = discord.Embed(title=f"{guild.name} Server Information", color=discord.Color.blue())
-    embed.set_thumbnail(url=str(guild.icon_url))
+    embed.set_thumbnail(url=str(guild.icon_url)
     embed.add_field(name="Owner", value=guild.owner.mention, inline=True)
     embed.add_field(name="Server ID", value=guild.id, inline=True)
     embed.add_field(name="Region", value=str(guild.region), inline=True)
