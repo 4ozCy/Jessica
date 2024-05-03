@@ -110,13 +110,15 @@ async def send_help(ctx):
     embed.add_field(name="slap", value="Slap you in the face", inline=False)
     embed.add_field(name="Breakup/bp", value="If you want to breakup with your love use this command.", inline=False)
     embed.add_field(name="autorole/ar", value="setup an auto-role here how to use this cmd (use .ar and mention role that you want to put to Autorole and mention channel for Autorole log)", inline=False)
-    embed.add_field(name="punch/p", value="punch you in the f**king face", inline=False)
+    embed.add_field(name="punch/p", value="punch you in the face", inline=False)
     embed.add_field(name="giverole/gr", value="give role to someone", inline=False)
     embed.add_field(name="Purge", value="delete massage in specific channel", inline=False)
     embed.add_field(name="afk", value="away from keyboard", inline=False)
     embed.add_field(name="meme", value="send an random meme", inline=False)
-    embed.add_field(name="avatar/av", value="you already what this is", inline=False)
+    embed.add_field(name="avatar/av", value="you already know what this is", inline=False)
     embed.add_field(name="server_info/sf", value="get server information", inline=False)
+    embed.add_field(name="dare", value="send a dare to you", inline=False)
+    embed.add_field(name="truth", value="ask you an question", inline=False)
     await ctx.send(embed=embed)
 
 @client.command(name='insult', aliases=['in'])
@@ -320,17 +322,17 @@ async def serverinfo(ctx):
     embed.add_field(name="Emoji Count", value=len(guild.emojis), inline=True)
     await ctx.send(embed=embed)
 
-@client.command(name='dare')
+@@client.command(name='dare')
 async def dare(ctx):
     async with aiohttp.ClientSession() as session:
-        async with session.get('https://www.boredapi.com/api/activity') as response:
+        async with session.get('https://api.truthordarebot.xyz/v1/dare') as response:
             if response.status == 200:
                 data = await response.json()
-                fact = data['activity']
-                embed = discord.Embed(description=fact, color=discord.Color.blue())
+                dare_question = data['question']
+                embed = discord.Embed(title="Dare", description=dare_question, color=discord.Color.red())
                 await ctx.send(embed=embed)
             else:
-                await ctx.send("I couldn't send a dare at the moment, please try again later.")
+                await ctx.send("I couldn't dare you at the moment, please try again later.")
 
 @client.command(name='truth')
 async def truth(ctx):
