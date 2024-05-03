@@ -321,7 +321,7 @@ async def serverinfo(ctx):
     await ctx.send(embed=embed)
 
 @client.command(name='dare')
-async def randomfact(ctx):
+async def dare(ctx):
     async with aiohttp.ClientSession() as session:
         async with session.get('https://www.boredapi.com/api/activity') as response:
             if response.status == 200:
