@@ -322,7 +322,7 @@ async def serverinfo(ctx):
     embed.add_field(name="Emoji Count", value=len(guild.emojis), inline=True)
     await ctx.send(embed=embed)
 
-@@client.command(name='dare')
+@client.command(name='dare')
 async def dare(ctx):
     async with aiohttp.ClientSession() as session:
         async with session.get('https://api.truthordarebot.xyz/v1/dare') as response:
