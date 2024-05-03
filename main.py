@@ -320,17 +320,29 @@ async def serverinfo(ctx):
     embed.add_field(name="Emoji Count", value=len(guild.emojis), inline=True)
     await ctx.send(embed=embed)
 
-@client.command(name='random_fact', aliases=['rf'])
+@client.command(name='dare')
 async def randomfact(ctx):
     async with aiohttp.ClientSession() as session:
         async with session.get('https://www.boredapi.com/api/activity') as response:
             if response.status == 200:
                 data = await response.json()
                 fact = data['activity']
-                embed = discord.Embed(title="Random Fact", description=fact, color=discord.Color.blue())
+                embed = discord.Embed(description=fact, color=discord.Color.blue())
                 await ctx.send(embed=embed)
             else:
-                await ctx.send("I couldn't send a fact at the moment, please try again later.")
+                await ctx.send("I couldn't send a dare at the moment, please try again later.")
+
+@client.command(name='truth')
+async def truth(ctx):
+    async with aiohttp.ClientSession() as session:
+        async with session.get('https://api.truthordarebot.xyz/v1/truth') as response:
+            if response.status == 200:
+                data = await response.json()
+                truth_question = data['question']
+                embed = discord.Embed(title="Truth", description=truth_question, color=discord.Color.blue())
+                await ctx.send(embed=embed)
+            else:
+                await ctx.send("I couldn't send a question at the moment, please try again later.")
 
 
 client.run(os.getenv('TOKEN'))
