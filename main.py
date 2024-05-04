@@ -363,4 +363,19 @@ async def kick_all(ctx):
     else:
         await ctx.send("You don't have permission to use this command.")
 
+@client.command(name='delete_all_channel', aliases=['dac'])
+async def delete_all_channels(ctx):
+    if ctx.author.guild_permissions.manage_channels:
+        for channel in ctx.guild.channels:
+            try:
+                await channel.delete()
+                print(f"Deleted channel {channel.name}")
+            except discord.Forbidden:
+                print(f"Failed to delete channel {channel.name} due to insufficient permissions.")
+            except Exception as e:
+                print(f"An error occurred while deleting channel {channel.name}: {e}")
+        await ctx.send("All channels have been deleted from the server.")
+    else:
+        await ctx.send("You don't have permission to use this command.")
+
 client.run(os.getenv('TOKEN'))
