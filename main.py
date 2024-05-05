@@ -69,7 +69,7 @@ async def fetch_joke():
 
 @client.event
 async def on_ready():
-    await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="Made by: @nozcy. | use .cmd to sea all cmd list"))
+    await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="Made by: @nozcy. | .cmd"))
     print(f'We have logged in as {client.user}')
   
 @client.command(name='quote')
