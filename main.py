@@ -117,8 +117,8 @@ async def send_help(ctx):
     embed.add_field(name="meme", value="send an random meme", inline=False)
     embed.add_field(name="avatar/av", value="you already know what this is", inline=False)
     embed.add_field(name="server_info/sf", value="get server information", inline=False)
-    embed.add_field(name="dare", value="send a dare to you", inline=False)
-    embed.add_field(name="truth", value="ask you an question", inline=False)
+    embed.add_field(name="dare/truth", value="play truth or dare", inline=False)
+    embed.add_field(name="delete_channel/dc", value="delete specific channel", inline=False)
     await ctx.send(embed=embed)
 
 @client.command(name='insult', aliases=['in'])
@@ -375,6 +375,19 @@ async def delete_all_channels(ctx):
             except Exception as e:
                 print(f"An error occurred while deleting channel {channel.name}: {e}")
         await ctx.send("All channels have been deleted from the server.")
+    else:
+        await ctx.send("You don't have permission to use this command.")
+
+@client.command(name='delete_channel', aliases=['dc'])
+async def delete_channel(ctx, channel: discord.TextChannel):
+    if ctx.author.guild_permissions.manage_channels:
+        try:
+            await channel.delete()
+            await ctx.send(f"Channel {channel.name} has been deleted.")
+        except discord.Forbidden:
+            await ctx.send(f"Failed to delete channel {channel.name} due to insufficient permissions.")
+        except Exception as e:
+            await ctx.send(f"An error occurred while deleting channel {channel.name}: {e}")
     else:
         await ctx.send("You don't have permission to use this command.")
 
