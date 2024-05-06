@@ -7,6 +7,7 @@ from flask import Flask
 from threading import Thread
 from datetime import datetime
 import random
+import pyjoke
 afk_users = {}
 
 load_dotenv()
@@ -56,17 +57,6 @@ async def fetch_quote():
         print(f"An error occurred while fetching quote: {e}")
         return None
 
-async def fetch_joke():
-    try:
-        headers = {'x-api-key': 'c3934e3a3b444f29828fdea8d4520397'}
-        async with aiohttp.ClientSession() as session:
-            async with session.get("https://api.humorapi.com/jokes/random", headers=headers) as response:
-                data = await response.json()
-                return data.get("joke")
-    except Exception as e:
-        print(f"An error occurred while fetching a joke: {e}")
-        return None
-
 @client.event
 async def on_ready():
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="Made by: @nozcy. | .cmd"))
@@ -91,13 +81,11 @@ async def send_rizz(ctx):
         await ctx.send("Sorry, I couldn't fetch a pickup line at the moment.")
 
 @client.command(name='joke')
-async def send_joke(ctx):
-    joke = await fetch_joke()
-    if joke:
-        embed = discord.Embed(title="Joke", description=joke, color=0x3498db)
-        await ctx.send(embed=embed)
-    else:
-        await ctx.send("Sorry, I couldn't fetch a joke at the moment.")
+async def joke(ctx):
+    # Create an embed instance
+    embed = discord.Embed(description=pyjoke.get_joke(), color=0x00ff00)
+    # Send the embed in the current channel
+    await ctx.send(embed=embed)
 
 @client.command(name='cmd')
 async def send_help(ctx):
