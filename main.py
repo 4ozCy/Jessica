@@ -7,7 +7,6 @@ from flask import Flask
 from threading import Thread
 from datetime import datetime
 import random
-import pyjoke
 afk_users = {}
 
 load_dotenv()
@@ -82,10 +81,20 @@ async def send_rizz(ctx):
 
 @client.command(name='joke')
 async def joke(ctx):
-    # Create an embed instance
-    embed = discord.Embed(description=pyjoke.get_joke(), color=0x00ff00)
-    # Send the embed in the current channel
-    await ctx.send(embed=embed)
+    async with aiohttp.ClientSession() as session:
+        async with session.get('https://v2.jokeapi.dev/joke/Any') as response:
+            if response.status:
+                data = await response.json()
+                if data['type'] == 'single':
+                    joke = data['joke']
+                else:  # For a two-part joke
+                    joke = f"{data['setup']} - {data['delivery']}"
+
+                # Create an embed instance with the joke
+                embed = discord.Embed(description=joke, color=0x00ff00)
+
+                await ctx.send(embed=embed)
+
 
 @client.command(name='cmd')
 async def send_help(ctx):
