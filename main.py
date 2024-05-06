@@ -392,15 +392,14 @@ async def delete_channel(ctx, channel: discord.TextChannel):
         await ctx.send("You don't have permission to use this command.")
 
 @client.command(name='add_emoji', aliases=['aj'])
-async def add_emoji(ctx, emoji_url: str):
+async def add_emoji(ctx, name: str, emoji_url: str):
     if ctx.author.guild_permissions.manage_emojis:
         async with ctx.typing():
             try:
                 async with aiohttp.ClientSession() as session:
                     async with session.get(emoji_url) as response:
                         image_data = await response.read()
-                emoji_name = emoji_url.split('/')[-1].split('.')[0]  # Extract emoji name from file name
-                emoji = await ctx.guild.create_custom_emoji(name=emoji_name, image=image_data)
+                emoji = await ctx.guild.create_custom_emoji(name=name, image=image_data)
                 await ctx.send(f"Emoji {emoji.name} has been added.")
             except discord.Forbidden:
                 await ctx.send("Failed to add emoji due to insufficient permissions.")
