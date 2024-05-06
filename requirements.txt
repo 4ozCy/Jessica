@@ -2,4 +2,4 @@ discord.py
 aiohttp
 python-dotenv
 Flask
-pyjoke==0.6.0
+pyjoke==0.3.3
