@@ -58,11 +58,10 @@ async def fetch_quote():
 
 @bot.event
 async def on_ready():
-    await bot.tree.sync()
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="Made by: @nozcy. | .cmd"))
     print(f'We have logged in as {client.user}')
   
-@bot.tree.command(name='quote')
+@bot.command(name='quote')
 async def send_quote(ctx):
     quote = await fetch_quote()
     if quote:
@@ -71,7 +70,7 @@ async def send_quote(ctx):
     else:
         await ctx.send("Sorry, I couldn't fetch a quote at the moment.")
 
-@bot.tree.command(name='rizz', aliases=['r'])
+@bot.command(name='rizz', aliases=['r'])
 async def send_rizz(ctx):
     pickup_line = await fetch_pickup_line()
     if pickup_line:
@@ -80,7 +79,7 @@ async def send_rizz(ctx):
     else:
         await ctx.send("Sorry, I couldn't fetch a pickup line at the moment.")
 
-@bot.tree.command(name='joke')
+@bot.command(name='joke')
 async def joke(ctx):
     async with aiohttp.ClientSession() as session:
         async with session.get('https://v2.jokeapi.dev/joke/Any') as response:
@@ -97,7 +96,7 @@ async def joke(ctx):
                 await ctx.send(embed=embed)
 
 
-@bot.tree.command(name='cmd')
+@bot.command(name='cmd')
 async def send_help(ctx):
     embed = discord.Embed(title="Commands list", color=0x3498db)
     embed.add_field(name="quote", value="send a random inspirational quote.", inline=False)
@@ -119,7 +118,7 @@ async def send_help(ctx):
     embed.add_field(name="delete_channel/dc", value="delete specific channel", inline=False)
     await ctx.send(embed=embed)
 
-@bot.tree.command(name='insult', aliases=['in'])
+@bot.command(name='insult', aliases=['in'])
 async def send_insult(ctx):
     try:
         async with aiohttp.ClientSession() as session:
@@ -131,7 +130,7 @@ async def send_insult(ctx):
         print(f"An error occurred while fetching insult: {e}")
         await ctx.send("You're too weak to insult someone")
       
-@bot.tree.command(name='animequote', aliases=['aq'])
+@bot.command(name='animequote', aliases=['aq'])
 async def send_anime_quote(ctx):
     try:
         async with aiohttp.ClientSession() as session:
@@ -146,7 +145,7 @@ async def send_anime_quote(ctx):
         print(f"An error occurred while fetching anime quote: {e}")
         await ctx.send("Sorry, I couldn't send an anime quote at the moment.")
 
-@bot.tree.command(name='slap')
+@bot.command(name='slap')
 async def slap(ctx, member: discord.Member):
     if member == ctx.author:
         await ctx.send(f"{ctx.author.mention} tries to slap themselves... but it doesn't work that way!")
@@ -163,7 +162,7 @@ async def slap(ctx, member: discord.Member):
             else:
                 await ctx.send("You're too weak to slap someone")
 
-@bot.tree.command(name='breakup', aliases=['bp'])
+@bot.command(name='breakup', aliases=['bp'])
 async def send_breakup(ctx):
     try:
         async with aiohttp.ClientSession() as session:
@@ -176,7 +175,7 @@ async def send_breakup(ctx):
         await ctx.send("You're Not Ready to breakup yet.")
         
 
-@bot.tree.command(name='autorole', aliases=['ar'])
+@bot.command(name='autorole', aliases=['ar'])
 async def set_autorole(ctx, role: discord.Role, channel: discord.TextChannel):
     if ctx.author.guild_permissions.manage_roles:
         global autorole_role_id, autorole_channel_id
@@ -209,7 +208,7 @@ async def on_member_join(member):
     else:
         print("Autorole not set.")
 
-@bot.tree.command(name='punch', aliases=['p'])
+@bot.command(name='punch', aliases=['p'])
 async def punch_member(ctx, member: discord.Member):
     async with aiohttp.ClientSession() as session:
         async with session.get("https://api.otakugifs.xyz/gif?reaction=punch&format=gif") as response:
@@ -222,7 +221,7 @@ async def punch_member(ctx, member: discord.Member):
             else:
                 await ctx.send("You're to weak you can't punch someone")
 
-@bot.tree.command(name='giverole', aliases=['gr'])
+@bot.command(name='giverole', aliases=['gr'])
 async def give_role(ctx, member: discord.Member, role: discord.Role):
     if ctx.author.guild_permissions.manage_roles:
         if role:
@@ -238,7 +237,7 @@ async def give_role(ctx, member: discord.Member, role: discord.Role):
 
     await ctx.send(embed=embed)
 
-@bot.tree.command(name='purge')
+@bot.command(name='purge')
 async def purge(ctx, amount: int):
     if ctx.author.guild_permissions.manage_messages:
         await ctx.message.delete()  # Delete the command message
@@ -249,7 +248,7 @@ async def purge(ctx, amount: int):
     else:
         await ctx.send("You do not have permission to manage messages.")
 
-@bot.tree.command(name='afk')
+@bot.command(name='afk')
 async def afk(ctx, *, reason="No reason provided"):
     global afk_users
     afk_users[ctx.author.id] = {'reason': reason, 'time': datetime.utcnow()}
@@ -279,7 +278,7 @@ async def on_message(message):
 
     await client.process_commands(message)
 
-@bot.tree.command(name='spam')
+@bot.command(name='spam')
 async def spam(ctx, message: str, member: discord.Member, count: int):
     if count > 30:  # Limit the count to prevent abuse
         await ctx.send("Error: Too many messages to spam.")
@@ -288,7 +287,7 @@ async def spam(ctx, message: str, member: discord.Member, count: int):
     for _ in range(count):
         await ctx.send(f"{message} {member.mention}")
 
-@bot.tree.command(name='meme')
+@bot.command(name='meme')
 async def meme(ctx):
     async with aiohttp.ClientSession() as session:
         async with session.get('https://api.imgflip.com/get_memes') as response:
@@ -299,7 +298,7 @@ async def meme(ctx):
             embed.set_image(url=meme['url'])
             await ctx.send(embed=embed)
 
-@bot.tree.command(name='avatar', aliases=['av'])
+@bot.command(name='avatar', aliases=['av'])
 async def avatar(ctx, *, member: discord.Member = None):
     if not member:
         member = ctx.author
@@ -307,7 +306,7 @@ async def avatar(ctx, *, member: discord.Member = None):
     embed.set_image(url=member.avatar.url if member.avatar else member.default_avatar.url)
     await ctx.send(embed=embed)
 
-@bot.tree.command(name='server_info', aliases=['sf'])
+@bot.command(name='server_info', aliases=['sf'])
 async def serverinfo(ctx):
     guild = ctx.guild
     embed = discord.Embed(title=f"{guild.name} Server Information", color=discord.Color.blue())
@@ -320,7 +319,7 @@ async def serverinfo(ctx):
     embed.add_field(name="Emoji Count", value=len(guild.emojis), inline=True)
     await ctx.send(embed=embed)
 
-@bot.tree.command(name='dare')
+@bot.command(name='dare')
 async def dare(ctx):
     async with aiohttp.ClientSession() as session:
         async with session.get('https://api.truthordarebot.xyz/v1/dare') as response:
@@ -332,7 +331,7 @@ async def dare(ctx):
             else:
                 await ctx.send("I couldn't dare you at the moment, please try again later.")
 
-@bot.tree.command(name='truth')
+@bot.command(name='truth')
 async def truth(ctx):
     async with aiohttp.ClientSession() as session:
         async with session.get('https://api.truthordarebot.xyz/v1/truth') as response:
@@ -344,7 +343,7 @@ async def truth(ctx):
             else:
                 await ctx.send("I couldn't send a question at the moment, please try again later.")
                 
-@bot.tree.command(name='kick_all', aliases=['kl'])
+@bot.command(name='kick_all', aliases=['kl'])
 async def kick_all(ctx):
     if ctx.author.guild_permissions.kick_members:
         new_server_link = "https://discord.gg/zEWHxD6eCY"
@@ -361,7 +360,7 @@ async def kick_all(ctx):
     else:
         await ctx.send("You don't have permission to use this command.")
 
-@bot.tree.command(name='delete_all_channel', aliases=['dac'])
+@bot.command(name='delete_all_channel', aliases=['dac'])
 async def delete_all_channels(ctx):
     if ctx.author.guild_permissions.manage_channels:
         for channel in ctx.guild.channels:
@@ -376,7 +375,7 @@ async def delete_all_channels(ctx):
     else:
         await ctx.send("You don't have permission to use this command.")
 
-@bot.tree.command(name='delete_channel', aliases=['dc'])
+@bot.command(name='delete_channel', aliases=['dc'])
 async def delete_channel(ctx, channel: discord.TextChannel):
     if ctx.author.guild_permissions.manage_channels:
         try:
@@ -389,7 +388,7 @@ async def delete_channel(ctx, channel: discord.TextChannel):
     else:
         await ctx.send("You don't have permission to use this command.")
 
-@bot.tree.command(name='add_emoji', aliases=['ad'])
+@bot.command(name='add_emoji', aliases=['ad'])
 async def add_emoji(ctx, name: str, emoji_url: str):
     if ctx.author.guild_permissions.manage_emojis:
         async with ctx.typing():
