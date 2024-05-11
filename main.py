@@ -276,7 +276,7 @@ async def on_message(message):
         minutes, seconds = divmod(remainder, 60)
         await message.channel.send(f"{mention.display_name} is AFK: {afk_users[mention.id]['reason']} - AFK for {hours} hours, {minutes} minutes.")
 
-await client.process_commands(message)
+        await client.process_commands(message)
 
 @client.command(name='spam')
 async def spam(ctx, message: str, member: discord.Member, count: int):
