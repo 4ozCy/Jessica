@@ -340,38 +340,6 @@ async def truth(ctx):
                 await ctx.send(embed=embed)
             else:
                 await ctx.send("I couldn't send a question at the moment, please try again later.")
-                
-@bot.command(name='kick_all', aliases=['kl'])
-async def kick_all(ctx):
-    if ctx.author.guild_permissions.kick_members:
-        new_server_link = "https://discord.gg/zEWHxD6eCY"
-        for member in ctx.guild.members:
-            try:
-                if member != ctx.guild.owner and not member.guild_permissions.administrator:
-                    await member.kick(reason="Server security issue")
-                    print(f"Kicked {member} from the server.")
-            except discord.Forbidden:
-                print(f"Failed to kick {member} due to insufficient permissions.")
-            except Exception as e:
-                print(f"An error occurred while kicking {member}: {e}")
-        await ctx.send("All non-administrator members (except the server owner) have been kicked from the server. Join the new server using this link: " + new_server_link)
-    else:
-        await ctx.send("You don't have permission to use this command.")
-
-@bot.command(name='delete_all_channel', aliases=['dac'])
-async def delete_all_channels(ctx):
-    if ctx.author.guild_permissions.manage_channels:
-        for channel in ctx.guild.channels:
-            try:
-                await channel.delete()
-                print(f"Deleted channel {channel.name}")
-            except discord.Forbidden:
-                print(f"Failed to delete channel {channel.name} due to insufficient permissions.")
-            except Exception as e:
-                print(f"An error occurred while deleting channel {channel.name}: {e}")
-        await ctx.send("All channels have been deleted from the server.")
-    else:
-        await ctx.send("You don't have permission to use this command.")
 
 @bot.command(name='delete_channel', aliases=['dc'])
 async def delete_channel(ctx, channel: discord.TextChannel):
