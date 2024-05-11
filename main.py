@@ -58,8 +58,8 @@ async def fetch_quote():
 
 @bot.event
 async def on_ready():
-    await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="Made by: @nozcy. | .cmd"))
-    print(f'We have logged in as {client.user}')
+    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="Made by: @nozcy. | .cmd"))
+    print(f'We have logged in as {bot.user}')
   
 @bot.command(name='quote')
 async def send_quote(ctx):
