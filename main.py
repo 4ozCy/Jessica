@@ -116,6 +116,8 @@ async def send_help(ctx):
     embed.add_field(name="server_info/sf", value="get server information", inline=False)
     embed.add_field(name="dare/truth", value="play truth or dare", inline=False)
     embed.add_field(name="delete_channel/dc", value="delete specific channel", inline=False)
+    embed.add_field(name="lock/unlock", value="lock and unlock the specific channel", inline=True)
+    embed.add_field(name="server-lock/server-unlock", value="lock and unlock server", inline=True)
     await ctx.send(embed=embed)
 
 @client.command(name='insult', aliases=['in'])
@@ -374,6 +376,62 @@ async def add_emoji(ctx, name: str, emoji_url: str):
                 await ctx.send(f"Failed to add emoji: {e}")
             except Exception as e:
                 await ctx.send(f"An error occurred: {e}")
+    else:
+        await ctx.send("You don't have permission to use this command.")
+
+@client.command(name='lock')
+async def channel_lock(ctx, channel: discord.TextChannel):
+    if ctx.author.guild_permissions.manage_channels:
+        try:
+            await channel.set_permissions(ctx.guild.default_role, send_messages=False)
+            await ctx.send(f"Channel {channel.name} is now locked.")
+        except discord.Forbidden:
+            await ctx.send("Failed to lock channel due to insufficient permissions.")
+        except Exception as e:
+            await ctx.send(f"An error occurred: {e}")
+    else:
+        await ctx.send("You don't have permission to use this command.")
+
+@client.command(name='unlock')
+async def unlock_channel(ctx, channel: discord.TextChannel):
+    if ctx.author.guild_permissions.manage_channels:
+        try:
+            await channel.set_permissions(ctx.guild.default_role, send_messages=True)
+            await ctx.send(f"Channel {channel.name} is now unlocked.")
+        except discord.Forbidden:
+            await ctx.send("Failed to unlock channel due to insufficient permissions.")
+        except Exception as e:
+            await ctx.send(f"An error occurred: {e}")
+    else:
+        await ctx.send("You don't have permission to use this command.")
+
+@client.command(name='server-lock', aliases=['sl'])
+async def lockdown(ctx):
+    if ctx.author.guild_permissions.manage_channels:
+        try:
+            for channel in ctx.guild.channels:
+                if isinstance(channel, discord.TextChannel):
+                    await channel.set_permissions(ctx.guild.default_role, send_messages=False)
+            await ctx.send("Server is now locked.")
+        except discord.Forbidden:
+            await ctx.send("Failed to lock down server due to insufficient permissions.")
+        except Exception as e:
+            await ctx.send(f"An error occurred: {e}")
+    else:
+        await ctx.send("You don't have permission to use this command.")
+
+@client.command(name='server-unlock', aliases=['sun'])
+async def unlock_server(ctx):
+    if ctx.author.guild_permissions.manage_channels:
+        try:
+            for channel in ctx.guild.channels:
+                if isinstance(channel, discord.TextChannel):
+                    await channel.set_permissions(ctx.guild.default_role, send_messages=True)
+            await ctx.send("Server is now unlocked.")
+        except discord.Forbidden:
+            await ctx.send("Failed to unlock server due to insufficient permissions.")
+        except Exception as e:
+            await ctx.send(f"An error occurred: {e}")
     else:
         await ctx.send("You don't have permission to use this command.")
 
