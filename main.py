@@ -285,13 +285,17 @@ async def on_message(message):
 
 @client.command(name='spam')
 async def spam(ctx, message: str, member: discord.Member, count: int):
-    if count > 30:  # Limit the count to prevent abuse
+    allowed_user_id = '1072839015079870494', '1107744228773220473'
+    if str(ctx.author.id) != allowed_user_id:
+        await ctx.send("You are not authorized to use this command. (bot owner only)")
+        return
+    await ctx.message.delete()
+    if count > 50:
         await ctx.send("Error: Too many messages to spam.")
         return
-
     for _ in range(count):
         await ctx.send(f"{message} {member.mention}")
-
+        
 @client.command(name='meme')
 async def meme(ctx):
     async with aiohttp.ClientSession() as session:
