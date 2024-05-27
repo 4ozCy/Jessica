@@ -118,6 +118,7 @@ async def send_help(ctx):
     embed.add_field(name="delete_channel/dc", value="delete specific channel", inline=False)
     embed.add_field(name="lock/unlock", value="lock and unlock the specific channel", inline=True)
     embed.add_field(name="server-lock/server-unlock", value="lock and unlock server", inline=True)
+    embed.add_field(name="add-emoji", value="add emoji", inline=False)
     await ctx.send(embed=embed)
 
 @client.command(name='insult', aliases=['in'])
@@ -360,7 +361,7 @@ async def delete_channel(ctx, channel: discord.TextChannel):
     else:
         await ctx.send("You don't have permission to use this command.")
 
-@client.command(name='add_emoji', aliases=['ad'])
+@client.command(name='add-emoji', aliases=['ad'])
 async def add_emoji(ctx, name: str, emoji_url: str):
     if ctx.author.guild_permissions.manage_emojis:
         async with ctx.typing():
