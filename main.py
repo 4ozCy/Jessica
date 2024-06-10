@@ -440,4 +440,43 @@ async def unlock_server(ctx):
     else:
         await ctx.send("You don't have permission to use this command.")
 
+@client.command(name='bring', aliases=['br'])
+async def bring(ctx, member: discord.Member):
+    if not ctx.author.voice:
+        await ctx.send("You are not connected to a voice channel.")
+        return
+
+    author_vc = ctx.author.voice.channel
+    member_vc = member.voice.channel
+
+    if not member_vc:
+        await ctx.send(f"{member.display_name} is not connected to a voice channel.")
+        return
+
+    try:
+        await member.move_to(author_vc)
+        await ctx.send(f"{member.display_name} has been moved to {author_vc.name}.")
+    except discord.Forbidden:
+        await ctx.send("I don't have permission to move members.")
+
+@client.command(name='goto', aliases=['to'])
+async def teleport(ctx, member: discord.Member):
+    if not member.voice:
+        await ctx.send(f"{member.display_name} is not connected to a voice channel.")
+        return
+
+    try:
+        await ctx.author.move_to(member.voice.channel)
+        await ctx.send(f"You have been teleported to {member.display_name}'s voice channel.")
+    except discord.Forbidden:
+        await ctx.send("I don't have permission to move you to another voice channel.")
+
+@client.command(name='teleport', aliases=['tp'])
+async def tp(ctx, member: discord.Member, channel: discord.VoiceChannel):
+    try:
+        await member.move_to(channel)
+        await ctx.send(f"{member.display_name} has been teleported to {channel.name}.")
+    except discord.Forbidden:
+        await ctx.send(f"I don't have permission to move {member.display_name}.")
+        
 client.run(os.getenv('TOKEN'))
