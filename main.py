@@ -7,6 +7,7 @@ from flask import Flask
 from threading import Thread
 from datetime import datetime
 import random
+import requests
 afk_users = {}
 
 load_dotenv()
@@ -478,5 +479,24 @@ async def tp(ctx, member: discord.Member, channel: discord.VoiceChannel):
         await ctx.send(f"{member.display_name} has been teleported to {channel.name}.")
     except discord.Forbidden:
         await ctx.send(f"I don't have permission to move {member.display_name}.")
+
+@client.command(name='get-lyrics', aliases=['gl'])
+async def lyrics(ctx, *, query: str):
+    try:
+        formatted_query = query.replace(' ', '%20')
+        response = requests.get(f'https://api.lyrics.ovh/v1/{formatted_query}')
+
+        if response.status_code == 200:
+            data = response.json()
+            lyrics = data.get('lyrics')
+
+            embed = discord.Embed(title=f'Lyrics for "{query}"', description=f'```{lyrics}```', color=0x00ff00)
+            await ctx.send(embed=embed)
+
+        else:
+            await ctx.send(f'Failed to find lyrics for "{query}".')
+
+    except Exception as e:
+        await ctx.send(f'An error occurred: {e}')
         
 client.run(os.getenv('TOKEN'))
