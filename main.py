@@ -498,6 +498,6 @@ async def lyrics(ctx, *, query: str):
                     await ctx.send(f'Failed to find lyrics for "{query}". Please check the song title and try again.')
 
     except Exception as e:
-        await ctx.send(f'An error occurred: {e}
+        await ctx.send(f'An error occurred: {e}')
 
 client.run(os.getenv('TOKEN'))
