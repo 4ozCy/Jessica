@@ -484,19 +484,20 @@ async def tp(ctx, member: discord.Member, channel: discord.VoiceChannel):
 async def lyrics(ctx, *, query: str):
     try:
         formatted_query = query.replace(' ', '%20')
-        response = requests.get(f'https://api.lyrics.ovh/v1/{formatted_query}')
+        
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f'https://api.lyrics.ovh/v1/{formatted_query}') as response:
+                if response.status == 200:
+                    data = await response.json()
+                    lyrics = data.get('lyrics')
 
-        if response.status_code == 200:
-            data = response.json()
-            lyrics = data.get('lyrics')
-
-            embed = discord.Embed(title=f'Lyrics for "{query}"', description=f'```{lyrics}```', color=0x00ff00)
-            await ctx.send(embed=embed)
-
-        else:
-            await ctx.send(f'Failed to find lyrics for "{query}".')
+                    embed = discord.Embed(title=f'Lyrics for "{query}"', description=f'```{lyrics}```', color=0x00ff00)
+                    await ctx.send(embed=embed)
+                
+                else:
+                    await ctx.send(f'Failed to find lyrics for "{query}". Please check the song title and try again.')
 
     except Exception as e:
-        await ctx.send(f'An error occurred: {e}')
-        
+        await ctx.send(f'An error occurred: {e}
+
 client.run(os.getenv('TOKEN'))
