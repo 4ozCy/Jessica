@@ -1,6 +1,6 @@
 import discord
-from discord import app_commamds
 from discord.ext import commands
+from discord import app_commamds
 import aiohttp
 import os
 from dotenv import load_dotenv
@@ -496,11 +496,10 @@ async def get_lyrics(interaction: discord.Interaction, artist: str, title: str):
         embed = discord.Embed(
             title=f"{artist} - {title}",
             description=lyrics,
-            color=0x00ff00  # Green color
+            color=0x00ff00
         )
         await interaction.response.send_message(embed=embed)
     else:
         await interaction.response.send_message("Lyrics not found")
-
 
 bot.run(os.getenv('TOKEN'))
