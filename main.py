@@ -15,7 +15,7 @@ load_dotenv()
 
 app = Flask(__name__)
 
-@app.route('/jessica')
+@app.route('/')
 def home():
     return "Bot is alive!"
 
@@ -61,12 +61,8 @@ async def fetch_quote():
 @bot.event
 async def on_ready():
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="Made by: @nozcy. | .cmd"))
+    await bot.tree.sync()
     print(f'We have logged in as {client.user}')
-    try:
-        synced = await bot.tree.sync()
-    print(f'synced {len(synced)} command(s)')
-except Exception as e:
-    print(e)
 
 @bot.command(name='quote')
 async def send_quote(ctx):
