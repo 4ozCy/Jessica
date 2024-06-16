@@ -487,7 +487,7 @@ async def lyrics(ctx, artist: str, title: str):
         formatted_title = title.replace(' ', '%20')
         
         async with aiohttp.ClientSession() as session:
-            async with session.get(f'https://some-other-lyrics-api.com/lyrics/{formatted_artist}/{formatted_title}') as response:
+            async with session.get(f'https://api.lyrics.ovh/v1/{formatted_artist}/{formatted_title}') as response:
                 if response.status == 200:
                     data = await response.json()
                     lyrics = data.get('lyrics')
