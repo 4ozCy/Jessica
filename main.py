@@ -17,8 +17,6 @@ load_dotenv()
 app = Flask(__name__)
 socketio = SocketIO(app)
 
-bot = commands.Bot(command_prefix='!')
-
 @app.route('/status')
 def home():
     return render_template('status.html')
