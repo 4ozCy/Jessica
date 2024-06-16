@@ -482,7 +482,7 @@ async def tp(ctx, member: discord.Member, channel: discord.VoiceChannel):
     except discord.Forbidden:
         await ctx.send(f"I don't have permission to move {member.display_name}.")
 
-@bot.command(name='get-lyrics', aliases=['gl']'
+@bot.command(name='get-lyrics', aliases=['gl'])
 async def lyrics(ctx, artist: str, title: str):
     try:
         formatted_artist = artist.replace(' ', '%20')
