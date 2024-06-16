@@ -23,13 +23,13 @@ def home():
 
 @socketio.on('connect')
 def handle_connect():
-    socketio.emit('latency', {'latency': bot.latency*1000})
-    socketio.emit('status', {'status': 'online' if bot.is_ready() else 'offline'})
+    socketio.emit('latency', {'latency': client.latency*10000})
+    socketio.emit('status', {'status': 'online' if client.is_ready() else 'offline'})
 
 def update_latency():
     while True:
         socketio.sleep(5)
-        socketio.emit('latency', {'latency': bot.latency*1000})
+        socketio.emit('latency', {'latency': client.latency*10000})
 
 def run():
     socketio.run(app, host='0.0.0.0', port=8080)
