@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands
-from discord import app_commamds
 import aiohttp
 import os
 from dotenv import load_dotenv
@@ -483,23 +482,25 @@ async def tp(ctx, member: discord.Member, channel: discord.VoiceChannel):
     except discord.Forbidden:
         await ctx.send(f"I don't have permission to move {member.display_name}.")
 
-@bot.tree.command(name="get-lyrics", description="Get lyrics of a song")
-@app_commands.describe(artist="The artist of the song", title="The title of the song")
-async def get_lyrics(interaction: discord.Interaction, artist: str, title: str):
-    api_url = f"https://api.lyrics.ovh/v1/{artist}/{title}"
-    response = requests.get(api_url)
+@bot.command(name='get-lyrics', aliases=['gl']'
+async def lyrics(ctx, artist: str, title: str):
+    try:
+        formatted_artist = artist.replace(' ', '%20')
+        formatted_title = title.replace(' ', '%20')
+        
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f'https://some-other-lyrics-api.com/lyrics/{formatted_artist}/{formatted_title}') as response:
+                if response.status == 200:
+                    data = await response.json()
+                    lyrics = data.get('lyrics')
 
-    if response.status_code == 200:
-        data = response.json()
-        lyrics = data["lyrics"]
+                    embed = discord.Embed(title=f'Lyrics for "{artist} - {title}"', description=f'```{lyrics}```', color=0x00ff00)
+                    await ctx.send(embed=embed)
+                
+                else:
+                    await ctx.send(f'Failed to find lyrics for "{artist} - {title}". Please check the artist and title and try again.')
 
-        embed = discord.Embed(
-            title=f"{artist} - {title}",
-            description=lyrics,
-            color=0x00ff00
-        )
-        await interaction.response.send_message(embed=embed)
-    else:
-        await interaction.response.send_message("Lyrics not found")
+    except Exception as e:
+        await ctx.send(f'An error occurred: {e}')
 
 bot.run(os.getenv('TOKEN'))
