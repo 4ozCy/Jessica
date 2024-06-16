@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bot Status</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        p {
+            color: #666;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            var socket = io();
+
+            socket.on('latency', function(data) {
+                document.getElementById('latency').textContent = data.latency.toFixed(2) + ' ms';
+            });
+
+            socket.on('status', function(data) {
+                var statusElement = document.getElementById('status');
+                if (data.status === 'online') {
+                    statusElement.innerHTML = '🟢 Online';
+                } else {
+                    statusElement.innerHTML = '🔴 Offline';
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Jessica Status</h1>
+        <p><strong>Status:</strong> <span id="status">Loading...</span></p>
+        <p><strong>Latency:</strong> <span id="latency">Loading...</span></p>
+    </div>
+</body>
+  </html>
+  
