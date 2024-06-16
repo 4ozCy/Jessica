@@ -17,7 +17,7 @@ load_dotenv()
 app = Flask(__name__)
 socketio = SocketIO(app)
 
-@app.route('/status')
+@app.route('/')
 def home():
     return render_template('status.html')
 
