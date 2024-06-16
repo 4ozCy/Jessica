@@ -1,5 +1,6 @@
 import discord
-from discord.ext import app_commands
+from discord import app_commamds
+from discord.ext import commands
 import aiohttp
 import os
 from dotenv import load_dotenv
@@ -19,7 +20,7 @@ def home():
     return "Bot is alive!"
 
 def run():
-    app.run(host="0.0.0.0", port=8080, debug=True)
+    app.run(host="0.0.0.0", port=8080)
 
 def keep_alive():
     t = Thread(target=run)
@@ -63,7 +64,10 @@ async def on_ready():
     print(f'We have logged in as {client.user}')
     try:
         synced = await bot.tree.sync()
-  
+    print(f'synced {len(synced)} command(s)')
+except Exception as e:
+    print(e)
+
 @bot.command(name='quote')
 async def send_quote(ctx):
     quote = await fetch_quote()
