@@ -492,7 +492,7 @@ async def lyrics(ctx, artist: str, title: str):
                     data = await response.json()
                     lyrics = data.get('lyrics')
 
-                    embed = discord.Embed(title=f'Lyrics for "{artist} - {title}"', description=f'```{lyrics}```', color=0x00ff00)
+                    embed = discord.Embed(title=f'"{artist} - {title}"', description=f'```{lyrics}```', color=0x00ff00)
                     await ctx.send(embed=embed)
                 
                 else:
