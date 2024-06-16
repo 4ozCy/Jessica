@@ -3,3 +3,4 @@ aiohttp
 python-dotenv
 Flask
 requests
+flask-socketio
