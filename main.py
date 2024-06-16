@@ -19,7 +19,7 @@ def home():
     return "Bot is alive!"
 
 def run():
-    app.run(host="0.0.0.0", port=8080)
+    app.run(host="0.0.0.0", port=8080, debug=True)
 
 def keep_alive():
     t = Thread(target=run)
@@ -28,7 +28,7 @@ def keep_alive():
 if __name__ == "__main__":
     keep_alive()
 
-client = commands.Bot(command_prefix='.', intents=discord.Intents.all())
+bot = commands.Bot(command_prefix='.', intents=discord.Intents.all())
 
 async def fetch_pickup_line():
     try:
@@ -57,13 +57,13 @@ async def fetch_quote():
         print(f"An error occurred while fetching quote: {e}")
         return None
 
-@client.event
+@bot.event
 async def on_ready():
-    await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="Made by: @nozcy. | .cmd"))
+    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="Made by: @nozcy. | .cmd"))
     await bot.tree.sync()
     print(f'We have logged in as {client.user}')
   
-@client.command(name='quote')
+@bot.command(name='quote')
 async def send_quote(ctx):
     quote = await fetch_quote()
     if quote:
@@ -72,7 +72,7 @@ async def send_quote(ctx):
     else:
         await ctx.send("Sorry, I couldn't fetch a quote at the moment.")
 
-@client.command(name='rizz', aliases=['r'])
+@bot.command(name='rizz', aliases=['r'])
 async def send_rizz(ctx):
     pickup_line = await fetch_pickup_line()
     if pickup_line:
@@ -81,7 +81,7 @@ async def send_rizz(ctx):
     else:
         await ctx.send("Sorry, I couldn't fetch a pickup line at the moment.")
 
-@client.command(name='joke')
+@bot.command(name='joke')
 async def joke(ctx):
     async with aiohttp.ClientSession() as session:
         async with session.get('https://v2.jokeapi.dev/joke/Any') as response:
@@ -98,7 +98,7 @@ async def joke(ctx):
                 await ctx.send(embed=embed)
 
 
-@client.command(name='cmd')
+@bot.command(name='cmd')
 async def send_help(ctx):
     embed = discord.Embed(title="Commands list", color=0x3498db)
     embed.add_field(name="quote", value="send a random inspirational quote.", inline=False)
@@ -121,9 +121,11 @@ async def send_help(ctx):
     embed.add_field(name="lock/unlock", value="lock and unlock the specific channel", inline=True)
     embed.add_field(name="server-lock/server-unlock", value="lock and unlock server", inline=True)
     embed.add_field(name="add-emoji", value="add emoji", inline=False)
+    embed.add_field(name="bring/br", value="bring someone to your voice channel", inline=True)
+    embed.add_field(name="goto/to", value="teleport someone voice channel", inline=True)
     await ctx.send(embed=embed)
 
-@client.command(name='insult', aliases=['in'])
+@bot.command(name='insult', aliases=['in'])
 async def send_insult(ctx):
     try:
         async with aiohttp.ClientSession() as session:
@@ -135,7 +137,7 @@ async def send_insult(ctx):
         print(f"An error occurred while fetching insult: {e}")
         await ctx.send("You're too weak to insult someone")
       
-@client.command(name='animequote', aliases=['aq'])
+@bot.command(name='animequote', aliases=['aq'])
 async def send_anime_quote(ctx):
     try:
         async with aiohttp.ClientSession() as session:
@@ -150,7 +152,7 @@ async def send_anime_quote(ctx):
         print(f"An error occurred while fetching anime quote: {e}")
         await ctx.send("Sorry, I couldn't send an anime quote at the moment.")
 
-@client.command(name='slap')
+@bot.command(name='slap')
 async def slap(ctx, member: discord.Member):
     if member == ctx.author:
         await ctx.send(f"{ctx.author.mention} tries to slap themselves... but it doesn't work that way!")
@@ -167,7 +169,7 @@ async def slap(ctx, member: discord.Member):
             else:
                 await ctx.send("You're too weak to slap someone")
 
-@client.command(name='breakup', aliases=['bp'])
+@bot.command(name='breakup', aliases=['bp'])
 async def send_breakup(ctx):
     try:
         async with aiohttp.ClientSession() as session:
@@ -180,7 +182,7 @@ async def send_breakup(ctx):
         await ctx.send("You're Not Ready to breakup yet.")
         
 
-@client.command(name='autorole', aliases=['ar'])
+@bot.command(name='autorole', aliases=['ar'])
 async def set_autorole(ctx, role: discord.Role, channel: discord.TextChannel):
     if ctx.author.guild_permissions.manage_roles:
         global autorole_role_id, autorole_channel_id
@@ -192,7 +194,7 @@ async def set_autorole(ctx, role: discord.Role, channel: discord.TextChannel):
     else:
         await ctx.send("You don't have permission to use this command.")
 
-@client.event
+@bot.event
 async def on_member_join(member):
     global autorole_role_id, autorole_channel_id
     if autorole_role_id:
@@ -213,7 +215,7 @@ async def on_member_join(member):
     else:
         print("Autorole not set.")
 
-@client.command(name='punch', aliases=['p'])
+@bot.command(name='punch', aliases=['p'])
 async def punch_member(ctx, member: discord.Member):
     async with aiohttp.ClientSession() as session:
         async with session.get("https://api.otakugifs.xyz/gif?reaction=punch&format=gif") as response:
@@ -226,7 +228,7 @@ async def punch_member(ctx, member: discord.Member):
             else:
                 await ctx.send("You're to weak you can't punch someone")
 
-@client.command(name='giverole', aliases=['gr'])
+@bot.command(name='giverole', aliases=['gr'])
 async def give_role(ctx, member: discord.Member, role: discord.Role):
     if ctx.author.guild_permissions.manage_roles:
         if role:
@@ -242,24 +244,23 @@ async def give_role(ctx, member: discord.Member, role: discord.Role):
 
     await ctx.send(embed=embed)
 
-@client.command(name='purge')
+@bot.command(name='purge')
 async def purge(ctx, amount: int):
     if ctx.author.guild_permissions.manage_messages:
         await ctx.message.delete()  # Delete the command message
 
-        # Fetch and delete messages
         deleted = await ctx.channel.purge(limit=amount)
         await ctx.send(f"Deleted {len(deleted)} messages.", delete_after=5)
     else:
         await ctx.send("You do not have permission to manage messages.")
 
-@client.command(name='afk')
+@bot.command(name='afk')
 async def afk(ctx, *, reason="No reason provided"):
     global afk_users
     afk_users[ctx.author.id] = {'reason': reason, 'time': datetime.utcnow()}
     await ctx.send(f"{ctx.author.mention} is now AFK Reason: `{reason}`")
 
-@client.event
+@bot.event
 async def on_message(message):
     if message.author.bot:
         return
@@ -281,11 +282,11 @@ async def on_message(message):
         minutes, seconds = divmod(remainder, 60)
         await message.channel.send(f"{mention.mention} is AFK: {afk_users[mention.id]['reason']} - AFK for {hours} hours, {minutes} minutes.")
 
-    await client.process_commands(message)
+    await bot.process_commands(message)
 
 
 
-@client.command(name='spam')
+@bot.command(name='spam')
 async def spam(ctx, message: str, member: discord.Member, count: int):
     allowed_user_id = '1107744228773220473'
     if str(ctx.author.id) != allowed_user_id:
@@ -298,7 +299,7 @@ async def spam(ctx, message: str, member: discord.Member, count: int):
     for _ in range(count):
         await ctx.send(f"{message} {member.mention}")
         
-@client.command(name='meme')
+@bot.command(name='meme')
 async def meme(ctx):
     async with aiohttp.ClientSession() as session:
         async with session.get('https://api.imgflip.com/get_memes') as response:
@@ -309,7 +310,7 @@ async def meme(ctx):
             embed.set_image(url=meme['url'])
             await ctx.send(embed=embed)
 
-@client.command(name='avatar', aliases=['av'])
+@bot.command(name='avatar', aliases=['av'])
 async def avatar(ctx, *, member: discord.Member = None):
     if not member:
         member = ctx.author
@@ -317,7 +318,7 @@ async def avatar(ctx, *, member: discord.Member = None):
     embed.set_image(url=member.avatar.url if member.avatar else member.default_avatar.url)
     await ctx.send(embed=embed)
 
-@client.command(name='server_info', aliases=['sf'])
+@bot.command(name='server_info', aliases=['sf'])
 async def serverinfo(ctx):
     guild = ctx.guild
     embed = discord.Embed(title=f"{guild.name} Server Information", color=discord.Color.blue())
@@ -330,7 +331,7 @@ async def serverinfo(ctx):
     embed.add_field(name="Emoji Count", value=len(guild.emojis), inline=True)
     await ctx.send(embed=embed)
 
-@client.command(name='dare')
+@bot.command(name='dare')
 async def dare(ctx):
     async with aiohttp.ClientSession() as session:
         async with session.get('https://api.truthordarebot.xyz/v1/dare') as response:
@@ -342,7 +343,7 @@ async def dare(ctx):
             else:
                 await ctx.send("I couldn't dare you at the moment, please try again later.")
 
-@client.command(name='truth')
+@bot.command(name='truth')
 async def truth(ctx):
     async with aiohttp.ClientSession() as session:
         async with session.get('https://api.truthordarebot.xyz/v1/truth') as response:
@@ -354,7 +355,7 @@ async def truth(ctx):
             else:
                 await ctx.send("I couldn't send a question at the moment, please try again later.")
 
-@client.command(name='delete_channel', aliases=['dc'])
+@bot.command(name='delete_channel', aliases=['dc'])
 async def delete_channel(ctx, channel: discord.TextChannel):
     if ctx.author.guild_permissions.manage_channels:
         try:
@@ -367,7 +368,7 @@ async def delete_channel(ctx, channel: discord.TextChannel):
     else:
         await ctx.send("You don't have permission to use this command.")
 
-@client.command(name='add-emoji', aliases=['ad'])
+@bot.command(name='add-emoji', aliases=['ad'])
 async def add_emoji(ctx, name: str, emoji_url: str):
     if ctx.author.guild_permissions.manage_emojis:
         async with ctx.typing():
@@ -386,7 +387,7 @@ async def add_emoji(ctx, name: str, emoji_url: str):
     else:
         await ctx.send("You don't have permission to use this command.")
 
-@client.command(name='lock')
+@bot.command(name='lock')
 async def channel_lock(ctx, channel: discord.TextChannel):
     if ctx.author.guild_permissions.manage_channels:
         try:
@@ -399,7 +400,7 @@ async def channel_lock(ctx, channel: discord.TextChannel):
     else:
         await ctx.send("You don't have permission to use this command.")
 
-@client.command(name='unlock')
+@bot.command(name='unlock')
 async def unlock_channel(ctx, channel: discord.TextChannel):
     if ctx.author.guild_permissions.manage_channels:
         try:
@@ -412,7 +413,7 @@ async def unlock_channel(ctx, channel: discord.TextChannel):
     else:
         await ctx.send("You don't have permission to use this command.")
 
-@client.command(name='server-lock', aliases=['sl'])
+@bot.command(name='server-lock', aliases=['sl'])
 async def lockdown(ctx):
     if ctx.author.guild_permissions.manage_channels:
         try:
@@ -427,7 +428,7 @@ async def lockdown(ctx):
     else:
         await ctx.send("You don't have permission to use this command.")
 
-@client.command(name='server-unlock', aliases=['sun'])
+@bot.command(name='server-unlock', aliases=['sun'])
 async def unlock_server(ctx):
     if ctx.author.guild_permissions.manage_channels:
         try:
@@ -442,7 +443,7 @@ async def unlock_server(ctx):
     else:
         await ctx.send("You don't have permission to use this command.")
 
-@client.command(name='bring', aliases=['br'])
+@bot.command(name='bring', aliases=['br'])
 async def bring(ctx, member: discord.Member):
     if not ctx.author.voice:
         await ctx.send("You are not connected to a voice channel.")
@@ -461,7 +462,7 @@ async def bring(ctx, member: discord.Member):
     except discord.Forbidden:
         await ctx.send("I don't have permission to move members.")
 
-@client.command(name='goto', aliases=['to'])
+@bot.command(name='goto', aliases=['to'])
 async def teleport(ctx, member: discord.Member):
     if not member.voice:
         await ctx.send(f"{member.display_name} is not connected to a voice channel.")
@@ -473,7 +474,7 @@ async def teleport(ctx, member: discord.Member):
     except discord.Forbidden:
         await ctx.send("I don't have permission to move you to another voice channel.")
 
-@client.command(name='teleport', aliases=['tp'])
+@bot.command(name='teleport', aliases=['tp'])
 async def tp(ctx, member: discord.Member, channel: discord.VoiceChannel):
     try:
         await member.move_to(channel)
@@ -501,4 +502,4 @@ async def get_lyrics(interaction: discord.Interaction, artist: str, title: str):
         await interaction.response.send_message("Lyrics not found")
 
 
-client.run(os.getenv('TOKEN'))
+bot.run(os.getenv('TOKEN'))
