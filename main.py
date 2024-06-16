@@ -60,6 +60,7 @@ async def fetch_quote():
 @client.event
 async def on_ready():
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="Made by: @nozcy. | .cmd"))
+    await client.tree.sync()
     print(f'We have logged in as {client.user}')
   
 @client.command(name='quote')
@@ -480,24 +481,24 @@ async def tp(ctx, member: discord.Member, channel: discord.VoiceChannel):
     except discord.Forbidden:
         await ctx.send(f"I don't have permission to move {member.display_name}.")
 
-@client.command(name='get-lyrics', aliases=['gl'])
-async def lyrics(ctx, *, query: str):
-    try:
-        formatted_query = query.replace(' ', '%20')
-        
-        async with aiohttp.ClientSession() as session:
-            async with session.get(f'https://api.lyrics.ovh/v1/{formatted_query}') as response:
-                if response.status == 200:
-                    data = await response.json()
-                    lyrics = data.get('lyrics')
+@client.tree.command(name="get-lyrics", description="Get lyrics of a song")
+@app_commands.describe(artist="The artist of the song", title="The title of the song")
+async def get_lyrics(interaction: discord.Interaction, artist: str, title: str):
+    api_url = f"https://api.lyrics.ovh/v1/{artist}/{title}"
+    response = requests.get(api_url)
 
-                    embed = discord.Embed(title=f'Lyrics for "{query}"', description=f'```{lyrics}```', color=0x00ff00)
-                    await ctx.send(embed=embed)
-                
-                else:
-                    await ctx.send(f'Failed to find lyrics for "{query}". Please check the song title and try again.')
+    if response.status_code == 200:
+        data = response.json()
+        lyrics = data["lyrics"]
 
-    except Exception as e:
-        await ctx.send(f'An error occurred: {e}')
+        embed = discord.Embed(
+            title=f"{artist} - {title}",
+            description=lyrics,
+            color=0x00ff00  # Green color
+        )
+        await interaction.response.send_message(embed=embed)
+    else:
+        await interaction.response.send_message("Lyrics not found")
+
 
 client.run(os.getenv('TOKEN'))
