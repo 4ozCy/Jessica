@@ -60,7 +60,7 @@ async def fetch_quote():
 @client.event
 async def on_ready():
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="Made by: @nozcy. | .cmd"))
-    await client.tree.sync()
+   synced = await bot.tree.sync()
     print(f'We have logged in as {client.user}')
   
 @client.command(name='quote')
@@ -481,8 +481,8 @@ async def tp(ctx, member: discord.Member, channel: discord.VoiceChannel):
     except discord.Forbidden:
         await ctx.send(f"I don't have permission to move {member.display_name}.")
 
-@client.tree.command(name="get-lyrics", description="Get lyrics of a song")
-@client_commands.describe(artist="The artist of the song", title="The title of the song")
+@bot.tree.command(name="get-lyrics", description="Get lyrics of a song")
+@app_commands.describe(artist="The artist of the song", title="The title of the song")
 async def get_lyrics(interaction: discord.Interaction, artist: str, title: str):
     api_url = f"https://api.lyrics.ovh/v1/{artist}/{title}"
     response = requests.get(api_url)
