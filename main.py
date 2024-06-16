@@ -27,6 +27,8 @@ def keep_alive():
 
 if __name__ == "__main__":
     keep_alive()
+    
+RAPIDAPI_KEY = os.getenv('API_KEY')
 
 client = commands.Bot(command_prefix='.', intents=discord.Intents.all())
 
@@ -88,14 +90,12 @@ async def joke(ctx):
                 data = await response.json()
                 if data['type'] == 'single':
                     joke = data['joke']
-                else:  # For a two-part joke
+                else:
                     joke = f"{data['setup']} - {data['delivery']}"
 
-                # Create an embed instance with the joke
                 embed = discord.Embed(description=joke, color=0x00ff00)
 
                 await ctx.send(embed=embed)
-
 
 @client.command(name='cmds')
 async def send_help(ctx):
@@ -482,12 +482,28 @@ async def tp(ctx, member: discord.Member, channel: discord.VoiceChannel):
 
 @client.command(name='get-lyrics', aliases=['gl'])
 async def lyrics(ctx, artist: str, title: str):
-    response = requests.get(f'https://api.lyrics.ovh/v1/{artist}/{title}')
-    data = response.json()
-    if 'lyrics' in data:
-        embed = discord.Embed(title=f'{title} by {artist}', description=data['lyrics'], color=discord.Color.blue())
-        await ctx.send(embed=embed)
-    else:
-        await ctx.send('Lyrics not found.')
-
+    try:
+        headers = {
+            'x-rapidapi-host': "chart-lyrics.p.rapidapi.com",
+            'x-rapidapi-key': os.getenv('API_KEY')
+        }
+        
+        url = "https://chart-lyrics.p.rapidapi.com/searchLyricsText"
+        querystring = {"q": f"{artist} {title}"}
+        response = requests.request("GET", url, headers=headers, params=querystring)
+        
+        if response.status_code == 200:
+            lyrics_data = response.json()
+            
+            if 'lyrics' in lyrics_data and lyrics_data['lyrics']:
+                embed = discord.Embed(title=f"{title} by {artist}", description=lyrics_data['lyrics'], color=0x00ff00)
+                await ctx.send(embed=embed)
+            else:
+                await ctx.send("Lyrics not found.")
+        else:
+            await ctx.send("Failed to retrieve lyrics.")
+    
+    except Exception as e:
+        await ctx.send(f"An error occurred: {e}")
+        
 client.run(os.getenv('TOKEN'))
