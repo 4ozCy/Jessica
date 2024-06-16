@@ -31,14 +31,6 @@ def update_latency():
         socketio.sleep(5)
         socketio.emit('latency', {'latency': bot.latency*1000})
 
-@client.event
-async def on_ready():
-    socketio.emit('status', {'status': 'online'})
-
-@client.event
-async def on_disconnect():
-    socketio.emit('status', {'status': 'offline'})
-
 def run():
     socketio.run(app, host='0.0.0.0', port=8080)
 
@@ -84,6 +76,14 @@ async def fetch_quote():
 async def on_ready():
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="Made by: @nozcy. | .cmds"))
     print(f'We have logged in as {client.user}')
+
+@client.event
+async def on_ready():
+    socketio.emit('status', {'status': 'online'})
+
+@client.event
+async def on_disconnect():
+    socketio.emit('status', {'status': 'offline'})
   
 @client.command(name='quote')
 async def send_quote(ctx):
