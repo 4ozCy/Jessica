@@ -31,11 +31,11 @@ def update_latency():
         socketio.sleep(5)
         socketio.emit('latency', {'latency': bot.latency*1000})
 
-@bot.event
+@client.event
 async def on_ready():
     socketio.emit('status', {'status': 'online'})
 
-@bot.event
+@client.event
 async def on_disconnect():
     socketio.emit('status', {'status': 'offline'})
 
