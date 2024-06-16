@@ -484,7 +484,7 @@ async def tp(ctx, member: discord.Member, channel: discord.VoiceChannel):
 async def lyrics(ctx, artist: str, title: str):
     try:
         formatted_artist = artist.replace(' ', '%20')
-        formatted_title = title.replace(' ', '%20', '%20')
+        formatted_title = title.replace(' ', '%20')
         
         async with aiohttp.ClientSession() as session:
             async with session.get(f'https://api.lyrics.ovh/v1/{formatted_artist}/{formatted_title}') as response:
