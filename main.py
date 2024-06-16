@@ -3,33 +3,56 @@ from discord.ext import commands
 import aiohttp
 import os
 from dotenv import load_dotenv
-from flask import Flask
+from flask import Flask, render_template
+from flask_socketio import SocketIO
 from threading import Thread
 from datetime import datetime
 import random
 import requests
+
 afk_users = {}
 
 load_dotenv()
 
 app = Flask(__name__)
+socketio = SocketIO(app)
 
-@app.route('/')
+bot = commands.Bot(command_prefix='!')
+
+@app.route('/status')
 def home():
-    return "Bot is alive!"
+    return render_template('status.html')
+
+@socketio.on('connect')
+def handle_connect():
+    socketio.emit('latency', {'latency': bot.latency*1000})
+    socketio.emit('status', {'status': 'online' if bot.is_ready() else 'offline'})
+
+def update_latency():
+    while True:
+        socketio.sleep(5)
+        socketio.emit('latency', {'latency': bot.latency*1000})
+
+@bot.event
+async def on_ready():
+    socketio.emit('status', {'status': 'online'})
+
+@bot.event
+async def on_disconnect():
+    socketio.emit('status', {'status': 'offline'})
 
 def run():
-    app.run(host="0.0.0.0", port=8080)
+    socketio.run(app, host='0.0.0.0', port=8080)
 
 def keep_alive():
-    t = Thread(target=run)
-    t.start()
+    server = Thread(target=run)
+    server.start()
+    latency_thread = Thread(target=update_latency)
+    latency_thread.start()
 
 if __name__ == "__main__":
     keep_alive()
     
-RAPIDAPI_KEY = os.getenv('API_KEY')
-
 client = commands.Bot(command_prefix='.', intents=discord.Intents.all())
 
 async def fetch_pickup_line():
@@ -480,30 +503,4 @@ async def tp(ctx, member: discord.Member, channel: discord.VoiceChannel):
     except discord.Forbidden:
         await ctx.send(f"I don't have permission to move {member.display_name}.")
 
-@client.command(name='get-lyrics', aliases=['gl'])
-async def lyrics(ctx, artist: str, title: str):
-    try:
-        headers = {
-            'x-rapidapi-host': "chart-lyrics.p.rapidapi.com",
-            'x-rapidapi-key': os.getenv('API_KEY')
-        }
-        
-        url = "https://chart-lyrics.p.rapidapi.com/searchLyricsText"
-        querystring = {"q": f"{artist} {title}"}
-        response = requests.request("GET", url, headers=headers, params=querystring)
-        
-        if response.status_code == 200:
-            lyrics_data = response.json()
-            
-            if 'lyrics' in lyrics_data and lyrics_data['lyrics']:
-                embed = discord.Embed(title=f"{title} by {artist}", description=lyrics_data['lyrics'], color=0x00ff00)
-                await ctx.send(embed=embed)
-            else:
-                await ctx.send("Lyrics not found.")
-        else:
-            await ctx.send("Failed to retrieve lyrics.")
-    
-    except Exception as e:
-        await ctx.send(f"An error occurred: {e}")
-        
 client.run(os.getenv('TOKEN'))
