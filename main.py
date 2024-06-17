@@ -479,7 +479,7 @@ async def tp(ctx, member: discord.Member, channel: discord.VoiceChannel):
         await ctx.send(f"I don't have permission to move {member.display_name}.")
 
 @client.command(name='ping')
-async def ping(ctx)
+async def ping(ctx):
     embed = discord.Embed(description=f'Bot Ping: {round(bot.latency * 1000)}ms', color=0x00ff00)
     
     await ctx.send(embed=embed)
