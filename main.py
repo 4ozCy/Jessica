@@ -3,46 +3,31 @@ from discord.ext import commands
 import aiohttp
 import os
 from dotenv import load_dotenv
-from flask import Flask, render_template
-from flask_socketio import SocketIO
+from flask import Flask
 from threading import Thread
 from datetime import datetime
 import random
 import requests
-
 afk_users = {}
 
 load_dotenv()
 
 app = Flask(__name__)
-socketio = SocketIO(app)
 
-@app.route('/')
+@app.route('/jesscia')
 def home():
-    return render_template('status.html')
-
-@socketio.on('connect')
-def handle_connect():
-    socketio.emit('latency', {'latency': client.latency*10000})
-    socketio.emit('status', {'status': 'online' if client.is_ready() else 'offline'})
-
-def update_latency():
-    while True:
-        socketio.sleep(5)
-        socketio.emit('latency', {'latency': client.latency*10000})
+    return "Bot is alive!"
 
 def run():
-    socketio.run(app, host='0.0.0.0', port=8080)
+    app.run(host="0.0.0.0", port=8080)
 
 def keep_alive():
-    server = Thread(target=run)
-    server.start()
-    latency_thread = Thread(target=update_latency)
-    latency_thread.start()
+    t = Thread(target=run)
+    t.start()
 
 if __name__ == "__main__":
     keep_alive()
-    
+
 client = commands.Bot(command_prefix='.', intents=discord.Intents.all())
 
 async def fetch_pickup_line():
@@ -76,14 +61,6 @@ async def fetch_quote():
 async def on_ready():
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="Made by: @nozcy. | .cmds"))
     print(f'We have logged in as {client.user}')
-
-@client.event
-async def on_ready():
-    socketio.emit('status', {'status': 'online'})
-
-@client.event
-async def on_disconnect():
-    socketio.emit('status', {'status': 'offline'})
   
 @client.command(name='quote')
 async def send_quote(ctx):
@@ -111,12 +88,14 @@ async def joke(ctx):
                 data = await response.json()
                 if data['type'] == 'single':
                     joke = data['joke']
-                else:
+                else:  # For a two-part joke
                     joke = f"{data['setup']} - {data['delivery']}"
 
+                # Create an embed instance with the joke
                 embed = discord.Embed(description=joke, color=0x00ff00)
 
                 await ctx.send(embed=embed)
+
 
 @client.command(name='cmds')
 async def send_help(ctx):
