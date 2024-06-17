@@ -88,10 +88,9 @@ async def joke(ctx):
                 data = await response.json()
                 if data['type'] == 'single':
                     joke = data['joke']
-                else:  # For a two-part joke
+                else:
                     joke = f"{data['setup']} - {data['delivery']}"
 
-                # Create an embed instance with the joke
                 embed = discord.Embed(description=joke, color=0x00ff00)
 
                 await ctx.send(embed=embed)
@@ -112,7 +111,7 @@ async def send_help(ctx):
     embed.add_field(name="giverole/gr", value="give role to someone", inline=False)
     embed.add_field(name="Purge", value="delete massage in specific channel", inline=False)
     embed.add_field(name="afk", value="away from keyboard", inline=False)
-    embed.add_field(name="meme", value="send an random meme", inline=False)
+    embed.add_field(name="ping", value="show bot ping", inline=False)
     embed.add_field(name="avatar/av", value="you already know what this is", inline=False)
     embed.add_field(name="server_info/sf", value="get server information", inline=False)
     embed.add_field(name="dare/truth", value="play truth or dare", inline=False)
@@ -161,7 +160,7 @@ async def slap(ctx, member: discord.Member):
                 data = await response.json()
                 gif_url = data['url']
                 embed = discord.Embed(title="slap you in the face because i wanted to.", description=f"{ctx.author.mention} slaps {member.mention}!!", color=0x3498db)
-                embed.set_image(url=gif_url)  # Set the GIF URL as an image in the embed
+                embed.set_image(url=gif_url)
                 await ctx.send(embed=embed)
             else:
                 await ctx.send("You're too weak to slap someone")
@@ -244,9 +243,8 @@ async def give_role(ctx, member: discord.Member, role: discord.Role):
 @client.command(name='purge')
 async def purge(ctx, amount: int):
     if ctx.author.guild_permissions.manage_messages:
-        await ctx.message.delete()  # Delete the command message
+        await ctx.message.delete()
 
-        # Fetch and delete messages
         deleted = await ctx.channel.purge(limit=amount)
         await ctx.send(f"Deleted {len(deleted)} messages.", delete_after=5)
     else:
@@ -479,5 +477,11 @@ async def tp(ctx, member: discord.Member, channel: discord.VoiceChannel):
         await ctx.send(f"{member.display_name} has been teleported to {channel.name}.")
     except discord.Forbidden:
         await ctx.send(f"I don't have permission to move {member.display_name}.")
+
+@client.command(name='ping')
+async def ping(ctx)
+    embed = discord.Embed(description=f'Bot Ping: {round(bot.latency * 1000)}ms', color=0x00ff00)
+    
+    await ctx.send(embed=embed)
 
 client.run(os.getenv('TOKEN'))
