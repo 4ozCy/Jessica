@@ -14,7 +14,7 @@ load_dotenv()
 
 app = Flask(__name__)
 
-@app.route('/jesscia')
+@app.route('/')
 def home():
     return "Bot is alive!"
 
@@ -481,7 +481,6 @@ async def tp(ctx, member: discord.Member, channel: discord.VoiceChannel):
 @client.command(name='ping')
 async def ping(ctx):
     embed = discord.Embed(description=f'Bot Ping: {round(bot.latency * 1000)}ms', color=0x00ff00)
-    
     await ctx.send(embed=embed)
 
 client.run(os.getenv('TOKEN'))
