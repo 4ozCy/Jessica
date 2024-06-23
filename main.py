@@ -489,4 +489,27 @@ async def ping(ctx):
     embed = discord.Embed(description=f'Bot Ping: {round(client.latency * 1000)}ms', color=0x00ff00)
     await ctx.send(embed=embed)
 
+@client.command(name='lua-obfuscate', aliases=['luaob'])
+async def obfuscate(ctx):
+    await ctx.author.send("Please send your code in DMs.")
+
+@client.event
+async def on_message(message):
+    if message.author == client.user:
+        return 
+
+    if isinstance(message.channel, discord.DMChannel):
+        lua_code = message.content
+        try:
+            response = requests.post("https://api.lua-obfuscator.org/obfuscate", json={"code": lua_code})
+            if response.status_code == 200:
+                obfuscated_code = response.json().get("obfuscated_code")
+                await message.author.send(f"Obfuscated code:\n```lua\n{obfuscated_code}\n```")
+            else:
+                await message.author.send("Error obfuscating the code. Please try again later.")
+        except Exception as e:
+            await message.author.send(f"An error occurred: {str(e)}")
+
+    await client.process_commands(message)
+
 client.run(os.getenv('TOKEN'))
