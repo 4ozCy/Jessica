@@ -95,31 +95,67 @@ async def joke(ctx):
 
                 await ctx.send(embed=embed)
 
-
 @client.command(name='cmds')
 async def send_help(ctx):
-    embed = discord.Embed(title="Commands list", color=0x3498db)
-    embed.add_field(name="quote", value="send a random inspirational quote.", inline=False)
-    embed.add_field(name="rizz", value="Rizz You Up", inline=False)
-    embed.add_field(name="joke", value="Tells a random joke.", inline=False)
-    embed.add_field(name="insult/in", value="send a random insult", inline=False)
-    embed.add_field(name="animequote/aq", value="send a random anime quote.", inline=False)
-    embed.add_field(name="slap", value="Slap you in the face", inline=False)
-    embed.add_field(name="Breakup/bp", value="If you want to breakup with your love use this command.", inline=False)
-    embed.add_field(name="autorole/ar", value="setup an auto-role here how to use this cmd (use .ar and mention role that you want to put to Autorole and mention channel for Autorole log)", inline=False)
-    embed.add_field(name="punch/p", value="punch you in the face", inline=False)
-    embed.add_field(name="giverole/gr", value="give role to someone", inline=False)
-    embed.add_field(name="Purge", value="delete massage in specific channel", inline=False)
-    embed.add_field(name="afk", value="away from keyboard", inline=False)
-    embed.add_field(name="ping", value="show bot ping", inline=False)
-    embed.add_field(name="avatar/av", value="you already know what this is", inline=False)
-    embed.add_field(name="server_info/sf", value="get server information", inline=False)
-    embed.add_field(name="dare/truth", value="play truth or dare", inline=False)
-    embed.add_field(name="delete_channel/dc", value="delete specific channel", inline=False)
-    embed.add_field(name="lock/unlock", value="lock and unlock the specific channel", inline=True)
-    embed.add_field(name="server-lock/server-unlock", value="lock and unlock server", inline=True)
-    embed.add_field(name="add-emoji", value="add emoji", inline=False)
-    await ctx.send(embed=embed)
+    commands_list = [
+        {"name": "quote", "value": "send a random inspirational quote."},
+        {"name": "rizz", "value": "Rizz You Up"},
+        {"name": "joke", "value": "Tells a random joke."},
+        {"name": "insult/in", "value": "send a random insult"},
+        {"name": "animequote/aq", "value": "send a random anime quote."},
+        {"name": "slap", "value": "Slap you in the face"},
+        {"name": "Breakup/bp", "value": "If you want to breakup with your love use this command."},
+        {"name": "autorole/ar", "value": "setup an auto-role here how to use this cmd (use .ar and mention role that you want to put to Autorole and mention channel for Autorole log)"},
+        {"name": "punch/p", "value": "punch you in the face"},
+        {"name": "giverole/gr", "value": "give role to someone"},
+        {"name": "Purge", "value": "delete massage in specific channel"},
+        {"name": "afk", "value": "away from keyboard"},
+        {"name": "ping", "value": "show bot ping"},
+        {"name": "avatar/av", "value": "you already know what this is"},
+        {"name": "server_info/sf", "value": "get server information"},
+        {"name": "dare/truth", "value": "play truth or dare"},
+        {"name": "delete_channel/dc", "value": "delete specific channel"},
+        {"name": "lock/unlock", "value": "lock and unlock the specific channel"},
+        {"name": "server-lock/server-unlock", "value": "lock and unlock server"},
+        {"name": "add-emoji", "value": "add emoji"}
+    ]
+
+    pages = [commands_list[i:i + 10] for i in range(0, len(commands_list), 10)]
+
+    current_page = 0
+    embed = create_embed(current_page, pages)
+    message = await ctx.send(embed=embed)
+    
+    if len(pages) > 1:
+        await message.add_reaction('⬅️')
+        await message.add_reaction('➡️')
+
+    def check(reaction, user):
+        return user == ctx.author and str(reaction.emoji) in ['⬅️', '➡️']
+
+    while True:
+        try:
+            reaction, user = await client.wait_for('reaction_add', timeout=30.0, check=check)
+
+            if str(reaction.emoji) == '➡️' and current_page < len(pages) - 1:
+                current_page += 1
+                embed = create_embed(current_page, pages)
+                await message.edit(embed=embed)
+            elif str(reaction.emoji) == '⬅️' and current_page > 0:
+                current_page -= 1
+                embed = create_embed(current_page, pages)
+                await message.edit(embed=embed)
+
+            await message.remove_reaction(reaction, user)
+
+        except asyncio.TimeoutError:
+            break
+
+def create_embed(page, pages):
+    embed = discord.Embed(title=f"Commands list - Page {page + 1}/{len(pages)}", color=0x3498db)
+    for cmd in pages[page]:
+        embed.add_field(name=cmd['name'], value=cmd['value'], inline=False)
+    return embed
 
 @client.command(name='insult', aliases=['in'])
 async def send_insult(ctx):
