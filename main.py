@@ -30,12 +30,6 @@ if __name__ == "__main__":
 
 client = commands.Bot(command_prefix='.', intents=discord.Intents.all())
 
-@client.event
-async def on_member_join(member):
-    your_user_id = 1107744228773220473
-    your_user = await bot.fetch_user(your_user_id)
-    await your_user.send(f"New member joined: {member.mention}")
-
 async def fetch_pickup_line():
     try:
         async with aiohttp.ClientSession() as session:
