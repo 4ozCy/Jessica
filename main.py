@@ -483,29 +483,4 @@ async def ping(ctx):
     embed = discord.Embed(description=f'Bot Ping: {round(client.latency * 1000)}ms', color=0x00ff00)
     await ctx.send(embed=embed)
 
-@client.command(name="rblx-account_info", aliases=['rinfo'])
-async def get_roblox_info(ctx, *, username: str):
-    try:
-        response = requests.get(f"https://api.roblox.com/users/get-by-username?username={username}")
-        user_data = response.json()
-        user_id = user_data["Id"]
-
-        profile_response = requests.get(f"https://users.roblox.com/v1/users/{user_id}")
-        profile_data = profile_response.json()
-
-        display_name = profile_data["displayName"]
-        join_date = profile_data["created"]
-        description = profile_data["description"]
-
-        avatar_url = f"https://www.roblox.com/Avatar-thumbnail/image?userId={user_id}&width=420&height=420&format=png"
-
-        embed = discord.Embed(title=f"Roblox User: {display_name}", color=0x00ff00)
-        embed.set_thumbnail(url=avatar_url)
-        embed.add_field(name="Join Date", value=join_date, inline=False)
-        embed.add_field(name="Description", value=description, inline=False)
-
-        await ctx.send(embed=embed)
-    except Exception as e:
-        await ctx.send(f"Error fetching data: {str(e)}")
-
 client.run(os.getenv('TOKEN'))
