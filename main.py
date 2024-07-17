@@ -71,6 +71,27 @@ async def send_quote(ctx):
     else:
         await ctx.send("Sorry, I couldn't fetch a quote at the moment.")
 
+@client.command(name='animequote', aliases=['aq'])
+async def quote(ctx):
+    response = requests.get('https://nozcyy-api.onrender.com/anime/quote')
+    if response.status_code == 200:
+        data = response.json()
+        quote = data['quote']
+        character = data['character']
+        anime = data['anime']
+        
+        embed = discord.Embed(
+            title=f'Anime Quote',
+            description=f'"{quote}"',
+            color=discord.Color.blue()
+        )
+        embed.add_field(name='Character', value=character, inline=True)
+        embed.add_field(name='Anime', value=anime, inline=True)
+
+        await ctx.send(embed=embed)
+    else:
+        await ctx.send('Failed to retrieve a quote.')
+
 @client.command(name='rizz', aliases=['r'])
 async def send_rizz(ctx):
     pickup_line = await fetch_pickup_line()
