@@ -72,7 +72,7 @@ async def send_quote(ctx):
         await ctx.send("Sorry, I couldn't fetch a quote at the moment.")
 
 @client.command(name='animequote', aliases=['aq'])
-async def quote(ctx):
+async def animequote(ctx):
     response = requests.get('https://nozcyy-api.onrender.com/anime/quote')
     if response.status_code == 200:
         data = response.json()
