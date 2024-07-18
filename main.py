@@ -483,4 +483,28 @@ async def ping(ctx):
     embed = discord.Embed(description=f'Bot Ping: {round(client.latency * 1000)}ms', color=0x00ff00)
     await ctx.send(embed=embed)
 
+@client.command(name='mute', help='Mutes someone from chatting')
+async def mute(ctx, target: discord.Member = None):
+    if not target:
+        target = ctx.author
+        
+    if ctx.author.guild_permissions.manage_channels:
+        await ctx.channel.set_permissions(target, send_messages=False)
+        embed = discord.Embed(title="User Muted", description=f"{target.display_name} has been muted in this channel.", color=discord.Color.red())
+        await ctx.send(embed=embed)
+    else:
+        await ctx.send("You don't have permission to mute members.")
+
+@client.command(name='unmute', help='Unmutes someone from chatting')
+async def unmute(ctx, target: discord.Member = None):
+    if not target:
+        target = ctx.author
+        
+    if ctx.author.guild_permissions.manage_channels:
+        await ctx.channel.set_permissions(target, send_messages=True)
+        embed = discord.Embed(title="User Unmuted", description=f"{target.display_name} has been unmuted in this channel.", color=discord.Color.green())
+        await ctx.send(embed=embed)
+    else:
+        await ctx.send("You don't have permission to unmute members.")
+
 client.run(os.getenv('TOKEN'))
