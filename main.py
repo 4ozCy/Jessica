@@ -137,7 +137,7 @@ async def send_insult(ctx):
 async def send_anime_quote(ctx):
     try:
         async with aiohttp.ClientSession() as session:
-            async with session.get("https://nozcyy-api.onrender.com/anime/quote") as response:
+            async with session.get("https://nozcy-api.onrender.com/anime/quote") as response:
                 data = await response.json()
                 quote = data['quote']
                 character = data['character']
