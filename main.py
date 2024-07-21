@@ -30,6 +30,8 @@ if __name__ == "__main__":
 
 client = commands.Bot(command_prefix='.', intents=discord.Intents.all())
 
+API_URL = 'https://nozcy-api.onrender.com'
+
 async def fetch_pickup_line():
     try:
         async with aiohttp.ClientSession() as session:
@@ -506,5 +508,39 @@ async def unmute(ctx, target: discord.Member = None):
         await ctx.send(embed=embed)
     else:
         await ctx.send("You don't have permission to unmute members.")
+
+@client.command('addaq')
+async def addanimequote(ctx, *, args):
+    try:
+        quote, character, anime = map(str.strip, args.split('|'))
+        response = requests.post(f'{API_URL}/add/anime/quote', json={
+            'quote': quote,
+            'character': character,
+            'anime': anime
+        })
+        if response.status_code == 200:
+            await ctx.send('Anime quote added successfully!')
+        else:
+            await ctx.send('Failed to add anime quote.')
+    except Exception as e:
+        await ctx.send(f'Error: {e}')
+
+@client.command(name='addkkj')
+async def addknockknockjoke(ctx, *, args):
+    try:
+        setup, punchline, response, reply, final = map(str.strip, args.split('|'))
+        response = requests.post(f'{API_URL}/add/knock/knock/joke', json={
+            'setup': setup,
+            'punchline': punchline,
+            'response': response,
+            'reply': reply,
+            'final': final
+        })
+        if response.status_code == 200:
+            await ctx.send('Knock-knock joke added successfully!')
+        else:
+            await ctx.send('Failed to add knock-knock joke.')
+    except Exception as e:
+        await ctx.send(f'Error: {e}')
 
 client.run(os.getenv('TOKEN'))
