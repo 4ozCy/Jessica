@@ -5,3 +5,4 @@ Flask
 requests
 flask-socketio
 youtube_dl
+PyNaCl
