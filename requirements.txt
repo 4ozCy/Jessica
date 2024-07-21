@@ -4,3 +4,4 @@ python-dotenv
 Flask
 requests
 flask-socketio
+youtube_dl
