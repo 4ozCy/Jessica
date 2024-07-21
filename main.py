@@ -8,6 +8,7 @@ from threading import Thread
 from datetime import datetime
 import random
 import requests
+import youtube_dl
 afk_users = {}
 
 load_dotenv()
