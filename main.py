@@ -8,7 +8,6 @@ from threading import Thread
 from datetime import datetime
 import random
 import requests
-import youtube_dl
 afk_users = {}
 
 load_dotenv()
@@ -543,48 +542,5 @@ async def addknockknockjoke(ctx, *, args):
             await ctx.send('Failed to add knock-knock joke.')
     except Exception as e:
         await ctx.send(f'Error: {e}')
-
-@client.command(name='play', help='Plays a song from YouTube')
-async def play(ctx, url: str):
-    if not ctx.author.voice:
-        await ctx.send("You are not connected to a voice channel.")
-        return
-
-    channel = ctx.author.voice.channel
-
-    voice_client = discord.utils.get(client.voice_clients, guild=ctx.guild)
-    if not voice_client:
-        await channel.connect()
-        voice_client = discord.utils.get(client.voice_clients, guild=ctx.guild)
-
-    ydl_opts = {
-        'format': 'bestaudio/best',
-        'postprocessors': [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'mp3',
-            'preferredquality': '192',
-        }],
-        'outtmpl': 'downloads/%(title)s.%(ext)s',
-        'quiet': True,
-    }
-
-    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-        info_dict = ydl.extract_info(url, download=True)
-        filename = ydl.prepare_filename(info_dict)
-        filename = filename.replace('.webm', '.mp3').replace('.m4a', '.mp3')
-
-    if not voice_client.is_playing():
-        voice_client.play(discord.FFmpegPCMAudio(filename))
-        await ctx.send(f'Now playing: {info_dict["title"]}')
-    else:
-        await ctx.send("Already playing a song. Please wait until the current song is finished.")
-
-@client.command(name='leave', help='Stops and disconnects the bot from voice')
-async def leave(ctx):
-    voice_client = discord.utils.get(client.voice_clients, guild=ctx.guild)
-    if voice_client.is_connected():
-        await voice_client.disconnect()
-    else:
-        await ctx.send("The bot is not connected to a voice channel.")
 
 client.run(os.getenv('TOKEN'))
