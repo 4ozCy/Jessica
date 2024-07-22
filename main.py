@@ -48,8 +48,6 @@ roasts = [
     "It's not me, it's you."
 ]
 
-API_URL = 'https://nozcy-api.onrender.com'
-
 async def fetch_pickup_line():
     try:
         async with aiohttp.ClientSession() as session:
@@ -158,6 +156,8 @@ async def send_help(ctx):
     embed.add_field(name="lock/unlock", value="lock and unlock the specific channel", inline=True)
     embed.add_field(name="server-lock/server-unlock", value="lock and unlock server", inline=True)
     embed.add_field(name="add-emoji", value="add emoji", inline=False)
+    embed.add_field(name="kick/ban", value="kick and banned someone from your server", inline=False)
+    embed.add_field(name="mute/unmute", value="mute and unmute someone from chatting in a specific channel", inline=False)
     
     await ctx.send(embed=embed)
 
@@ -335,17 +335,6 @@ async def spam(ctx, message: str, member: discord.Member, count: int):
     for _ in range(count):
         await ctx.send(f"{message} {member.mention}")
         
-@client.command(name='meme')
-async def meme(ctx):
-    async with aiohttp.ClientSession() as session:
-        async with session.get('https://api.imgflip.com/get_memes') as response:
-            meme_data = await response.json()
-            memes = meme_data['data']['memes']
-            meme = random.choice(memes)
-            embed = discord.Embed(title=meme['name'])
-            embed.set_image(url=meme['url'])
-            await ctx.send(embed=embed)
-
 @client.command(name='avatar', aliases=['av'])
 async def avatar(ctx, *, member: discord.Member = None):
     if not member:
@@ -546,40 +535,6 @@ async def unmute(ctx, target: discord.Member = None):
         await ctx.send(embed=embed)
     else:
         await ctx.send("You don't have permission to unmute members.")
-
-@client.command('addaq')
-async def addanimequote(ctx, *, args):
-    try:
-        quote, character, anime = map(str.strip, args.split('|'))
-        response = requests.post(f'{API_URL}/add/anime/quote', json={
-            'quote': quote,
-            'character': character,
-            'anime': anime
-        })
-        if response.status_code == 200:
-            await ctx.send('Anime quote added successfully!')
-        else:
-            await ctx.send('Failed to add anime quote.')
-    except Exception as e:
-        await ctx.send(f'Error: {e}')
-
-@client.command(name='addkkj')
-async def addknockknockjoke(ctx, *, args):
-    try:
-        setup, punchline, response, reply, final = map(str.strip, args.split('|'))
-        response = requests.post(f'{API_URL}/add/knock/knock/joke', json={
-            'setup': setup,
-            'punchline': punchline,
-            'response': response,
-            'reply': reply,
-            'final': final
-        })
-        if response.status_code == 200:
-            await ctx.send('Knock-knock joke added successfully!')
-        else:
-            await ctx.send('Failed to add knock-knock joke.')
-    except Exception as e:
-        await ctx.send(f'Error: {e}')
 
 @client.command(name='kick')
 @commands.has_permissions(kick_members=True)
