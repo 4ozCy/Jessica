@@ -30,6 +30,23 @@ if __name__ == "__main__":
 
 client = commands.Bot(command_prefix='.', intents=discord.Intents.all())
 
+kick_gifs = [
+    'https://media.giphy.com/media/l0IylOPCNkiqOgMyA/giphy.gif',
+    'https://media.giphy.com/media/3o6ZsYz3dZ8YB2UuLe/giphy.gif'
+]
+
+ban_gifs = [
+    'https://media.giphy.com/media/QytinY1yCWdQA/giphy.gif',
+    'https://media.giphy.com/media/LHboFL4CMmTZe/giphy.gif'
+]
+
+roasts = [
+    "Don't let the door hit you on the way out!",
+    "Well, that escalated quickly...",
+    "Maybe you'll find better luck elsewhere.",
+    "It's not me, it's you."
+]
+
 API_URL = 'https://nozcy-api.onrender.com'
 
 async def fetch_pickup_line():
@@ -542,5 +559,49 @@ async def addknockknockjoke(ctx, *, args):
             await ctx.send('Failed to add knock-knock joke.')
     except Exception as e:
         await ctx.send(f'Error: {e}')
+
+@client.command(name='kick')
+@commands.has_permissions(kick_members=True)
+async def kick(ctx, member: discord.Member, *, reason=None):
+    if reason is None:
+        reason = "No reason provided"
+
+    await member.kick(reason=reason)
+    gif = random.choice(kick_gifs)
+    roast = random.choice(roasts)
+    embed = discord.Embed(title=f'{member} has been kicked!', description=f'Reason: {reason}\n{roast}', color=0xff0000)
+    embed.set_image(url=gif)
+    await ctx.send(embed=embed)
+    
+    log_channel = discord.utils.get(ctx.guild.text_channels, name='log-channel')  # Replace 'log-channel' with your channel name
+    if log_channel:
+        await log_channel.send(f'{member} was kicked by {ctx.author} for: {reason}')
+
+@client.command(name='ban')
+@commands.has_permissions(ban_members=True)
+async def ban(ctx, member: discord.Member, *, reason=None):
+    if reason is None:
+        reason = "No reason provided"
+
+    await member.ban(reason=reason)
+    gif = random.choice(ban_gifs)
+    roast = random.choice(roasts)
+    embed = discord.Embed(title=f'{member} has been banned!', description=f'Reason: {reason}\n{roast}', color=0xff0000)
+    embed.set_image(url=gif)
+    await ctx.send(embed=embed)
+    
+    log_channel = discord.utils.get(ctx.guild.text_channels, name='log-channel')  # Replace 'log-channel' with your channel name
+    if log_channel:
+        await log_channel.send(f'{member} was banned by {ctx.author} for: {reason}')
+
+@kick.error
+@ban.error
+async def kick_ban_error(ctx, error):
+    if isinstance(error, commands.MissingPermissions):
+        await ctx.send("You don't have permission to do that!")
+    elif isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send("Please mention a member and provide a reason.")
+    else:
+        await ctx.send("An error occurred.")
 
 client.run(os.getenv('TOKEN'))
