@@ -8,6 +8,7 @@ from threading import Thread
 from datetime import datetime
 import random
 import requests
+import openai
 afk_users = {}
 
 load_dotenv()
@@ -80,6 +81,26 @@ async def fetch_quote():
 async def on_ready():
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="Made by: @nozcy. | .cmds"))
     print(f'We have logged in as {client.user}')
+
+@client.event
+async def on_message(message):
+    if message.author == client.user:
+        return
+
+    if message.content.startswith('.'):
+        await client.process_commands(message)
+        return
+
+    try:
+        response = openai.Completion.create(
+            engine="gpt-4",
+            prompt=f"You are a helpful assistant. {message.content}",
+            max_tokens=150
+        )
+        reply = response.choices[0].text.strip()
+        await message.channel.send(reply)
+    except Exception as e:
+        await message.channel.send(f"An error occurred: {e}")
   
 @client.command(name='quote')
 async def send_quote(ctx):
