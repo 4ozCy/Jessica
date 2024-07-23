@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+from discord.ui import Select, View
 import aiohttp
 import os
 from dotenv import load_dotenv
@@ -135,31 +136,53 @@ async def joke(ctx):
 
 @client.command(name='cmds')
 async def send_help(ctx):
-    embed = discord.Embed(title="Commands list", color=0x3498db)
-    embed.add_field(name="quote", value="send a random inspirational quote.", inline=False)
-    embed.add_field(name="rizz", value="Rizz You Up", inline=False)
-    embed.add_field(name="joke", value="Tells a random joke.", inline=False)
-    embed.add_field(name="insult/in", value="send a random insult", inline=False)
-    embed.add_field(name="animequote/aq", value="send a random anime quote.", inline=False)
-    embed.add_field(name="slap", value="Slap you in the face", inline=False)
-    embed.add_field(name="Breakup/bp", value="If you want to breakup with your love use this command.", inline=False)
-    embed.add_field(name="autorole/ar", value="setup an auto-role here how to use this cmd (use .ar and mention role that you want to put to Autorole and mention channel for Autorole log)", inline=False)
-    embed.add_field(name="punch/p", value="punch you in the face", inline=False)
-    embed.add_field(name="giverole/gr", value="give role to someone", inline=False)
-    embed.add_field(name="Purge", value="delete massage in specific channel", inline=False)
-    embed.add_field(name="afk", value="away from keyboard", inline=False)
-    embed.add_field(name="ping", value="show bot ping", inline=False)
-    embed.add_field(name="avatar/av", value="you already know what this is", inline=False)
-    embed.add_field(name="server_info/sf", value="get server information", inline=False)
-    embed.add_field(name="dare/truth", value="play truth or dare", inline=False)
-    embed.add_field(name="delete_channel/dc", value="delete specific channel", inline=False)
-    embed.add_field(name="lock/unlock", value="lock and unlock the specific channel", inline=True)
-    embed.add_field(name="server-lock/server-unlock", value="lock and unlock server", inline=True)
-    embed.add_field(name="add-emoji", value="add emoji", inline=False)
-    embed.add_field(name="kick/ban", value="kick and banned someone from your server", inline=False)
-    embed.add_field(name="mute/unmute", value="mute and unmute someone from chatting in a specific channel", inline=False)
-    
-    await ctx.send(embed=embed)
+    class HelpSelect(Select):
+        def __init__(self):
+            options = [
+                discord.SelectOption(label="General", description="General commands"),
+                discord.SelectOption(label="Moderation", description="Moderation commands"),
+                discord.SelectOption(label="Fun", description="Fun commands")
+            ]
+            super().__init__(placeholder='Choose a category...', min_values=1, max_values=1, options=options)
+
+        async def callback(self, interaction: discord.Interaction):
+            embed = discord.Embed(title=f"{self.values[0]} Commands", color=0x3498db)
+
+            if self.values[0] == "General":
+                embed.add_field(name="ping", value="show bot ping", inline=False)
+                embed.add_field(name="avatar/av", value="you already know what this is", inline=False)
+                embed.add_field(name="server_info/sf", value="get server information", inline=False)
+
+            elif self.values[0] == "Moderation":
+                embed.add_field(name="kick/ban", value="kick and banned someone from your server", inline=False)
+                embed.add_field(name="mute/unmute", value="mute and unmute someone from chatting in a specific channel", inline=False)
+                embed.add_field(name="lock/unlock", value="lock and unlock the specific channel", inline=True)
+                embed.add_field(name="server-lock/server-unlock", value="lock and unlock server", inline=True)
+                embed.add_field(name="delete_channel/dc", value="delete specific channel", inline=False)
+
+            elif self.values[0] == "Fun":
+                embed.add_field(name="quote", value="send a random inspirational quote.", inline=False)
+                embed.add_field(name="rizz", value="Rizz You Up", inline=False)
+                embed.add_field(name="joke", value="Tells a random joke.", inline=False)
+                embed.add_field(name="insult/in", value="send a random insult", inline=False)
+                embed.add_field(name="animequote/aq", value="send a random anime quote.", inline=False)
+                embed.add_field(name="slap", value="Slap you in the face", inline=False)
+                embed.add_field(name="Breakup/bp", value="If you want to breakup with your love use this command.", inline=False)
+                embed.add_field(name="punch/p", value="punch you in the face", inline=False)
+                embed.add_field(name="giverole/gr", value="give role to someone", inline=False)
+                embed.add_field(name="dare/truth", value="play truth or dare", inline=False)
+                embed.add_field(name="add-emoji", value="add emoji", inline=False)
+
+            await interaction.response.edit_message(embed=embed, view=self.view)
+
+    class HelpView(View):
+        def __init__(self):
+            super().__init__()
+            self.add_item(HelpSelect())
+
+    embed = discord.Embed(title="Commands list", description="Select a category to view commands.", color=0x3498db)
+    view = HelpView()
+    await ctx.send(embed=embed, view=view)
 
 @client.command(name='insult', aliases=['in'])
 async def send_insult(ctx):
