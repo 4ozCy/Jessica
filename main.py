@@ -46,7 +46,9 @@ roasts = [
     "Don't let the door hit you on the way out!",
     "Well, that escalated quickly...",
     "Maybe you'll find better luck elsewhere.",
-    "It's not me, it's you."
+    "It's not me, it's you.",
+    "why did you broke the rules",
+    "lollll ez"
 ]
 
 async def fetch_pickup_line():
@@ -152,6 +154,7 @@ async def send_help(ctx):
                 embed.add_field(name="ping", value="show bot ping", inline=False)
                 embed.add_field(name="avatar/av", value="you already know what this is", inline=False)
                 embed.add_field(name="server_info/sf", value="get server information", inline=False)
+                embed.add_field(name="bot-info", value="get bot information", inline=False)
 
             elif self.values[0] == "Moderation":
                 embed.add_field(name="kick/ban", value="kick and banned someone from your server", inline=False)
@@ -603,18 +606,16 @@ async def kick_ban_error(ctx, error):
     else:
         await ctx.send("An error occurred.")
 
-@client.command(name='bot')
-async def bot(ctx, subcommand: str = None):
-    if subcommand == "info":
+@client.command(name='bot-info')
+async def bot_info(ctx):
     embed = discord.Embed(title="Bot Information", color=0x3498db)
     embed.add_field(name="Bot Name", value=client.user.name, inline=True)
     embed.add_field(name="Bot ID", value=client.user.id, inline=True)
     embed.add_field(name="Server Count", value=len(client.guilds), inline=True)
     embed.add_field(name="User Count", value=len(set(client.get_all_members())), inline=True)
     embed.add_field(name="Ping", value=f"{round(client.latency * 1000)}ms", inline=True)
-    embed.add_field(name="Background History", value="This bot was inspired by my ex's habits. It was initially developed as a fun project to mimic and play around with those habits. Over time, it has evolved into a full-fledged assistant for managing servers, providing entertainment, and interacting with users.", inline=False)
+    embed.add_field(name="Background History", value="This bot was inspired by my ex-girlfriend/mine habits. It was initially developed as a fun project to mimic and play around with those habits. Over time, it has evolved into a full-fledged assistant for managing servers, providing entertainment, and interacting with users.", inline=False)
     embed.add_field(name="Development", value="The bot is built using the discord.py library and is regularly updated to ensure smooth functionality and to add new features.", inline=False)
-    embed.add_field(name="Contributors", value="Thanks to all the contributors who helped in developing and maintaining the bot.", inline=False)
 
     await ctx.send(embed=embed)
 
