@@ -603,4 +603,19 @@ async def kick_ban_error(ctx, error):
     else:
         await ctx.send("An error occurred.")
 
+@client.command(name='bot')
+async def bot(ctx, subcommand: str = None):
+    if subcommand == "info":
+    embed = discord.Embed(title="Bot Information", color=0x3498db)
+    embed.add_field(name="Bot Name", value=client.user.name, inline=True)
+    embed.add_field(name="Bot ID", value=client.user.id, inline=True)
+    embed.add_field(name="Server Count", value=len(client.guilds), inline=True)
+    embed.add_field(name="User Count", value=len(set(client.get_all_members())), inline=True)
+    embed.add_field(name="Ping", value=f"{round(client.latency * 1000)}ms", inline=True)
+    embed.add_field(name="Background History", value="This bot was inspired by my ex's habits. It was initially developed as a fun project to mimic and play around with those habits. Over time, it has evolved into a full-fledged assistant for managing servers, providing entertainment, and interacting with users.", inline=False)
+    embed.add_field(name="Development", value="The bot is built using the discord.py library and is regularly updated to ensure smooth functionality and to add new features.", inline=False)
+    embed.add_field(name="Contributors", value="Thanks to all the contributors who helped in developing and maintaining the bot.", inline=False)
+
+    await ctx.send(embed=embed)
+
 client.run(os.getenv('TOKEN'))
