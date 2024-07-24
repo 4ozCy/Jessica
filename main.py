@@ -141,9 +141,9 @@ async def send_help(ctx):
     class HelpSelect(Select):
         def __init__(self):
             options = [
-                discord.SelectOption(label="General", description="General commands"),
-                discord.SelectOption(label="Moderation", description="Moderation commands"),
-                discord.SelectOption(label="Fun", description="Fun commands")
+                discord.SelectOption(label="General", description="General commands", emoji="🔧"),
+                discord.SelectOption(label="Moderation", description="Moderation commands", emoji="🛡️"),
+                discord.SelectOption(label="Fun", description="Fun commands", emoji="🎉")
             ]
             super().__init__(placeholder='Choose a category...', min_values=1, max_values=1, options=options)
 
@@ -151,30 +151,32 @@ async def send_help(ctx):
             embed = discord.Embed(title=f"{self.values[0]} Commands", color=0x3498db)
 
             if self.values[0] == "General":
-                embed.add_field(name="ping", value="show bot ping", inline=False)
-                embed.add_field(name="avatar/av", value="you already know what this is", inline=False)
-                embed.add_field(name="server_info/sf", value="get server information", inline=False)
-                embed.add_field(name="bot-info", value="get bot information", inline=False)
+                embed.add_field(name="ping", value="Show bot ping", inline=False)
+                embed.add_field(name="avatar/av", value="Display user avatar", inline=False)
+                embed.add_field(name="server_info/sf", value="Get server information", inline=False)
+                embed.add_field(name="bot-info", value="Get bot information", inline=False)
 
             elif self.values[0] == "Moderation":
-                embed.add_field(name="kick/ban", value="kick and banned someone from your server", inline=False)
-                embed.add_field(name="mute/unmute", value="mute and unmute someone from chatting in a specific channel", inline=False)
-                embed.add_field(name="lock/unlock", value="lock and unlock the specific channel", inline=True)
-                embed.add_field(name="server-lock/server-unlock", value="lock and unlock server", inline=True)
-                embed.add_field(name="delete_channel/dc", value="delete specific channel", inline=False)
+                embed.add_field(name="kick", value="Kick a member", inline=False)
+                embed.add_field(name="ban", value="Ban a member", inline=False)
+                embed.add_field(name="mute", value="Mute a member", inline=False)
+                embed.add_field(name="unmute", value="Unmute a member", inline=False)
+                embed.add_field(name="lock", value="Lock a channel", inline=False)
+                embed.add_field(name="unlock", value="Unlock a channel", inline=False)
+                embed.add_field(name="delete_channel/dc", value="Delete a specific channel", inline=False)
 
             elif self.values[0] == "Fun":
-                embed.add_field(name="quote", value="send a random inspirational quote.", inline=False)
+                embed.add_field(name="quote", value="Send a random inspirational quote", inline=False)
                 embed.add_field(name="rizz", value="Rizz You Up", inline=False)
-                embed.add_field(name="joke", value="Tells a random joke.", inline=False)
-                embed.add_field(name="insult/in", value="send a random insult", inline=False)
-                embed.add_field(name="animequote/aq", value="send a random anime quote.", inline=False)
-                embed.add_field(name="slap", value="Slap you in the face", inline=False)
-                embed.add_field(name="Breakup/bp", value="If you want to breakup with your love use this command.", inline=False)
-                embed.add_field(name="punch/p", value="punch you in the face", inline=False)
-                embed.add_field(name="giverole/gr", value="give role to someone", inline=False)
-                embed.add_field(name="dare/truth", value="play truth or dare", inline=False)
-                embed.add_field(name="add-emoji", value="add emoji", inline=False)
+                embed.add_field(name="joke", value="Tell a random joke", inline=False)
+                embed.add_field(name="insult/in", value="Send a random insult", inline=False)
+                embed.add_field(name="animequote/aq", value="Send a random anime quote", inline=False)
+                embed.add_field(name="slap", value="Slap someone", inline=False)
+                embed.add_field(name="Breakup/bp", value="Break up with your love", inline=False)
+                embed.add_field(name="punch/p", value="Punch someone", inline=False)
+                embed.add_field(name="giverole/gr", value="Give a role to someone", inline=False)
+                embed.add_field(name="dare/truth", value="Play truth or dare", inline=False)
+                embed.add_field(name="add-emoji", value="Add an emoji", inline=False)
 
             await interaction.response.edit_message(embed=embed, view=self.view)
 
@@ -183,7 +185,7 @@ async def send_help(ctx):
             super().__init__()
             self.add_item(HelpSelect())
 
-    embed = discord.Embed(title="Commands list", description="Select a category to view commands.", color=0x3498db)
+    embed = discord.Embed(title="Commands List", description="Select a category to view commands.", color=0x3498db)
     view = HelpView()
     await ctx.send(embed=embed, view=view)
 
