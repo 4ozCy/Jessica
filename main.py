@@ -109,7 +109,6 @@ async def send_quote(ctx):
     quote = await fetch_quote()
     if quote:
         embed = discord.Embed(description=quote, color=discord.Color.blurple())
-        embed.set_thumbnail(url=client.user.avatar.url)
         embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
         embed.timestamp = discord.utils.utcnow()
         await ctx.send(embed=embed)
@@ -120,7 +119,9 @@ async def send_quote(ctx):
 async def send_rizz(ctx):
     pickup_line = await fetch_pickup_line()
     if pickup_line:
-        embed = discord.Embed(description=pickup_line, color=0x3498db)
+        embed = discord.Embed(description=pickup_line, color=discord.Color.blurple())
+        embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
+        embed.timestamp = discord.utils.utcnow()
         await ctx.send(embed=embed)
     else:
         await ctx.send("Sorry, I couldn't fetch a pickup line at the moment.")
@@ -136,8 +137,9 @@ async def joke(ctx):
                 else:
                     joke = f"{data['setup']} - {data['delivery']}"
 
-                embed = discord.Embed(description=joke, color=0x00ff00)
-
+                embed = discord.Embed(description=joke, color=discord.Color.blurple())
+                embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
+                embed.timestamp = discord.utils.utcnow()
                 await ctx.send(embed=embed)
 
 @client.command(name='cmds')
@@ -208,7 +210,9 @@ async def send_anime_quote(ctx):
                 quote = data['quote']
                 character = data['character']
                 anime = data['anime']
-                embed = discord.Embed(description=f'"{quote}"\n-{character} ({anime})', color=0x3498db)
+                embed = discord.Embed(description=f'"{quote}"\n-{character} ({anime})', color=discord.Color.blurple())
+                embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
+                embed.timestamp = discord.utils.utcnow()
                 await ctx.send(embed=embed)
     except Exception as e:
         print(f"An error occurred while fetching anime quote: {e}")
@@ -225,8 +229,10 @@ async def slap(ctx, member: discord.Member):
             if response.status == 200:
                 data = await response.json()
                 gif_url = data['url']
-                embed = discord.Embed(title="slap you in the face because i wanted to.", description=f"{ctx.author.mention} slaps {member.mention}!!", color=0x3498db)
+                embed = discord.Embed(title="slap you in the face because i wanted to.", description=f"{ctx.author.mention} slaps {member.mention}!!", color=discord.Color.blurple())
                 embed.set_image(url=gif_url)
+                embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
+                embed.timestamp = discord.utils.utcnow()
                 await ctx.send(embed=embed)
             else:
                 await ctx.send("You're too weak to slap someone")
