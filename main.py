@@ -152,7 +152,10 @@ async def send_help(ctx):
             super().__init__(placeholder='Choose a category...', min_values=1, max_values=1, options=options)
 
         async def callback(self, interaction: discord.Interaction):
-            embed = discord.Embed(title=f"{self.values[0]} Commands", color=discord.Color.blurple()))
+            embed = discord.Embed(title=f"{self.values[0]} Commands", color=discord.Color.blurple())
+            embed.set_thumbnail(url=client.user.avatar.url)
+            embed.set_footer(text=f"Requested by {interaction.user}", icon_url=interaction.user.avatar.url)
+            embed.timestamp = discord.utils.utcnow()
 
             if self.values[0] == "General":
                 embed.add_field(name="ping", value="Show bot ping", inline=False)
@@ -173,7 +176,6 @@ async def send_help(ctx):
                 embed.add_field(name="quote", value="Send a random inspirational quote", inline=False)
                 embed.add_field(name="rizz", value="Rizz You Up", inline=False)
                 embed.add_field(name="joke", value="Tell a random joke", inline=False)
-                embed.add_field(name="insult/in", value="Send a random insult", inline=False)
                 embed.add_field(name="animequote/aq", value="Send a random anime quote", inline=False)
                 embed.add_field(name="slap", value="Slap someone", inline=False)
                 embed.add_field(name="Breakup/bp", value="Break up with your love", inline=False)
