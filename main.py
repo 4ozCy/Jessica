@@ -257,7 +257,9 @@ async def set_autorole(ctx, role: discord.Role, channel: discord.TextChannel):
         autorole_role_id = role.id
         autorole_channel_id = channel.id
         
-        embed = discord.Embed(title="Autorole Set", description=f"Autorole set to {role.mention} in {channel.mention}.", color=0x00ff00)
+        embed = discord.Embed(title="Autorole Set", description=f"Autorole set to {role.mention} in {channel.mention}.", color=discord.Color.blurple())
+        embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
+        embed.timestamp = discord.utils.utcnow()
         await ctx.send(embed=embed)
     else:
         await ctx.send("You don't have permission to use this command.")
@@ -272,7 +274,7 @@ async def on_member_join(member):
             
             channel = member.guild.get_channel(autorole_channel_id)
             if channel:
-                embed = discord.Embed(description=f"{member.mention} has been assigned the autorole.", color=0x00ff00)
+                embed = discord.Embed(description=f"{member.mention} has been assigned the autorole.", color=discord.Color.blurple())
                 await channel.send(embed=embed)
             else:
                 print("Channel not found.")
@@ -290,8 +292,10 @@ async def punch_member(ctx, member: discord.Member):
             if response.status == 200:
                 data = await response.json()
                 gif_url = data['url']
-                embed = discord.Embed(title="punch you in the face because I'm bored.", description=f"{ctx.author.mention} punches {member.mention}!", color=0xFF5733)
+                embed = discord.Embed(title="punch you in the face because I'm bored.", description=f"{ctx.author.mention} punches {member.mention}!", color=discord.Color.blurple())
                 embed.set_image(url=gif_url)
+                embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
+                embed.timestamp = discord.utils.utcnow()
                 await ctx.send(embed=embed)
             else:
                 await ctx.send("You're to weak you can't punch someone")
@@ -301,15 +305,16 @@ async def give_role(ctx, member: discord.Member, role: discord.Role):
     if ctx.author.guild_permissions.manage_roles:
         if role:
             if role in member.roles:
-                embed = discord.Embed(description=f"{member.mention} already has the {role.mention} role.", color=discord.Color.orange())
+                embed = discord.Embed(description=f"{member.mention} already has the {role.mention} role.", color=discord.Color.blurple())
             else:
                 await member.add_roles(role)
-                embed = discord.Embed(description=f"{member.mention} has been given the {role.mention} role.", color=discord.Color.green())
+                embed = discord.Embed(description=f"{member.mention} has been given the {role.mention} role.", color=discord.Color.blurple())
         else:
             embed = discord.Embed(description="Role not found.", color=discord.Color.red())
     else:
         embed = discord.Embed(description="You do not have permission to manage roles.", color=discord.Color.red())
-
+        embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
+        embed.timestamp = discord.utils.utcnow()
     await ctx.send(embed=embed)
 
 @client.command(name='purge')
@@ -386,6 +391,8 @@ async def serverinfo(ctx):
     embed.add_field(name="Creation Date", value=guild.created_at.strftime("%Y-%m-%d %H:%M:%S"), inline=True)
     embed.add_field(name="Role Count", value=len(guild.roles), inline=True)
     embed.add_field(name="Emoji Count", value=len(guild.emojis), inline=True)
+    embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
+    embed.timestamp = discord.utils.utcnow()
     await ctx.send(embed=embed)
 
 @client.command(name='dare')
@@ -395,7 +402,9 @@ async def dare(ctx):
             if response.status == 200:
                 data = await response.json()
                 dare_question = data['question']
-                embed = discord.Embed(title="Dare", description=dare_question, color=discord.Color.red())
+                embed = discord.Embed(title="Dare", description=dare_question, color=discord.Color.blurple())
+                embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
+                embed.timestamp = discord.utils.utcnow()
                 await ctx.send(embed=embed)
             else:
                 await ctx.send("I couldn't dare you at the moment, please try again later.")
@@ -407,7 +416,9 @@ async def truth(ctx):
             if response.status == 200:
                 data = await response.json()
                 truth_question = data['question']
-                embed = discord.Embed(title="Truth", description=truth_question, color=discord.Color.blue())
+                embed = discord.Embed(title="Truth", description=truth_question, color=discord.Color.blurple())
+                embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
+                embed.timestamp = discord.utils.utcnow()
                 await ctx.send(embed=embed)
             else:
                 await ctx.send("I couldn't send a question at the moment, please try again later.")
@@ -541,7 +552,9 @@ async def tp(ctx, member: discord.Member, channel: discord.VoiceChannel):
 
 @client.command(name='ping')
 async def ping(ctx):
-    embed = discord.Embed(description=f'Bot Ping: {round(client.latency * 1000)}ms', color=0x00ff00)
+    embed = discord.Embed(description=f'Bot Ping: {round(client.latency * 1000)}ms', color=discord.Color.blurple())
+    embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
+    embed.timestamp = discord.utils.utcnow()
     await ctx.send(embed=embed)
 
 @client.command(name='mute', help='Mutes someone from chatting')
@@ -551,7 +564,9 @@ async def mute(ctx, target: discord.Member = None):
         
     if ctx.author.guild_permissions.manage_channels:
         await ctx.channel.set_permissions(target, send_messages=False)
-        embed = discord.Embed(title="User Muted", description=f"{target.display_name} has been muted in this channel.", color=discord.Color.red())
+        embed = discord.Embed(title="User Muted", description=f"{target.display_name} has been muted in this channel.", color=discord.Color.blurple())
+        embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
+        embed.timestamp = discord.utils.utcnow()
         await ctx.send(embed=embed)
     else:
         await ctx.send("You don't have permission to mute members.")
@@ -563,7 +578,7 @@ async def unmute(ctx, target: discord.Member = None):
         
     if ctx.author.guild_permissions.manage_channels:
         await ctx.channel.set_permissions(target, send_messages=True)
-        embed = discord.Embed(title="User Unmuted", description=f"{target.display_name} has been unmuted in this channel.", color=discord.Color.green())
+        embed = discord.Embed(title="User Unmuted", description=f"{target.display_name} has been unmuted in this channel.", color=discord.Color.blurple())
         await ctx.send(embed=embed)
     else:
         await ctx.send("You don't have permission to unmute members.")
@@ -577,11 +592,12 @@ async def kick(ctx, member: discord.Member, *, reason=None):
     await member.kick(reason=reason)
     gif = random.choice(kick_gifs)
     roast = random.choice(roasts)
-    embed = discord.Embed(title=f'{member} has been kicked!', description=f'Reason: {reason}\n{roast}', color=0xff0000)
-    embed.set_image(url=gif)
+    embed = discord.Embed(title=f'{member} has been kicked!', description=f'Reason: {reason}\n{roast}', color=discord.Color.blurple()))
+    embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
+    embed.timestamp = discord.utils.utcnow()
     await ctx.send(embed=embed)
     
-    log_channel = discord.utils.get(ctx.guild.text_channels, name='log-channel')  # Replace 'log-channel' with your channel name
+    log_channel = discord.utils.get(ctx.guild.text_channels, name='log-channel')
     if log_channel:
         await log_channel.send(f'{member} was kicked by {ctx.author} for: {reason}')
 
@@ -594,11 +610,12 @@ async def ban(ctx, member: discord.Member, *, reason=None):
     await member.ban(reason=reason)
     gif = random.choice(ban_gifs)
     roast = random.choice(roasts)
-    embed = discord.Embed(title=f'{member} has been banned!', description=f'Reason: {reason}\n{roast}', color=0xff0000)
-    embed.set_image(url=gif)
+    embed = discord.Embed(title=f'{member} has been banned!', description=f'Reason: {reason}\n{roast}', color=discord.Color.blurple())
+    embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
+    embed.timestamp = discord.utils.utcnow()
     await ctx.send(embed=embed)
     
-    log_channel = discord.utils.get(ctx.guild.text_channels, name='log-channel')  # Replace 'log-channel' with your channel name
+    log_channel = discord.utils.get(ctx.guild.text_channels, name='log-channel')
     if log_channel:
         await log_channel.send(f'{member} was banned by {ctx.author} for: {reason}')
 
@@ -614,15 +631,14 @@ async def kick_ban_error(ctx, error):
 
 @client.command(name='bot-info')
 async def bot_info(ctx):
-    embed = discord.Embed(title="Bot Information", color=0x3498db)
+    embed = discord.Embed(title="Bot Information", color=discord.Color.blurple())
     embed.add_field(name="Bot Name", value=client.user.name, inline=True)
     embed.add_field(name="Bot ID", value=client.user.id, inline=True)
     embed.add_field(name="Server Count", value=len(client.guilds), inline=True)
     embed.add_field(name="User Count", value=len(set(client.get_all_members())), inline=True)
     embed.add_field(name="Ping", value=f"{round(client.latency * 1000)}ms", inline=True)
-    embed.add_field(name="Background History", value="This bot was inspired by my ex-girlfriend/mine habits. It was initially developed as a fun project to mimic and play around with those habits. Over time, it has evolved into a full-fledged assistant for managing servers, providing entertainment, and interacting with users.", inline=False)
-    embed.add_field(name="Development", value="The bot is built using the discord.py library and is regularly updated to ensure smooth functionality and to add new features.", inline=False)
-
+    embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
+    embed.timestamp = discord.utils.utcnow()
     await ctx.send(embed=embed)
 
 client.run(os.getenv('TOKEN'))
