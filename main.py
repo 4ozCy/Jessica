@@ -32,16 +32,6 @@ if __name__ == "__main__":
 
 client = commands.Bot(command_prefix='.', intents=discord.Intents.all())
 
-kick_gifs = [
-    'https://media.giphy.com/media/l0IylOPCNkiqOgMyA/giphy.gif',
-    'https://media.giphy.com/media/3o6ZsYz3dZ8YB2UuLe/giphy.gif'
-]
-
-ban_gifs = [
-    'https://media.giphy.com/media/QytinY1yCWdQA/giphy.gif',
-    'https://media.giphy.com/media/LHboFL4CMmTZe/giphy.gif'
-]
-
 roasts = [
     "Don't let the door hit you on the way out!",
     "Well, that escalated quickly...",
@@ -243,13 +233,14 @@ async def send_breakup(ctx):
         async with aiohttp.ClientSession() as session:
             async with session.get("https://api.jcwyt.com/breakup") as response:
                 breakup_line = await response.text()
-        embed = discord.Embed(title="Breakup Line", description=breakup_line, color=0xFF5733)
+        embed = discord.Embed(title="Breakup Line", description=breakup_line, color=discord.Color.blurple())
+        embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
+        embed.timestamp = discord.utils.utcnow()
         await ctx.send(embed=embed)
     except Exception as e:
         print(f"An error occurred while fetching breakup line: {e}")
         await ctx.send("You're Not Ready to breakup yet.")
         
-
 @client.command(name='autorole', aliases=['ar'])
 async def set_autorole(ctx, role: discord.Role, channel: discord.TextChannel):
     if ctx.author.guild_permissions.manage_roles:
