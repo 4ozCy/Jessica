@@ -48,7 +48,8 @@ roasts = [
     "Maybe you'll find better luck elsewhere.",
     "It's not me, it's you.",
     "why did you broke the rules",
-    "lollll ez"
+    "lollll ez",
+    "noob"
 ]
 
 async def fetch_pickup_line():
@@ -107,7 +108,10 @@ async def on_message(message):
 async def send_quote(ctx):
     quote = await fetch_quote()
     if quote:
-        embed = discord.Embed(description=quote, color=0x3498db)
+        embed = discord.Embed(description=quote, color=discord.Color.blurple())
+        embed.set_thumbnail(url=client.user.avatar.url)
+        embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
+        embed.timestamp = discord.utils.utcnow()
         await ctx.send(embed=embed)
     else:
         await ctx.send("Sorry, I couldn't fetch a quote at the moment.")
