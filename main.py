@@ -148,7 +148,7 @@ async def send_help(ctx):
             super().__init__(placeholder='Choose a category...', min_values=1, max_values=1, options=options)
 
         async def callback(self, interaction: discord.Interaction):
-            embed = discord.Embed(title=f"{self.values[0]} Commands", color=0x3498db)
+            embed = discord.Embed(title=f"{self.values[0]} Commands", color=discord.Color.blurple()))
 
             if self.values[0] == "General":
                 embed.add_field(name="ping", value="Show bot ping", inline=False)
@@ -185,21 +185,13 @@ async def send_help(ctx):
             super().__init__()
             self.add_item(HelpSelect())
 
-    embed = discord.Embed(title="Commands List", description="Select a category to view commands.", color=0x3498db)
+    embed = discord.Embed(title="Commands List", description="Select a category to view commands.", color=discord.Color.blurple())
+    embed.set_thumbnail(url=client.user.avatar.url)
+    embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
+    embed.timestamp = discord.utils.utcnow()
+    
     view = HelpView()
     await ctx.send(embed=embed, view=view)
-
-@client.command(name='insult', aliases=['in'])
-async def send_insult(ctx):
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get("https://insult.mattbas.org/api/insult") as response:
-                insult = await response.text()
-        embed = discord.Embed(description=insult, color=0x3498db)
-        await ctx.send(embed=embed)
-    except Exception as e:
-        print(f"An error occurred while fetching insult: {e}")
-        await ctx.send("You're too weak to insult someone")
       
 @client.command(name='animequote', aliases=['aq'])
 async def send_anime_quote(ctx):
