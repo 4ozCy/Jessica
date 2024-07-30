@@ -583,7 +583,7 @@ async def kick(ctx, member: discord.Member, *, reason=None):
     await member.kick(reason=reason)
     gif = random.choice(kick_gifs)
     roast = random.choice(roasts)
-    embed = discord.Embed(title=f'{member} has been kicked!', description=f'Reason: {reason}\n{roast}', color=discord.Color.blurple()))
+    embed = discord.Embed(title=f'{member} has been kicked!', description=f'Reason: {reason}\n{roast}', color=discord.Color.blurple())
     embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
     embed.timestamp = discord.utils.utcnow()
     await ctx.send(embed=embed)
