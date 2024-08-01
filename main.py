@@ -325,7 +325,7 @@ async def afk(ctx, *, reason="No reason provided"):
     embed = discord.Embed(
         title="AFK Status",
         description=f"{ctx.author.mention} is now AFK.",
-        color=discord.Color.blue())
+        color=discord.Color.blurple())
     embed.add_field(name="Reason", value=reason, inline=False)
     embed.add_field(name="AFK Since", value=datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC'), inline=False)
     embed.set_footer(text="You will be removed from AFK status when you send a message.")
@@ -348,7 +348,7 @@ async def on_message(message):
         embed = discord.Embed(
             title="Welcome Back!",
             description=f"{message.author.mention}, you are no longer AFK.",
-            color=discord.Color.blue())
+            color=discord.Color.blurple())
         embed.add_field(name="AFK Duration", value=f"{hours} hours, {minutes} minutes, and {seconds} seconds.", inline=False)
 
         await message.channel.send(embed=embed)
@@ -364,7 +364,7 @@ async def on_message(message):
 
         embed = discord.Embed(
             title="AFK Notification",
-            description=f"{mention.mention} is currently AFK.", color=discord.Color.blue())
+            description=f"{mention.mention} is currently AFK.", color=discord.Color.blurple())
         embed.add_field(name="Reason", value=afk_data['reason'], inline=False)
         embed.add_field(name="AFK Duration", value=f"{hours} hours, {minutes} minutes, and {seconds} seconds.", inline=False)
 
@@ -454,23 +454,72 @@ async def delete_channel(ctx, channel: discord.TextChannel):
 
 @client.command(name='add-emoji', aliases=['ad'])
 async def add_emoji(ctx, name: str, emoji_url: str):
-    if ctx.author.guild_permissions.manage_emojis:
-        async with ctx.typing():
-            try:
-                async with aiohttp.ClientSession() as session:
-                    async with session.get(emoji_url) as response:
-                        image_data = await response.read()
-                emoji = await ctx.guild.create_custom_emoji(name=name, image=image_data)
-                await ctx.send(f"Emoji {emoji.name} has been added.")
-            except discord.Forbidden:
-                await ctx.send("Failed to add emoji due to insufficient permissions.")
-            except discord.HTTPException as e:
-                await ctx.send(f"Failed to add emoji: {e}")
-            except Exception as e:
-                await ctx.send(f"An error occurred: {e}")
-    else:
-        await ctx.send("You don't have permission to use this command.")
+    if not ctx.author.guild_permissions.manage_emojis:
+        embed = discord.Embed(
+            title="Permission Denied",
+            description="You don't have permission to use this command.",
+            color=discord.Color.blurple()
+        )
+        await ctx.send(embed=embed)
+        return
 
+    async with ctx.typing():
+        try:
+            if not any(emoji_url.endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.gif']):
+                embed = discord.Embed(
+                    title="Invalid URL",
+                    description="Please provide a valid image URL that ends with `.png`, `.jpg`, `.jpeg`, or `.gif`.",
+                    color=discord.Color.blurple()
+                )
+                await ctx.send(embed=embed)
+                return
+
+            async with aiohttp.ClientSession() as session:
+                async with session.get(emoji_url) as response:
+                    if response.status != 200:
+                        embed = discord.Embed(
+                            title="Failed to Fetch Image",
+                            description=f"Failed to retrieve image from the provided URL. Status code: {response.status}",
+                            color=discord.Color.blurple()
+                        )
+                        await ctx.send(embed=embed)
+                        return
+                    image_data = await response.read()
+
+            emoji = await ctx.guild.create_custom_emoji(name=name, image=image_data)
+
+            embed = discord.Embed(
+                title="Emoji Added",
+                description=f"Emoji `{emoji.name}` has been successfully added!",
+                color=discord.Color.blurple()
+            )
+            embed.set_thumbnail(url=f"attachment://{emoji.name}.png")
+            await ctx.send(embed=embed)
+
+        except discord.Forbidden:
+            embed = discord.Embed(
+                title="Insufficient Permissions",
+                description="Failed to add emoji due to insufficient permissions.",
+                color=discord.Color.blurple()
+            )
+            await ctx.send(embed=embed)
+
+        except discord.HTTPException as e:
+            embed = discord.Embed(
+                title="HTTP Error",
+                description=f"Failed to add emoji: {e}",
+                color=discord.Color.blurple()
+            )
+            await ctx.send(embed=embed)
+
+        except Exception as e:
+            embed = discord.Embed(
+                title="An Error Occurred",
+                description=f"An unexpected error occurred: {e}",
+                color=discord.Color.blurple()
+            )
+            await ctx.send(embed=embed)
+            
 @client.command(name='lock')
 async def channel_lock(ctx, channel: discord.TextChannel):
     if ctx.author.guild_permissions.manage_channels:
