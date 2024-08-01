@@ -326,7 +326,6 @@ async def afk(ctx, *, reason="No reason provided"):
         title="AFK Status",
         description=f"{ctx.author.mention} is now AFK.",
         color=discord.Color.blue())
-    )
     embed.add_field(name="Reason", value=reason, inline=False)
     embed.add_field(name="AFK Since", value=datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC'), inline=False)
     embed.set_footer(text="You will be removed from AFK status when you send a message.")
@@ -350,7 +349,6 @@ async def on_message(message):
             title="Welcome Back!",
             description=f"{message.author.mention}, you are no longer AFK.",
             color=discord.Color.blue())
-        )
         embed.add_field(name="AFK Duration", value=f"{hours} hours, {minutes} minutes, and {seconds} seconds.", inline=False)
 
         await message.channel.send(embed=embed)
