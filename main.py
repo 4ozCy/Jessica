@@ -320,9 +320,18 @@ async def purge(ctx, amount: int):
 
 @client.command(name='afk')
 async def afk(ctx, *, reason="No reason provided"):
-    global afk_users
-    afk_users[ctx.author.id] = {'reason': reason, 'time': datetime.utcnow()}
-    await ctx.send(f"{ctx.author.mention} is now AFK Reason: `{reason}`")
+    afk_users[ctx.author.id] = {'reason': reason, 'time': datetime.utcnow(), 'message_count': 0}
+
+    embed = discord.Embed(
+        title="AFK Status",
+        description=f"{ctx.author.mention} is now AFK.",
+        color=discord.Color.blue())
+    )
+    embed.add_field(name="Reason", value=reason, inline=False)
+    embed.add_field(name="AFK Since", value=datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC'), inline=False)
+    embed.set_footer(text="You will be removed from AFK status when you send a message.")
+
+    await ctx.send(embed=embed)
 
 @client.event
 async def on_message(message):
@@ -330,26 +339,44 @@ async def on_message(message):
         return
 
     current_time = datetime.utcnow()
+
     if message.author.id in afk_users:
         afk_time = afk_users[message.author.id]['time']
         duration = current_time - afk_time
         hours, remainder = divmod(int(duration.total_seconds()), 3600)
         minutes, seconds = divmod(remainder, 60)
-        await message.channel.send(f"Welcome back {message.author.mention}, you were AFK for {hours} hours, {minutes} minutes.")
+
+        embed = discord.Embed(
+            title="Welcome Back!",
+            description=f"{message.author.mention}, you are no longer AFK.",
+            color=discord.Color.blue())
+        )
+        embed.add_field(name="AFK Duration", value=f"{hours} hours, {minutes} minutes, and {seconds} seconds.", inline=False)
+
+        await message.channel.send(embed=embed)
         afk_users.pop(message.author.id)
 
     mentions = [mention for mention in message.mentions if mention.id in afk_users]
     for mention in mentions:
-        afk_time = afk_users[mention.id]['time']
+        afk_data = afk_users[mention.id]
+        afk_time = afk_data['time']
         duration = current_time - afk_time
         hours, remainder = divmod(int(duration.total_seconds()), 3600)
         minutes, seconds = divmod(remainder, 60)
-        await message.channel.send(f"{mention.mention} is AFK: {afk_users[mention.id]['reason']} - AFK for {hours} hours, {minutes} minutes.")
+
+        embed = discord.Embed(
+            title="AFK Notification",
+            description=f"{mention.mention} is currently AFK.", color=discord.Color.blue())
+        embed.add_field(name="Reason", value=afk_data['reason'], inline=False)
+        embed.add_field(name="AFK Duration", value=f"{hours} hours, {minutes} minutes, and {seconds} seconds.", inline=False)
+
+        await message.channel.send(embed=embed)
+
+        afk_data['message_count'] += 1
+        afk_users[mention.id] = afk_data
 
     await client.process_commands(message)
-
-
-
+    
 @client.command(name='spam')
 async def spam(ctx, message: str, member: discord.Member, count: int):
     allowed_user_id = '1107744228773220473'
