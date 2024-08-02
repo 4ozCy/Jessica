@@ -771,4 +771,11 @@ async def bot_info(ctx):
     embed.timestamp = discord.utils.utcnow()
     await ctx.send(embed=embed)
 
+@client.command(name='coin')
+async def coin(ctx, *, subcommand=None):
+    if subcommand == 'flip':
+        result = random.choice(['Heads', 'Tails'])
+        embed = discord.Embed(title="🪙 Coin Flip", description=f"The coin landed on **{result}**!", color=discord.Color.blurple())
+        await ctx.send(embed=embed)
+
 client.run(os.getenv('TOKEN'))
