@@ -191,23 +191,24 @@ async def send_help(ctx):
     view = HelpView()
     await ctx.send(embed=embed, view=view)
       
-@client.command(name='animequote', aliases=['aq'])
-async def send_anime_quote(ctx):
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get("https://nozcy-api.onrender.com/anime/quote") as response:
-                data = await response.json()
-                quote = data['quote']
-                character = data['character']
-                anime = data['anime']
-                embed = discord.Embed(description=f'"{quote}"\n-{character} ({anime})', color=discord.Color.blurple())
-                embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
-                embed.timestamp = discord.utils.utcnow()
-                await ctx.send(embed=embed)
-    except Exception as e:
-        print(f"An error occurred while fetching anime quote: {e}")
-        await ctx.send("Sorry, I couldn't send an anime quote at the moment.")
-
+@client.command(name='anime')
+async def anime(ctx, *, subcommand=None):
+    if subcommand == 'quote':
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get("https://nozcy-api.onrender.com/anime/quote") as response:
+                    data = await response.json()
+                    quote = data['quote']
+                    character = data['character']
+                    anime = data['anime']
+                    embed = discord.Embed(description=f'"{quote}"\n-{character} ({anime})', color=discord.Color.blurple())
+                    embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
+                    embed.timestamp = discord.utils.utcnow()
+                    await ctx.send(embed=embed)
+        except Exception as e:
+            print(f"An error occurred while fetching anime quote: {e}")
+            await ctx.send("Sorry, I couldn't send an anime quote at the moment.")
+            
 @client.command(name='slap')
 async def slap(ctx, member: discord.Member):
     if member == ctx.author:
