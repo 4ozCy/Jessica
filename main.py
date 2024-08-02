@@ -778,7 +778,7 @@ async def coin(ctx, *, subcommand=None):
         result = random.choice(['Heads', 'Tails'])
         embed = discord.Embed(title="🪙 Coin Flip", description=f"The coin landed on **{result}**!", color=discord.Color.blurple())
         embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
-    embed.timestamp = discord.utils.utcnow()
+        embed.timestamp = discord.utils.utcnow()
         await ctx.send(embed=embed)
 
 client.run(os.getenv('TOKEN'))
