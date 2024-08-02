@@ -150,7 +150,6 @@ async def send_help(ctx):
             embed.timestamp = discord.utils.utcnow()
 
             if self.values[0] == "General":
-                embed.add_field(name="ping", value="Show bot ping", inline=False)
                 embed.add_field(name="avatar/av", value="Display user avatar", inline=False)
                 embed.add_field(name="server_info/sf", value="Get server information", inline=False)
                 embed.add_field(name="bot-info", value="Get bot information", inline=False)
@@ -162,19 +161,22 @@ async def send_help(ctx):
                 embed.add_field(name="unmute", value="Unmute a member", inline=False)
                 embed.add_field(name="lock", value="Lock a channel", inline=False)
                 embed.add_field(name="unlock", value="Unlock a channel", inline=False)
-                embed.add_field(name="delete_channel/dc", value="Delete a specific channel", inline=False)
+                embed.add_field(name="delete channel/dc", value="Delete a specific channel", inline=False)
+                embed.add_field(name="give role/gr", value="Give a role to someone", inline=False)
+                embed.add_field(name="add emoji/ad", value="Add an emoji", inline=False)
 
             elif self.values[0] == "Fun":
                 embed.add_field(name="quote", value="Send a random inspirational quote", inline=False)
                 embed.add_field(name="rizz", value="Rizz You Up", inline=False)
                 embed.add_field(name="joke", value="Tell a random joke", inline=False)
-                embed.add_field(name="animequote/aq", value="Send a random anime quote", inline=False)
+                embed.add_field(name="anime quote/aq", value="Send a random anime quote", inline=False)
                 embed.add_field(name="slap", value="Slap someone", inline=False)
                 embed.add_field(name="Breakup/bp", value="Break up with your love", inline=False)
                 embed.add_field(name="punch/p", value="Punch someone", inline=False)
-                embed.add_field(name="giverole/gr", value="Give a role to someone", inline=False)
                 embed.add_field(name="dare/truth", value="Play truth or dare", inline=False)
-                embed.add_field(name="add-emoji", value="Add an emoji", inline=False)
+                embed.add_field(name="coin flip", value="playing coin flip", inline=False)
+                embed.add_field(name="8ball", value="Magic 8-ball that gives a random response to yes/no questions", inline=False)
+                embed.add_field(name="dice", value="roll a dice", inline=False)
 
             await interaction.response.edit_message(embed=embed, view=self.view)
 
@@ -292,22 +294,27 @@ async def punch_member(ctx, member: discord.Member):
             else:
                 await ctx.send("You're to weak you can't punch someone")
 
-@client.command(name='giverole', aliases=['gr'])
-async def give_role(ctx, member: discord.Member, role: discord.Role):
-    if ctx.author.guild_permissions.manage_roles:
-        if role:
-            if role in member.roles:
-                embed = discord.Embed(description=f"{member.mention} already has the {role.mention} role.", color=discord.Color.blurple())
+@client.command(name='give', aliases ['gr'])
+async def give(ctx, subcommand: str = None, member: discord.Member = None, role: discord.Role = None):
+    if subcommand == 'role':
+        if ctx.author.guild_permissions.manage_roles:
+            if member and role:
+                if role in member.roles:
+                    embed = discord.Embed(description=f"{member.mention} already has the {role.mention} role.", color=discord.Color.blurple())
+                else:
+                    await member.add_roles(role)
+                    embed = discord.Embed(description=f"{member.mention} has been given the {role.mention} role.", color=discord.Color.blurple())
             else:
-                await member.add_roles(role)
-                embed = discord.Embed(description=f"{member.mention} has been given the {role.mention} role.", color=discord.Color.blurple())
+                embed = discord.Embed(description="Please specify both a member and a role.", color=discord.Color.red())
         else:
-            embed = discord.Embed(description="Role not found.", color=discord.Color.red())
-    else:
-        embed = discord.Embed(description="You do not have permission to manage roles.", color=discord.Color.red())
+            embed = discord.Embed(description="You do not have permission to manage roles.", color=discord.Color.red())
+
         embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
         embed.timestamp = discord.utils.utcnow()
-    await ctx.send(embed=embed)
+        await ctx.send(embed=embed)
+    else:
+        embed = discord.Embed(description="Invali. Use ```.give role @member @role```.", color=discord.Color.red())
+        await ctx.send(embed=embed)
 
 @client.command(name='purge')
 async def purge(ctx, amount: int, *, target: discord.Member = None):
@@ -462,21 +469,25 @@ async def avatar(ctx, *, member: discord.Member = None):
     embed.set_image(url=member.avatar.url if member.avatar else member.default_avatar.url)
     await ctx.send(embed=embed)
 
-@client.command(name='server_info', aliases=['sf'])
-async def serverinfo(ctx):
-    guild = ctx.guild
-    embed = discord.Embed(title=f"{guild.name} Server Information", color=discord.Color.blue())
-    embed.set_thumbnail(url=str(guild.icon.url))
-    embed.add_field(name="Owner", value=guild.owner.mention if guild.owner else 'N/A', inline=True)
-    embed.add_field(name="Server ID", value=guild.id, inline=True)
-    embed.add_field(name="Member Count", value=guild.member_count, inline=True)
-    embed.add_field(name="Creation Date", value=guild.created_at.strftime("%Y-%m-%d %H:%M:%S"), inline=True)
-    embed.add_field(name="Role Count", value=len(guild.roles), inline=True)
-    embed.add_field(name="Emoji Count", value=len(guild.emojis), inline=True)
-    embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
-    embed.timestamp = discord.utils.utcnow()
-    await ctx.send(embed=embed)
-
+@client.command(name='server', aliases=['sf'])
+async def server(ctx, subcommand: str = None):
+    if subcommand == 'info':
+        guild = ctx.guild
+        embed = discord.Embed(title=f"{guild.name} Server Information", color=discord.Color.blue())
+        embed.set_thumbnail(url=str(guild.icon.url))
+        embed.add_field(name="Owner", value=guild.owner.mention if guild.owner else 'N/A', inline=True)
+        embed.add_field(name="Server ID", value=guild.id, inline=True)
+        embed.add_field(name="Member Count", value=guild.member_count, inline=True)
+        embed.add_field(name="Creation Date", value=guild.created_at.strftime("%Y-%m-%d %H:%M:%S"), inline=True)
+        embed.add_field(name="Role Count", value=len(guild.roles), inline=True)
+        embed.add_field(name="Emoji Count", value=len(guild.emojis), inline=True)
+        embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
+        embed.timestamp = discord.utils.utcnow()
+        await ctx.send(embed=embed)
+    else:
+        embed = discord.Embed(description="Invalid command. Use ```.server info``` to get server information.", color=discord.Color.red())
+        await ctx.send(embed=embed)
+        
 @client.command(name='dare')
 async def dare(ctx):
     async with aiohttp.ClientSession() as session:
@@ -505,86 +516,98 @@ async def truth(ctx):
             else:
                 await ctx.send("I couldn't send a question at the moment, please try again later.")
 
-@client.command(name='delete_channel', aliases=['dc'])
-async def delete_channel(ctx, channel: discord.TextChannel):
-    if ctx.author.guild_permissions.manage_channels:
-        try:
-            await channel.delete()
-            await ctx.send(f"Channel {channel.name} has been deleted.")
-        except discord.Forbidden:
-            await ctx.send(f"Failed to delete channel {channel.name} due to insufficient permissions.")
-        except Exception as e:
-            await ctx.send(f"An error occurred while deleting channel {channel.name}: {e}")
+
+@client.command(name='delete', aliases=['dc'])
+async def delete(ctx, subcommand: str = None, channel: discord.TextChannel = None):
+    if subcommand == 'channel' and channel:
+        if ctx.author.guild_permissions.manage_channels:
+            try:
+                await channel.delete()
+                await ctx.send(f"Channel {channel.name} has been deleted.")
+            except discord.Forbidden:
+                await ctx.send(f"Failed to delete channel {channel.name} due to insufficient permissions.")
+            except Exception as e:
+                await ctx.send(f"An error occurred while deleting channel {channel.name}: {e}")
+        else:
+            await ctx.send("You don't have permission to use this command.")
     else:
-        await ctx.send("You don't have permission to use this command.")
-
-@client.command(name='add-emoji', aliases=['ad'])
-async def add_emoji(ctx, name: str, emoji_url: str):
-    if not ctx.author.guild_permissions.manage_emojis:
-        embed = discord.Embed(
-            title="Permission Denied",
-            description="You don't have permission to use this command.",
-            color=discord.Color.blurple()
-        )
+        embed = discord.Embed(description="Invalid subcommand. Use `.delete channel <channel>` to delete a channel.", color=discord.Color.red())
         await ctx.send(embed=embed)
-        return
+        
+@client.command(name='add', aliases=['ad'])
+async def emoji(ctx, subcommand: str = None, name: str = None, emoji_url: str = None):
+    if subcommand == 'emoji' and name and emoji_url:
+        if not ctx.author.guild_permissions.manage_emojis:
+            embed = discord.Embed(
+                title="Permission Denied",
+                description="You don't have permission to use this command.",
+                color=discord.Color.blurple()
+            )
+            await ctx.send(embed=embed)
+            return
 
-    async with ctx.typing():
-        try:
-            if not any(emoji_url.endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.gif']):
+        async with ctx.typing():
+            try:
+                if not any(emoji_url.endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.gif']):
+                    embed = discord.Embed(
+                        title="Invalid URL",
+                        description="Please provide a valid image URL that ends with `.png`, `.jpg`, `.jpeg`, or `.gif`.",
+                        color=discord.Color.blurple()
+                    )
+                    await ctx.send(embed=embed)
+                    return
+
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(emoji_url) as response:
+                        if response.status != 200:
+                            embed = discord.Embed(
+                                title="Failed to Fetch Image",
+                                description=f"Failed to retrieve image from the provided URL. Status code: {response.status}",
+                                color=discord.Color.blurple()
+                            )
+                            await ctx.send(embed=embed)
+                            return
+                        image_data = await response.read()
+
+                emoji = await ctx.guild.create_custom_emoji(name=name, image=image_data)
+
                 embed = discord.Embed(
-                    title="Invalid URL",
-                    description="Please provide a valid image URL that ends with `.png`, `.jpg`, `.jpeg`, or `.gif`.",
+                    title="Emoji Added",
+                    description=f"Emoji `{emoji.name}` has been successfully added!",
                     color=discord.Color.blurple()
                 )
                 await ctx.send(embed=embed)
-                return
 
-            async with aiohttp.ClientSession() as session:
-                async with session.get(emoji_url) as response:
-                    if response.status != 200:
-                        embed = discord.Embed(
-                            title="Failed to Fetch Image",
-                            description=f"Failed to retrieve image from the provided URL. Status code: {response.status}",
-                            color=discord.Color.blurple()
-                        )
-                        await ctx.send(embed=embed)
-                        return
-                    image_data = await response.read()
+            except discord.Forbidden:
+                embed = discord.Embed(
+                    title="Insufficient Permissions",
+                    description="Failed to add emoji due to insufficient permissions.",
+                    color=discord.Color.blurple()
+                )
+                await ctx.send(embed=embed)
 
-            emoji = await ctx.guild.create_custom_emoji(name=name, image=image_data)
+            except discord.HTTPException as e:
+                embed = discord.Embed(
+                    title="HTTP Error",
+                    description=f"Failed to add emoji: {e}",
+                    color=discord.Color.blurple()
+                )
+                await ctx.send(embed=embed)
 
-            embed = discord.Embed(
-                title="Emoji Added",
-                description=f"Emoji `{emoji.name}` has been successfully added!",
-                color=discord.Color.blurple()
-            )
-            embed.set_thumbnail(url=f"attachment://{emoji.name}.png")
-            await ctx.send(embed=embed)
-
-        except discord.Forbidden:
-            embed = discord.Embed(
-                title="Insufficient Permissions",
-                description="Failed to add emoji due to insufficient permissions.",
-                color=discord.Color.blurple()
-            )
-            await ctx.send(embed=embed)
-
-        except discord.HTTPException as e:
-            embed = discord.Embed(
-                title="HTTP Error",
-                description=f"Failed to add emoji: {e}",
-                color=discord.Color.blurple()
-            )
-            await ctx.send(embed=embed)
-
-        except Exception as e:
-            embed = discord.Embed(
-                title="An Error Occurred",
-                description=f"An unexpected error occurred: {e}",
-                color=discord.Color.blurple()
-            )
-            await ctx.send(embed=embed)
+            except Exception as e:
+                embed = discord.Embed(
+                    title="An Error Occurred",
+                    description=f"An unexpected error occurred: {e}",
+                    color=discord.Color.blurple()
+                )
+                await ctx.send(embed=embed)
+    else:
+        embed = discord.Embed(
+            title="add emoji Command",
+            description="Use `.add emoji <name> <url>` to add an emoji.",
+            color=discord.Color.blurple()
+        )
+        await ctx.send(embed=embed)
             
 @client.command(name='lock')
 async def channel_lock(ctx, channel: discord.TextChannel):
@@ -780,5 +803,42 @@ async def coin(ctx, *, subcommand=None):
         embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
         embed.timestamp = discord.utils.utcnow()
         await ctx.send(embed=embed)
+
+@client.command(name='8ball')
+async def eight_ball(ctx, *, question: str):
+    responses = [
+        "It is certain.", "It is decidedly so.", "Without a doubt.",
+        "Yes – definitely.", "You may rely on it.", "As I see it, yes.",
+        "Most likely.", "Outlook good.", "Yes.", "Signs point to yes.",
+        "Reply hazy, try again.", "Ask again later.", "Better not tell you now.",
+        "Cannot predict now.", "Concentrate and ask again.", "Don't count on it.",
+        "My reply is no.", "My sources say no.", "Outlook not so good.", "Very doubtful."
+    ]
+    response = random.choice(responses)
+    
+    embed = discord.Embed(title="🎱 8Ball", color=discord.Color.blurple())
+    embed.add_field(name="Question:", value=question, inline=False)
+    embed.add_field(name="Answer:", value=response, inline=False)
+    await ctx.send(embed=embed)
+
+@client.command(name='dice')
+async def dice(ctx, rolls: int = 1):
+    if rolls < 1 or rolls > 10:
+        await ctx.send("Please choose a number of rolls between 1 and 10.")
+        return
+
+    roll_results = [random.randint(1, 6) for _ in range(rolls)]
+    roll_sum = sum(roll_results)
+
+    embed = discord.Embed(title="🎲 Dice Roll", color=discord.Color.blurple())
+    embed.add_field(name="Roll Results:", value=", ".join(map(str, roll_results)), inline=False)
+    embed.add_field(name="Total:", value=str(roll_sum), inline=False)
+
+    if rolls == 1:
+        embed.set_footer(text="Rolled 1 dice.")
+    else:
+        embed.set_footer(text=f"Rolled {rolls} dice.")
+
+    await ctx.send(embed=embed)
 
 client.run(os.getenv('TOKEN'))
