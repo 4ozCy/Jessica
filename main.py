@@ -817,25 +817,11 @@ async def dice(ctx, rolls: int = 1):
 
 @client.command(name='mc')
 async def minecraft_info(ctx):
-    class IPView(View):
-        def __init__(self):
-            super().__init__()
-            self.add_item(Button(label="Copy IP", custom_id="copy_ip", style=discord.ButtonStyle.primary))
-            self.add_item(Button(label="Copy Port", custom_id="copy_port", style=discord.ButtonStyle.primary))
-
-        async def interaction_check(self, interaction: discord.Interaction):
-            if interaction.custom_id == "copy_ip":
-                await interaction.response.send_message("Copied IP: `PhumNeakMean.aternos.me`", ephemeral=True)
-            elif interaction.custom_id == "copy_port":
-                await interaction.response.send_message("Copied Port: `51208`", ephemeral=True)
-            return True
-
     embed = discord.Embed(title="Minecraft Server Information", color=discord.Color.blurple())
     embed.add_field(name="Server IP", value="PhumNeakMean.aternos.me", inline=True)
     embed.add_field(name="Server Port", value="51208", inline=True)
     embed.add_field(name="Version", value="Bedrock/1.21.2", inline=True)
-    embed.set_footer(text="Click the buttons below to copy the IP or Port.")
     
-    await ctx.send(embed=embed, view=IPView())
+    await ctx.send(embed=embed)
     
 client.run(os.getenv('TOKEN'))
