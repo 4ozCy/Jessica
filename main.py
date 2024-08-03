@@ -318,73 +318,68 @@ async def give(ctx, subcommand: str = None, member: discord.Member = None, role:
 
 @client.command(name='purge')
 async def purge(ctx, amount: int, *, target: discord.Member = None):
-    if ctx.author.guild_permissions.manage_messages:
-        await ctx.message.delete()
-
-        if amount <= 0:
-            embed = discord.Embed(
-                title="Invalid Amount",
-                description="Please enter a positive number of messages to delete.",
-                color=discord.Color.red()
-            )
-            await ctx.send(embed=embed, delete_after=5)
-            return
-
+    if not ctx.author.guild_permissions.manage_messages:
         embed = discord.Embed(
-            title="Purge Confirmation",
-            description=f"Are you sure you want to delete {amount} messages{' from ' + target.mention if target else ''}?",
-            color=discord.Color.blurple()
-        )
-        embed.set_footer(text="React with ✅ to confirm or ❌ to cancel.")
-        confirmation_msg = await ctx.send(embed=embed)
-        await confirmation_msg.add_reaction('✅')
-        await confirmation_msg.add_reaction('❌')
-
-        def check(reaction, user):
-            return user == ctx.author and str(reaction.emoji) in ['✅', '❌'] and reaction.message.id == confirmation_msg.id
-
-        try:
-            reaction, user = await client.wait_for('reaction_add', timeout=10.0, check=check)
-            if str(reaction.emoji) == '❌':
-                cancel_embed = discord.Embed(
-                    title="Purge Cancelled",
-                    description="Purge cancelled by the user.",
-                    color=discord.Color.red()
-                )
-                await ctx.send(embed=cancel_embed, delete_after=5)
-                await confirmation_msg.delete()
-                return
-        except asyncio.TimeoutError:
-            timeout_embed = discord.Embed(
-                title="Purge Cancelled",
-                description="Purge cancelled due to timeout.",
-                color=discord.Color.red()
-            )
-            await ctx.send(embed=timeout_embed, delete_after=5)
-            await confirmation_msg.delete()
-            return
-
-        if target:
-            deleted = await ctx.channel.purge(limit=amount, check=lambda m: m.author == target)
-        else:
-            deleted = await ctx.channel.purge(limit=amount)
-
-        result_embed = discord.Embed(
-            title="Purge Completed",
-            description=f"Deleted {len(deleted)} messages{' from ' + target.mention if target else ''}.",
-            color=discord.Color.green()
-        )
-        confirmation_response = await ctx.send(embed=result_embed, delete_after=5)
-
-        await confirmation_msg.delete()
-    else:
-        permission_embed = discord.Embed(
             title="Permission Denied",
             description="You do not have permission to manage messages.",
             color=discord.Color.red()
         )
-        await ctx.send(embed=permission_embed, delete_after=5)
+        await ctx.send(embed=embed)
+        return
 
+    if amount <= 0:
+        embed = discord.Embed(
+            title="Invalid Amount",
+            description="Please enter a positive number of messages to delete.",
+            color=discord.Color.red()
+        )
+        await ctx.send(embed=embed, delete_after=5)
+        return
+
+    embed = discord.Embed(
+        title="Purge Confirmation",
+        description=f"Are you sure you want to delete {amount} messages{' from ' + target.mention if target else ''}?",
+        color=discord.Color.blurple()
+    )
+
+    class ConfirmView(discord.ui.View):
+        def __init__(self):
+            super().__init__(timeout=10)
+
+        @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green)
+        async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
+            if interaction.user != ctx.author:
+                await interaction.response.send_message("You are not authorized to confirm this action.", ephemeral=True)
+                return
+
+            if target:
+                deleted = await ctx.channel.purge(limit=amount, check=lambda m: m.author == target)
+            else:
+                deleted = await ctx.channel.purge(limit=amount)
+
+            confirm_embed = discord.Embed(
+                title="Purge Completed",
+                description=f"Deleted {len(deleted)} messages{' from ' + target.mention if target else ''}.",
+                color=discord.Color.green()
+            )
+            await interaction.response.edit_message(embed=confirm_embed, view=None)
+
+        @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red)
+        async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
+            if interaction.user != ctx.author:
+                await interaction.response.send_message("You are not authorized to cancel this action.", ephemeral=True)
+                return
+
+            cancel_embed = discord.Embed(
+                title="Purge Cancelled",
+                description="The purge has been cancelled.",
+                color=discord.Color.red()
+            )
+            await interaction.response.edit_message(embed=cancel_embed, view=None)
+
+    view = ConfirmView()
+    await ctx.send(embed=embed, view=view)
+    
 @client.command(name='afk')
 async def afk(ctx, *, reason="No reason provided"):
     afk_users[ctx.author.id] = {'reason': reason, 'time': datetime.utcnow(), 'message_count': 0}
