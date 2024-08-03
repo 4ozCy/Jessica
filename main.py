@@ -815,7 +815,7 @@ async def dice(ctx, rolls: int = 1):
 
     await ctx.send(embed=embed)
 
-@@client.command(name="mc")
+@client.command(name="mc")
 async def minecraft_info(ctx):
     class IPView(View):
         def __init__(self):
