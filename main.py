@@ -10,6 +10,7 @@ from datetime import datetime
 import random
 import requests
 import openai
+from mcstatus import MinecraftServer
 afk_users = {}
 
 load_dotenv()
@@ -75,24 +76,42 @@ async def on_ready():
     print(f'We have logged in as {client.user}')
 
 @client.event
-async def on_message(message):
-    if message.author == client.user:
-        return
+async def on_ready():
+    update_minecraft_status.start()
 
-    if message.content.startswith('.'):
-        await client.process_commands(message)
-        return
+@tasks.loop(minutes=5)
+async def update_minecraft_status():
+    channel_id = 1269346381747978282
+    channel = client.get_channel(channel_id)
+    server_ip = "PhumNeakMean.aternos.me"
+    server_port = 51208
 
     try:
-        response = openai.Completion.create(
-            engine="gpt-4",
-            prompt=f"You are a helpful assistant. {message.content}",
-            max_tokens=150
+        server = MinecraftServer.lookup(f"{server_ip}:{server_port}")
+        status = server.status()
+
+        embed = discord.Embed(
+            title=f"Minecraft Server Status: {server_ip}",
+            color=discord.Color.green()
         )
-        reply = response.choices[0].text.strip()
-        await message.channel.send(reply)
+        embed.add_field(name="Players Online", value=f"{status.players.online}/{status.players.max}", inline=True)
+        embed.add_field(name="Version", value=status.version.name, inline=True)
+        embed.add_field(name="Ping", value=f"{status.latency}ms", inline=True)
+
+        if status.players.sample:
+            player_list = ', '.join([player.name for player in status.players.sample])
+            embed.add_field(name="Online Players", value=player_list, inline=False)
+
+        await channel.send(embed=embed)
+
     except Exception as e:
-        await message.channel.send(f"An error occurred: {e}")
+        embed = discord.Embed(
+            title="Server Unreachable",
+            description="Failed to retrieve the server status. It might be offline or unreachable.",
+            color=discord.Color.red()
+        )
+        await channel.send(embed=embed)
+        print(f"Error fetching server status: {e}")
   
 @client.command(name='quote')
 async def send_quote(ctx):
@@ -835,5 +854,37 @@ async def dice(ctx, rolls: int = 1):
         embed.set_footer(text=f"Rolled {rolls} dice.")
 
     await ctx.send(embed=embed)
+
+@client.command(name="minecraft_server", aliases=['mcserver', 'mc'])
+async def minecraft_server(ctx):
+    server_ip = "PhumNeakMean.aternos.me"
+    server_port = 51208
+
+    try:
+        server = MinecraftServer.lookup(f"{server_ip}:{server_port}")
+        status = server.status()
+
+        embed = discord.Embed(
+            title=f"Minecraft Server Status: {server_ip}",
+            color=discord.Color.green()
+        )
+        embed.add_field(name="Players Online", value=f"{status.players.online}/{status.players.max}", inline=True)
+        embed.add_field(name="Version", value=status.version.name, inline=True)
+        embed.add_field(name="Ping", value=f"{status.latency}ms", inline=True)
+
+        if status.players.sample:
+            player_list = ', '.join([player.name for player in status.players.sample])
+            embed.add_field(name="Online Players", value=player_list, inline=False)
+
+        await ctx.send(embed=embed)
+
+    except Exception as e:
+        embed = discord.Embed(
+            title="Server Unreachable",
+            description="Failed to retrieve the server status. It might be offline or unreachable.",
+            color=discord.Color.red()
+        )
+        await ctx.send(embed=embed)
+        print(f"Error fetching server status: {e}")
 
 client.run(os.getenv('TOKEN'))
