@@ -9,8 +9,6 @@ from threading import Thread
 from datetime import datetime
 import random
 import requests
-import openai
-from mcstatus import MinecraftServer
 afk_users = {}
 
 load_dotenv()
@@ -74,44 +72,6 @@ async def fetch_quote():
 async def on_ready():
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="Made by: @nozcy. | .cmds"))
     print(f'We have logged in as {client.user}')
-
-@client.event
-async def on_ready():
-    update_minecraft_status.start()
-
-@tasks.loop(minutes=5)
-async def update_minecraft_status():
-    channel_id = 1269346381747978282
-    channel = client.get_channel(channel_id)
-    server_ip = "PhumNeakMean.aternos.me"
-    server_port = 51208
-
-    try:
-        server = MinecraftServer.lookup(f"{server_ip}:{server_port}")
-        status = server.status()
-
-        embed = discord.Embed(
-            title=f"Minecraft Server Status: {server_ip}",
-            color=discord.Color.green()
-        )
-        embed.add_field(name="Players Online", value=f"{status.players.online}/{status.players.max}", inline=True)
-        embed.add_field(name="Version", value=status.version.name, inline=True)
-        embed.add_field(name="Ping", value=f"{status.latency}ms", inline=True)
-
-        if status.players.sample:
-            player_list = ', '.join([player.name for player in status.players.sample])
-            embed.add_field(name="Online Players", value=player_list, inline=False)
-
-        await channel.send(embed=embed)
-
-    except Exception as e:
-        embed = discord.Embed(
-            title="Server Unreachable",
-            description="Failed to retrieve the server status. It might be offline or unreachable.",
-            color=discord.Color.red()
-        )
-        await channel.send(embed=embed)
-        print(f"Error fetching server status: {e}")
   
 @client.command(name='quote')
 async def send_quote(ctx):
@@ -855,36 +815,27 @@ async def dice(ctx, rolls: int = 1):
 
     await ctx.send(embed=embed)
 
-@client.command(name="minecraft_server", aliases=['mcserver', 'mc'])
-async def minecraft_server(ctx):
-    server_ip = "PhumNeakMean.aternos.me"
-    server_port = 51208
+@@client.command(name="mc")
+async def minecraft_info(ctx):
+    class IPView(View):
+        def __init__(self):
+            super().__init__()
+            self.add_item(Button(label="Copy IP", custom_id="copy_ip", style=discord.ButtonStyle.primary))
+            self.add_item(Button(label="Copy Port", custom_id="copy_port", style=discord.ButtonStyle.primary))
 
-    try:
-        server = MinecraftServer.lookup(f"{server_ip}:{server_port}")
-        status = server.status()
+        async def interaction_check(self, interaction: discord.Interaction):
+            if interaction.custom_id == "copy_ip":
+                await interaction.response.send_message("Copied IP: `PhumNeakMean.aternos.me`", ephemeral=True)
+            elif interaction.custom_id == "copy_port":
+                await interaction.response.send_message("Copied Port: `51208`", ephemeral=True)
+            return True
 
-        embed = discord.Embed(
-            title=f"Minecraft Server Status: {server_ip}",
-            color=discord.Color.green()
-        )
-        embed.add_field(name="Players Online", value=f"{status.players.online}/{status.players.max}", inline=True)
-        embed.add_field(name="Version", value=status.version.name, inline=True)
-        embed.add_field(name="Ping", value=f"{status.latency}ms", inline=True)
-
-        if status.players.sample:
-            player_list = ', '.join([player.name for player in status.players.sample])
-            embed.add_field(name="Online Players", value=player_list, inline=False)
-
-        await ctx.send(embed=embed)
-
-    except Exception as e:
-        embed = discord.Embed(
-            title="Server Unreachable",
-            description="Failed to retrieve the server status. It might be offline or unreachable.",
-            color=discord.Color.red()
-        )
-        await ctx.send(embed=embed)
-        print(f"Error fetching server status: {e}")
-
+    embed = discord.Embed(title="Minecraft Server Information", color=discord.Color.blurple())
+    embed.add_field(name="Server IP", value="PhumNeakMean.aternos.me", inline=True)
+    embed.add_field(name="Server Port", value="51208", inline=True)
+    embed.add_field(name="Version", value="Bedrock/1.21.2", inline=True)
+    embed.set_footer(text="Click the buttons below to copy the IP or Port.")
+    
+    await ctx.send(embed=embed, view=IPView())
+    
 client.run(os.getenv('TOKEN'))
