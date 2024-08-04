@@ -129,33 +129,33 @@ async def send_help(ctx):
             embed.timestamp = discord.utils.utcnow()
 
             if self.values[0] == "General":
-                embed.add_field(name="avatar/av", value="Display user avatar", inline=False)
-                embed.add_field(name="server_info/sf", value="Get server information", inline=False)
-                embed.add_field(name="bot-info", value="Get bot information", inline=False)
+                embed.add_field(name="avatar/av", value="```Display user avatar```", inline=False)
+                embed.add_field(name="server_info/sf", value="```Get server information```", inline=False)
+                embed.add_field(name="bot-info", value="```Get bot information```", inline=False)
 
             elif self.values[0] == "Moderation":
-                embed.add_field(name="kick", value="Kick a member", inline=False)
-                embed.add_field(name="ban", value="Ban a member", inline=False)
-                embed.add_field(name="mute", value="Mute a member", inline=False)
-                embed.add_field(name="unmute", value="Unmute a member", inline=False)
-                embed.add_field(name="lock", value="Lock a channel", inline=False)
-                embed.add_field(name="unlock", value="Unlock a channel", inline=False)
-                embed.add_field(name="delete channel/dc", value="Delete a specific channel", inline=False)
-                embed.add_field(name="give role/gr", value="Give a role to someone", inline=False)
-                embed.add_field(name="add emoji/ad", value="Add an emoji", inline=False)
+                embed.add_field(name="kick", value="```Kick a member```", inline=False)
+                embed.add_field(name="ban", value="```Ban a member```", inline=False)
+                embed.add_field(name="mute", value="```Mute a member```", inline=False)
+                embed.add_field(name="unmute", value="```Unmute a member```", inline=False)
+                embed.add_field(name="lock", value="```Lock a channel```", inline=False)
+                embed.add_field(name="unlock", value="```Unlock a channel```", inline=False)
+                embed.add_field(name="delete channel/dc", value="```Delete a specific channel```", inline=False)
+                embed.add_field(name="give role/gr", value="```Give a role to someone```", inline=False)
+                embed.add_field(name="add emoji/ad", value="```Add an emoji```", inline=False)
 
             elif self.values[0] == "Fun":
-                embed.add_field(name="quote", value="Send a random inspirational quote", inline=False)
-                embed.add_field(name="rizz", value="Rizz You Up", inline=False)
-                embed.add_field(name="joke", value="Tell a random joke", inline=False)
-                embed.add_field(name="anime quote/aq", value="Send a random anime quote", inline=False)
-                embed.add_field(name="slap", value="Slap someone", inline=False)
-                embed.add_field(name="Breakup/bp", value="Break up with your love", inline=False)
-                embed.add_field(name="punch/p", value="Punch someone", inline=False)
-                embed.add_field(name="dare/truth", value="Play truth or dare", inline=False)
-                embed.add_field(name="coin flip", value="playing coin flip", inline=False)
-                embed.add_field(name="8ball", value="Magic 8-ball that gives a random response to yes/no questions", inline=False)
-                embed.add_field(name="dice", value="roll a dice", inline=False)
+                embed.add_field(name="quote", value="```Send a random inspirational quote```", inline=False)
+                embed.add_field(name="rizz", value="```Rizz You Up```", inline=False)
+                embed.add_field(name="joke", value="```Tell a random joke```", inline=False)
+                embed.add_field(name="anime quote/aq", value="```Send a random anime quote```", inline=False)
+                embed.add_field(name="slap", value="```Slap someone```", inline=False)
+                embed.add_field(name="Breakup/bp", value="```Break up with your love```", inline=False)
+                embed.add_field(name="punch/p", value="```Punch someone```", inline=False)
+                embed.add_field(name="dare/truth", value="```Play truth or dare```", inline=False)
+                embed.add_field(name="coin flip", value="```playing coin flip```", inline=False)
+                embed.add_field(name="8ball", value="```Magic 8-ball that gives a random response to yes/no questions```", inline=False)
+                embed.add_field(name="dice", value="```roll a dice```", inline=False)
 
             await interaction.response.edit_message(embed=embed, view=self.view)
 
@@ -678,13 +678,6 @@ async def tp(ctx, member: discord.Member, channel: discord.VoiceChannel):
     except discord.Forbidden:
         await ctx.send(f"I don't have permission to move {member.display_name}.")
 
-@client.command(name='ping')
-async def ping(ctx):
-    embed = discord.Embed(description=f'Bot Ping: {round(client.latency * 1000)}ms', color=discord.Color.blurple())
-    embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
-    embed.timestamp = discord.utils.utcnow()
-    await ctx.send(embed=embed)
-
 @client.command(name='mute', help='Mutes someone from chatting')
 async def mute(ctx, target: discord.Member = None):
     if not target:
@@ -764,7 +757,7 @@ async def bot_info(ctx):
     embed.add_field(name="Bot ID", value=client.user.id, inline=True)
     embed.add_field(name="Server Count", value=len(client.guilds), inline=True)
     embed.add_field(name="User Count", value=len(set(client.get_all_members())), inline=True)
-    embed.add_field(name="Ping", value=f"{round(client.latency * 1000)}ms", inline=True)
+    embed.add_field(name="Ping", value=f"```{round(client.latency * 1000)}ms```", inline=True)
     embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
     embed.timestamp = discord.utils.utcnow()
     await ctx.send(embed=embed)
@@ -793,6 +786,8 @@ async def eight_ball(ctx, *, question: str):
     embed = discord.Embed(title="🎱 8Ball", color=discord.Color.blurple())
     embed.add_field(name="Question:", value=question, inline=False)
     embed.add_field(name="Answer:", value=response, inline=False)
+    embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
+    embed.timestamp = discord.utils.utcnow()
     await ctx.send(embed=embed)
 
 @client.command(name='dice')
@@ -817,26 +812,13 @@ async def dice(ctx, rolls: int = 1):
 
 @client.command(name='mc')
 async def minecraft_info(ctx):
-    class IPView(View):
-        def __init__(self):
-            super().__init__()
-            self.add_item(Button(label="Copy IP", custom_id="copy_ip", style=discord.ButtonStyle.primary))
-            self.add_item(Button(label="Copy Port", custom_id="copy_port", style=discord.ButtonStyle.primary))
-
-        async def interaction_check(self, interaction: discord.Interaction):
-            if interaction.custom_id == "copy_ip":
-                await interaction.response.send_message("Copied IP: PhumNeakMean.aternos.me", ephemeral=True)
-            elif interaction.custom_id == "copy_port":
-                await interaction.response.send_message("Copied Port: 51208", ephemeral=True)
-            return True
-
     embed = discord.Embed(title="Minecraft Server Information", color=discord.Color.blurple())
     embed.set_thumbnail(url="https://files.catbox.moe/n00j9c.png")
     embed.add_field(name="Server IP", value="```PhumNeakMean.aternos.me```", inline=True)
     embed.add_field(name="Server Port", value="```51208```", inline=True)
     embed.add_field(name="Version", value="```Bedrock/1.21.2```", inline=True)
-    embed.set_footer(text="Click the buttons below to copy the IP or Port.")
-    
-    await ctx.send(embed=embed, view=IPView())
+    embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
+    embed.timestamp = discord.utils.utcnow()
+    await ctx.send(embed=embed)
     
 client.run(os.getenv('TOKEN'))
