@@ -821,7 +821,7 @@ async def minecraft_info(ctx):
     embed.timestamp = discord.utils.utcnow()
     await ctx.send(embed=embed)
 
-@@client.command(name='roblox_info', aliases=['rblxinfo', 'roblox'])
+@client.command(name='roblox_info', aliases=['rblxinfo', 'roblox'])
 async def roblox_info(ctx, username: str):
     try:
         # Fetch Roblox user info
