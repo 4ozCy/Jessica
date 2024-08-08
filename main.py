@@ -821,26 +821,30 @@ async def minecraft_info(ctx):
     embed.timestamp = discord.utils.utcnow()
     await ctx.send(embed=embed)
 
-@client.command(name='roblox_info', aliases=['rblxinfo', 'roblox'])
+@client.command(name='ro_info', aliases=['rinfo', 'roblox'])
 async def roblox_info(ctx, username: str):
     try:
         # Fetch Roblox user info
-        response = requests.get(f"https://users.roblox.com/v1/users/search?keyword={username}&limit=1")
-        data = response.json()
-        
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f"https://users.roblox.com/v1/users/search?keyword={username}&limit=1") as response:
+                data = await response.json()
+
         if not data['data']:
             await ctx.send(f"No Roblox user found with the username `{username}`.")
             return
-        
+
         user_info = data['data'][0]
         user_id = user_info['id']
         display_name = user_info['displayName']
         account_age = user_info['created']
-    
-        avatar_response = requests.get(f"https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds={user_id}&size=150x150&format=Png&isCircular=false")
-        avatar_data = avatar_response.json()
-        avatar_url = avatar_data['data'][0]['imageUrl']
-    
+
+        # Fetch additional info such as avatar
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f"https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds={user_id}&size=150x150&format=Png&isCircular=false") as avatar_response:
+                avatar_data = await avatar_response.json()
+                avatar_url = avatar_data['data'][0]['imageUrl']
+
+        # Create an embed with the user info
         embed = discord.Embed(
             title=f"Roblox Info for {username}",
             description=f"Display Name: {display_name}\nAccount Age: {account_age}",
@@ -850,9 +854,9 @@ async def roblox_info(ctx, username: str):
         embed.add_field(name="User ID", value=user_id, inline=True)
         embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
         embed.timestamp = discord.utils.utcnow()
-        
+
         await ctx.send(embed=embed)
-        
+
     except Exception as e:
         print(f"An error occurred while fetching Roblox info: {e}")
         await ctx.send("Sorry, I couldn't fetch Roblox user info at the moment.")
