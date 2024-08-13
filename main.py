@@ -153,7 +153,7 @@ async def send_help(ctx):
                 embed.add_field(name="slap", value="`Slap someone`", inline=False)
                 embed.add_field(name="Breakup/bp", value="`Break up with your love`", inline=False)
                 embed.add_field(name="punch/p", value="`Punch someone`", inline=False)
-                embed.add_field(name="dare/truth", value="```Play truth or dare`", inline=False)
+                embed.add_field(name="dare/truth", value="`Play truth or dare`", inline=False)
                 embed.add_field(name="coin flip", value="`playing coin flip`", inline=False)
                 embed.add_field(name="8ball", value="`Magic 8-ball that gives a random response to yes/no questions`", inline=False)
                 embed.add_field(name="dice", value="`roll a dice`", inline=False)
