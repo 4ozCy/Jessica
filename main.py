@@ -9,6 +9,7 @@ from threading import Thread
 from datetime import datetime
 import random
 import requests
+import openai
 afk_users = {}
 
 load_dotenv()
@@ -129,33 +130,33 @@ async def send_help(ctx):
             embed.timestamp = discord.utils.utcnow()
 
             if self.values[0] == "General":
-                embed.add_field(name="avatar/av", value="```Display user avatar```", inline=False)
-                embed.add_field(name="server_info/sf", value="```Get server information```", inline=False)
-                embed.add_field(name="bot-info", value="```Get bot information```", inline=False)
+                embed.add_field(name="avatar/av", value="`Display user avatar`", inline=False)
+                embed.add_field(name="server_info/sf", value="`Get server information`", inline=False)
+                embed.add_field(name="bot-info", value="`Get bot information`", inline=False)
 
             elif self.values[0] == "Moderation":
-                embed.add_field(name="kick", value="```Kick a member```", inline=False)
-                embed.add_field(name="ban", value="```Ban a member```", inline=False)
-                embed.add_field(name="mute", value="```Mute a member```", inline=False)
-                embed.add_field(name="unmute", value="```Unmute a member```", inline=False)
-                embed.add_field(name="lock", value="```Lock a channel```", inline=False)
-                embed.add_field(name="unlock", value="```Unlock a channel```", inline=False)
-                embed.add_field(name="delete channel/dc", value="```Delete a specific channel```", inline=False)
-                embed.add_field(name="give role/gr", value="```Give a role to someone```", inline=False)
-                embed.add_field(name="add emoji/ad", value="```Add an emoji```", inline=False)
+                embed.add_field(name="kick", value="`Kick a member`", inline=False)
+                embed.add_field(name="ban", value="`Ban a member`", inline=False)
+                embed.add_field(name="mute", value="`Mute a member`", inline=False)
+                embed.add_field(name="unmute", value="`Unmute a member`", inline=False)
+                embed.add_field(name="lock", value="`Lock a channel`", inline=False)
+                embed.add_field(name="unlock", value="`Unlock a channel`", inline=False)
+                embed.add_field(name="delete channel/dc", value="`Delete a specific channel`", inline=False)
+                embed.add_field(name="give role/gr", value="`Give a role to someone`", inline=False)
+                embed.add_field(name="add emoji/ad", value="`Add an emoji`", inline=False)
 
             elif self.values[0] == "Fun":
-                embed.add_field(name="quote", value="```Send a random inspirational quote```", inline=False)
-                embed.add_field(name="rizz", value="```Rizz You Up```", inline=False)
-                embed.add_field(name="joke", value="```Tell a random joke```", inline=False)
-                embed.add_field(name="anime quote/aq", value="```Send a random anime quote```", inline=False)
-                embed.add_field(name="slap", value="```Slap someone```", inline=False)
-                embed.add_field(name="Breakup/bp", value="```Break up with your love```", inline=False)
-                embed.add_field(name="punch/p", value="```Punch someone```", inline=False)
-                embed.add_field(name="dare/truth", value="```Play truth or dare```", inline=False)
-                embed.add_field(name="coin flip", value="```playing coin flip```", inline=False)
-                embed.add_field(name="8ball", value="```Magic 8-ball that gives a random response to yes/no questions```", inline=False)
-                embed.add_field(name="dice", value="```roll a dice```", inline=False)
+                embed.add_field(name="quote", value="`Send a random inspirational quote`", inline=False)
+                embed.add_field(name="rizz", value="`Rizz You Up`", inline=False)
+                embed.add_field(name="joke", value="`Tell a random joke`", inline=False)
+                embed.add_field(name="anime quote/aq", value="`Send a random anime quote`", inline=False)
+                embed.add_field(name="slap", value="`Slap someone`", inline=False)
+                embed.add_field(name="Breakup/bp", value="`Break up with your love`", inline=False)
+                embed.add_field(name="punch/p", value="`Punch someone`", inline=False)
+                embed.add_field(name="dare/truth", value="```Play truth or dare`", inline=False)
+                embed.add_field(name="coin flip", value="`playing coin flip`", inline=False)
+                embed.add_field(name="8ball", value="`Magic 8-ball that gives a random response to yes/no questions`", inline=False)
+                embed.add_field(name="dice", value="`roll a dice`", inline=False)
 
             await interaction.response.edit_message(embed=embed, view=self.view)
 
@@ -820,45 +821,5 @@ async def minecraft_info(ctx):
     embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
     embed.timestamp = discord.utils.utcnow()
     await ctx.send(embed=embed)
-
-@client.command(name='ro_info', aliases=['rinfo', 'roblox'])
-async def roblox_info(ctx, username: str):
-    try:
-        # Fetch Roblox user info
-        async with aiohttp.ClientSession() as session:
-            async with session.get(f"https://users.roblox.com/v1/users/search?keyword={username}&limit=1") as response:
-                data = await response.json()
-
-        if not data['data']:
-            await ctx.send(f"No Roblox user found with the username `{username}`.")
-            return
-
-        user_info = data['data'][0]
-        user_id = user_info['id']
-        display_name = user_info['displayName']
-        account_age = user_info['created']
-
-        # Fetch additional info such as avatar
-        async with aiohttp.ClientSession() as session:
-            async with session.get(f"https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds={user_id}&size=150x150&format=Png&isCircular=false") as avatar_response:
-                avatar_data = await avatar_response.json()
-                avatar_url = avatar_data['data'][0]['imageUrl']
-
-        # Create an embed with the user info
-        embed = discord.Embed(
-            title=f"Roblox Info for {username}",
-            description=f"Display Name: {display_name}\nAccount Age: {account_age}",
-            color=discord.Color.blurple()
-        )
-        embed.set_thumbnail(url=avatar_url)
-        embed.add_field(name="User ID", value=user_id, inline=True)
-        embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
-        embed.timestamp = discord.utils.utcnow()
-
-        await ctx.send(embed=embed)
-
-    except Exception as e:
-        print(f"An error occurred while fetching Roblox info: {e}")
-        await ctx.send("Sorry, I couldn't fetch Roblox user info at the moment.")
     
 client.run(os.getenv('TOKEN'))
