@@ -810,16 +810,5 @@ async def dice(ctx, rolls: int = 1):
         embed.set_footer(text=f"Rolled {rolls} dice.")
 
     await ctx.send(embed=embed)
-
-@client.command(name='mc')
-async def minecraft_info(ctx):
-    embed = discord.Embed(title="Minecraft Server Information", color=discord.Color.blurple())
-    embed.set_thumbnail(url="https://files.catbox.moe/n00j9c.png")
-    embed.add_field(name="Server IP", value="```PhumNeakMean.aternos.me```", inline=True)
-    embed.add_field(name="Server Port", value="```51208```", inline=True)
-    embed.add_field(name="Version", value="```Bedrock/1.21.2```", inline=True)
-    embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
-    embed.timestamp = discord.utils.utcnow()
-    await ctx.send(embed=embed)
     
 client.run(os.getenv('TOKEN'))
