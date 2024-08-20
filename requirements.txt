@@ -1,7 +1,9 @@
-discord.py==2.3.2
+discord.py==3.8.0
+discord.py[voice]
 aiohttp
 python-dotenv
 Flask
 requests
 openai
-mcstatus
+wavelink
+PyNaCl
