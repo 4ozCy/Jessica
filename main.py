@@ -10,6 +10,7 @@ from datetime import datetime
 import random
 import requests
 import openai
+import wavelink
 afk_users = {}
 
 load_dotenv()
@@ -71,6 +72,12 @@ async def fetch_quote():
 
 @client.event
 async def on_ready():
+    node = wavelink.Node(
+        uri='http://us1.lavalink.creavite.co:20080', 
+        password='auto.creavite.co',
+        secure=False
+    )
+    await wavelink.NodePool.connect(client=client, nodes=[node])
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=".cmds"))
     print(f'We have logged in as {client.user}')
   
@@ -810,5 +817,51 @@ async def dice(ctx, rolls: int = 1):
         embed.set_footer(text=f"Rolled {rolls} dice.")
 
     await ctx.send(embed=embed)
+
+@client.command(name='play')
+async def play(ctx, *, search: str):
+    if not ctx.author.voice:
+        await ctx.send("You need to be in a voice channel to use this command.")
+        return
+
+    channel = ctx.author.voice.channel
+    player = wavelink.NodePool.get_node().get_player(ctx.guild)
+
+    if not player.is_connected:
+        await player.connect(channel.id)
+
+    track = await wavelink.YouTubeTrack.search(search, return_first=True)
+    await player.play(track)
+    await ctx.send(f'Now playing: {track.title}')
+
+@client.command(name='stop')
+async def stop(ctx):
+    player = wavelink.NodePool.get_node().get_player(ctx.guild)
+    await player.disconnect()
+    await ctx.send("Disconnected.")
+
+@client.command(name='pitch')
+async def pitch(ctx, value: float):
+    player = wavelink.NodePool.get_node().get_player(ctx.guild)
+
+    if not player.is_playing():
+        await ctx.send("No music is playing right now.")
+        return
+
+    filter = wavelink.Filter(pitch=value)
+    await player.set_filter(filter)
+    await ctx.send(f"Pitch set to {value}")
+
+@client.command(name='volume')
+async def volume(ctx, value: int):
+    player = wavelink.NodePool.get_node().get_player(ctx.guild)
+
+    if not player.is_playing():
+        await ctx.send("No music is playing right now.")
+        return
+
+    value = max(0, min(1000, value))
+    await player.set_volume(value)
+    await ctx.send(f"Volume set to {value}")
     
 client.run(os.getenv('TOKEN'))
