@@ -14,6 +14,15 @@ import urllib.parse, urllib.request, re
 import asyncio 
 import yt_dlp
 afk_users = {}
+queues = {}
+voice_clients = {}
+youtube_base_url = 'https://www.youtube.com/'
+youtube_results_url = youtube_base_url + 'results?'
+youtube_watch_url = youtube_base_url + 'watch?v='
+yt_dl_options = {"format": "bestaudio/best"}
+ytdl = yt_dlp.YoutubeDL(yt_dl_options)
+
+ffmpeg_options = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5','options': '-vn -filter:a "volume=0.25"'}
 
 load_dotenv()
 
@@ -34,16 +43,6 @@ if __name__ == "__main__":
     keep_alive()
 
 client = commands.Bot(command_prefix='.', intents=discord.Intents.all())
-
-queues = {}
-    voice_clients = {}
-    youtube_base_url = 'https://www.youtube.com/'
-    youtube_results_url = youtube_base_url + 'results?'
-    youtube_watch_url = youtube_base_url + 'watch?v='
-    yt_dl_options = {"format": "bestaudio/best"}
-    ytdl = yt_dlp.YoutubeDL(yt_dl_options)
-
-    ffmpeg_options = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5','options': '-vn -filter:a "volume=0.25"'}
 
 roasts = [
     "Don't let the door hit you on the way out!",
