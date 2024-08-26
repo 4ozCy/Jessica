@@ -21,12 +21,17 @@ youtube_results_url = youtube_base_url + 'results?'
 youtube_watch_url = youtube_base_url + 'watch?v='
 
 yt_dl_options = {
-        "format": "bestaudio/best",
-        "noplaylist": True,
-        "quiet": True,
-        "nocheckcertificate": True,
-        "geo_bypass": True,
-        "sleep_interval_requests": 1,
+    "format": "bestaudio/best",
+    "noplaylist": True,
+    "quiet": True,
+    "nocheckcertificate": True,
+    "geo_bypass": True,
+    "sleep_interval_requests": 1,
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+    "headers": {
+        "Accept-Language": "en-US,en;q=0.9",
+        "Accept-Encoding": "gzip, deflate, br",
+    },
 }
 ytdl = yt_dlp.YoutubeDL(yt_dl_options)
 
