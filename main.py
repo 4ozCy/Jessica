@@ -863,10 +863,10 @@ async def play(ctx, *, link):
 @client.command(name="clear_queue")
 async def clear_queue(ctx):
     if ctx.guild.id in queues:
-            queues[ctx.guild.id].clear()
-            await ctx.send("Queue cleared!")
-        else:
-await ctx.send("There is no queue to clear")
+        queues[ctx.guild.id].clear()
+        await ctx.send("Queue cleared!")
+    else:
+        await ctx.send("There is no queue to clear")
 
 @client.command(name="pause")
 async def pause(ctx):
@@ -894,8 +894,8 @@ async def stop(ctx):
 @client.command(name="queue")
 async def queue(ctx, *, url):
     if ctx.guild.id not in queues:
-            queues[ctx.guild.id] = []
+        queues[ctx.guild.id] = []
     queues[ctx.guild.id].append(url)
-await ctx.send("Added to queue!")
+    await ctx.send("Added to queue!")
     
 client.run(os.getenv('TOKEN'))
