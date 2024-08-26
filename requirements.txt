@@ -8,3 +8,5 @@ openai
 wavelink
 PyNaCl
 yt_dlp
+pytube
+pytube3
