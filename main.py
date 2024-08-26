@@ -827,30 +827,30 @@ async def dice(ctx, rolls: int = 1):
     await ctx.send(embed=embed)
 
 @client.command(name="play")
-    async def play(ctx, *, link):
-        try:
-            voice_client = await ctx.author.voice.channel.connect()
-            voice_clients[voice_client.guild.id] = voice_client
-        except Exception as e:
-            print(e)
+async def play(ctx, *, link):
+    try:
+        voice_client = await ctx.author.voice.channel.connect()
+        voice_clients[voice_client.guild.id] = voice_client
+    except Exception as e:
+        print(e)
 
-        try:
-            if youtube_base_url not in link:
-                yt = YouTube()
-                results = yt.search(link, max_results=1)
-                if not results:
-                    await ctx.send("No results found.")
-                    return
-                link = youtube_base_url + 'watch?v=' + results[0].video_id
+    try:
+        if youtube_base_url not in link:
+            yt = YouTube()
+            results = yt.search(link, max_results=1)
+            if not results:
+                await ctx.send("No results found.")
+                return
+            link = youtube_base_url + 'watch?v=' + results[0].video_id
 
-            yt = YouTube(link)
-            stream = yt.streams.filter(only_audio=True).first()
-            audio_url = stream.url
+        yt = YouTube(link)
+        stream = yt.streams.filter(only_audio=True).first()
+        audio_url = stream.url
 
-            player = discord.FFmpegOpusAudio(audio_url, **ffmpeg_options)
-            voice_clients[ctx.guild.id].play(player, after=lambda e: asyncio.run_coroutine_threadsafe(play_next(ctx), client.loop))
-        except Exception as e:
-            print(e)
+        player = discord.FFmpegOpusAudio(audio_url, **ffmpeg_options)
+        voice_clients[ctx.guild.id].play(player, after=lambda e: asyncio.run_coroutine_threadsafe(play_next(ctx), client.loop))
+    except Exception as e:
+        print(e)
 
 @client.command(name="clear_queue")
 async def clear_queue(ctx):
