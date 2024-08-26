@@ -830,27 +830,30 @@ async def dice(ctx, rolls: int = 1):
 async def play(ctx, *, link):
     try:
         voice_client = await ctx.author.voice.channel.connect()
-        voice_clients[voice_client.guild.id] = voice_client
+        voice_clients[ctx.guild.id] = voice_client
     except Exception as e:
-        print(e)
+        print(f"Error connecting to voice channel: {e}")
 
     try:
         if youtube_base_url not in link:
-            yt = YouTube()
-            results = yt.search(link, max_results=1)
-            if not results:
+            yt = YouTube(f"https://www.youtube.com/results?search_query={link}")
+            video = yt.streams.filter(only_audio=True).first()
+            if not video:
                 await ctx.send("No results found.")
                 return
-            link = youtube_base_url + 'watch?v=' + results[0].video_id
-
-        yt = YouTube(link)
-        stream = yt.streams.filter(only_audio=True).first()
-        audio_url = stream.url
+            audio_url = video.url
+        else:
+            yt = YouTube(link)
+            video = yt.streams.filter(only_audio=True).first()
+            audio_url = video.url
 
         player = discord.FFmpegOpusAudio(audio_url, **ffmpeg_options)
-        voice_clients[ctx.guild.id].play(player, after=lambda e: asyncio.run_coroutine_threadsafe(play_next(ctx), client.loop))
+        voice_clients[ctx.guild.id].play(
+            player,
+            after=lambda e: asyncio.run_coroutine_threadsafe(play_next(ctx), client.loop)
+        )
     except Exception as e:
-        print(e)
+        print(f"Error playing audio: {e}")
 
 @client.command(name="clear_queue")
 async def clear_queue(ctx):
