@@ -829,7 +829,7 @@ async def dice(ctx, rolls: int = 1):
     await ctx.send(embed=embed)
 
 @client.command(name="play")
-async def play(ctx, *, link):
+async def play(ctx, *, query):
     try:
         voice_client = await ctx.author.voice.channel.connect()
         voice_clients[voice_client.guild.id] = voice_client
@@ -837,9 +837,9 @@ async def play(ctx, *, link):
         print(e)
 
     try:
-        if youtube_base_url not in link:
+        if youtube_base_url not in query:
             query_string = urllib.parse.urlencode({
-                'search_query': link
+                'search_query': query
             })
 
             content = urllib.request.urlopen(
@@ -848,17 +848,24 @@ async def play(ctx, *, link):
 
             search_results = re.findall(r'/watch\?v=(.{11})', content.read().decode())
 
-            link = youtube_watch_url + search_results[0]
+            if not search_results:
+                await ctx.send("No results found on YouTube.")
+                return
+
+            query = youtube_watch_url + search_results[0]
 
         loop = asyncio.get_event_loop()
-        data = await loop.run_in_executor(None, lambda: ytdl.extract_info(link, download=False))
+        data = await loop.run_in_executor(None, lambda: ytdl.extract_info(query, download=False))
 
         song = data['url']
+        title = data.get('title', 'Unknown title')
         player = discord.FFmpegOpusAudio(song, **ffmpeg_options)
 
         voice_clients[ctx.guild.id].play(player, after=lambda e: asyncio.run_coroutine_threadsafe(play_next(ctx), client.loop))
+        await ctx.send(f"Now playing: {title}")
     except Exception as e:
         print(e)
+        await ctx.send("An error occurred while trying to play the song.")
 
 @client.command(name="clear_queue")
 async def clear_queue(ctx):
