@@ -10,17 +10,9 @@ from datetime import datetime
 import random
 import requests
 import openai
-import urllib.parse, urllib.request, re
 import asyncio
-from pytube import YouTube
+import wavelink
 afk_users = {}
-queues = {}
-voice_clients = {}
-youtube_base_url = 'https://www.youtube.com/'
-ffmpeg_options = {
-    'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
-    'options': '-vn -filter:a "volume=0.25"'
-}
 
 load_dotenv()
 
@@ -81,13 +73,16 @@ async def fetch_quote():
 
 @client.event
 async def on_ready():
+    await wavelink.NodePool.create_node(
+        bot=client,
+        host='v4.lavalink.rocks',
+        port=443,
+        password='horizxon.tech',
+        secure=True
+    )
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=".cmds"))
     print(f'We have logged in as {client.user}')
 
-async def play_next(ctx):
-        if queues[ctx.guild.id] != []:
-            link = queues[ctx.guild.id].pop(0)
-            await play(ctx, link=link)
   
 @client.command(name='quote')
 async def send_quote(ctx):
@@ -827,70 +822,29 @@ async def dice(ctx, rolls: int = 1):
     await ctx.send(embed=embed)
 
 @client.command(name="play")
-async def play(ctx, *, link):
-    try:
-        voice_client = await ctx.author.voice.channel.connect()
-        voice_clients[ctx.guild.id] = voice_client
-    except Exception as e:
-        print(f"Error connecting to voice channel: {e}")
-
-    try:
-        if youtube_base_url not in link:
-            yt = YouTube(f"https://www.youtube.com/results?search_query={link}")
-            video = yt.streams.filter(only_audio=True).first()
-            if not video:
-                await ctx.send("No results found.")
-                return
-            audio_url = video.url
+async def play(ctx, *, query: str):
+    if not ctx.voice_client:
+        if ctx.author.voice:
+            await ctx.author.voice.channel.connect(cls=wavelink.Player)
         else:
-            yt = YouTube(link)
-            video = yt.streams.filter(only_audio=True).first()
-            audio_url = video.url
+            await ctx.send("You need to be in a voice channel to use this command.")
+            return
 
-        player = discord.FFmpegOpusAudio(audio_url, **ffmpeg_options)
-        voice_clients[ctx.guild.id].play(
-            player,
-            after=lambda e: asyncio.run_coroutine_threadsafe(play_next(ctx), client.loop)
-        )
-    except Exception as e:
-        print(f"Error playing audio: {e}")
-
-@client.command(name="clear_queue")
-async def clear_queue(ctx):
-    if ctx.guild.id in queues:
-        queues[ctx.guild.id].clear()
-        await ctx.send("Queue cleared!")
+    player = ctx.voice_client
+    track = await wavelink.YouTubeTrack.search(query=query, return_first=True)
+    if track:
+        await player.play(track)
+        await ctx.send(f'Now playing: {track.title}')
     else:
-        await ctx.send("There is no queue to clear")
-
-@client.command(name="pause")
-async def pause(ctx):
-    try:
-        voice_clients[ctx.guild.id].pause()
-    except Exception as e:
-        print(e)
-
-@client.command(name="resume")
-async def resume(ctx):
-    try:
-        voice_clients[ctx.guild.id].resume()
-    except Exception as e:
-        print(e)
+        await ctx.send("Could not find any tracks.")
 
 @client.command(name="stop")
 async def stop(ctx):
-    try:
-        voice_clients[ctx.guild.id].stop()
-        await voice_clients[ctx.guild.id].disconnect()
-        del voice_clients[ctx.guild.id]
-    except Exception as e:
-        print(e)
-
-@client.command(name="queue")
-async def queue(ctx, *, url):
-    if ctx.guild.id not in queues:
-        queues[ctx.guild.id] = []
-    queues[ctx.guild.id].append(url)
-    await ctx.send("Added to queue!")
+    if ctx.voice_client:
+        ctx.voice_client.stop()
+        await ctx.voice_client.disconnect()
+        await ctx.send("Stopped and disconnected.")
+    else:
+        await ctx.send("I am not connected to any voice channel.")
     
 client.run(os.getenv('TOKEN'))
