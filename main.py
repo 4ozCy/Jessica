@@ -829,74 +829,73 @@ async def dice(ctx, rolls: int = 1):
     await ctx.send(embed=embed)
 
 @client.command(name="play")
-    async def play(ctx, *, link):
-        try:
-            voice_client = await ctx.author.voice.channel.connect()
-            voice_clients[voice_client.guild.id] = voice_client
-        except Exception as e:
-            print(e)
+async def play(ctx, *, link):
+    try:
+        voice_client = await ctx.author.voice.channel.connect()
+        voice_clients[voice_client.guild.id] = voice_client
+    except Exception as e:
+        print(e)
 
-        try:
+    try:
+        if youtube_base_url not in link:
+            query_string = urllib.parse.urlencode({
+                'search_query': link
+            })
 
-            if youtube_base_url not in link:
-                query_string = urllib.parse.urlencode({
-                    'search_query': link
-                })
+            content = urllib.request.urlopen(
+                youtube_results_url + query_string
+            )
 
-                content = urllib.request.urlopen(
-                    youtube_results_url + query_string
-                )
+            search_results = re.findall(r'/watch\?v=(.{11})', content.read().decode())
 
-                search_results = re.findall(r'/watch\?v=(.{11})', content.read().decode())
+            link = youtube_watch_url + search_results[0]
 
-                link = youtube_watch_url + search_results[0]
+        loop = asyncio.get_event_loop()
+        data = await loop.run_in_executor(None, lambda: ytdl.extract_info(link, download=False))
 
-            loop = asyncio.get_event_loop()
-            data = await loop.run_in_executor(None, lambda: ytdl.extract_info(link, download=False))
+        song = data['url']
+        player = discord.FFmpegOpusAudio(song, **ffmpeg_options)
 
-            song = data['url']
-            player = discord.FFmpegOpusAudio(song, **ffmpeg_options)
+        voice_clients[ctx.guild.id].play(player, after=lambda e: asyncio.run_coroutine_threadsafe(play_next(ctx), client.loop))
+    except Exception as e:
+        print(e)
 
-            voice_clients[ctx.guild.id].play(player, after=lambda e: asyncio.run_coroutine_threadsafe(play_next(ctx), client.loop))
-        except Exception as e:
-            print(e)
-
-    @client.command(name="clear_queue")
-    async def clear_queue(ctx):
-        if ctx.guild.id in queues:
+@client.command(name="clear_queue")
+async def clear_queue(ctx):
+    if ctx.guild.id in queues:
             queues[ctx.guild.id].clear()
             await ctx.send("Queue cleared!")
         else:
-            await ctx.send("There is no queue to clear")
+await ctx.send("There is no queue to clear")
 
-    @client.command(name="pause")
-    async def pause(ctx):
-        try:
-            voice_clients[ctx.guild.id].pause()
-        except Exception as e:
-            print(e)
+@client.command(name="pause")
+async def pause(ctx):
+    try:
+        voice_clients[ctx.guild.id].pause()
+    except Exception as e:
+        print(e)
 
-    @client.command(name="resume")
-    async def resume(ctx):
-        try:
-            voice_clients[ctx.guild.id].resume()
-        except Exception as e:
-            print(e)
+@client.command(name="resume")
+async def resume(ctx):
+    try:
+        voice_clients[ctx.guild.id].resume()
+    except Exception as e:
+        print(e)
 
-    @client.command(name="stop")
-    async def stop(ctx):
-        try:
-            voice_clients[ctx.guild.id].stop()
-            await voice_clients[ctx.guild.id].disconnect()
-            del voice_clients[ctx.guild.id]
-        except Exception as e:
-            print(e)
+@client.command(name="stop")
+async def stop(ctx):
+    try:
+        voice_clients[ctx.guild.id].stop()
+        await voice_clients[ctx.guild.id].disconnect()
+        del voice_clients[ctx.guild.id]
+    except Exception as e:
+        print(e)
 
-    @client.command(name="queue")
-    async def queue(ctx, *, url):
-        if ctx.guild.id not in queues:
+@client.command(name="queue")
+async def queue(ctx, *, url):
+    if ctx.guild.id not in queues:
             queues[ctx.guild.id] = []
-        queues[ctx.guild.id].append(url)
-        await ctx.send("Added to queue!")
+    queues[ctx.guild.id].append(url)
+await ctx.send("Added to queue!")
     
 client.run(os.getenv('TOKEN'))
