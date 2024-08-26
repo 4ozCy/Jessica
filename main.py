@@ -11,7 +11,7 @@ import random
 import requests
 import openai
 import asyncio
-import wavelink
+import pylink
 afk_users = {}
 
 load_dotenv()
@@ -33,6 +33,13 @@ if __name__ == "__main__":
     keep_alive()
 
 client = commands.Bot(command_prefix='.', intents=discord.Intents.all())
+
+lavalink_client = pylink.Client(
+    host='v4.lavalink.rocks',
+    port=443,
+    password='horizxon.tech',
+    secure=True
+)
 
 roasts = [
     "Don't let the door hit you on the way out!",
@@ -73,13 +80,7 @@ async def fetch_quote():
 
 @client.event
 async def on_ready():
-    await wavelink.NodePool.create_node(
-        bot=client,
-        host='v4.lavalink.rocks',
-        port=443,
-        password='horizxon.tech',
-        secure=True
-    )
+    client.lavalink = lavalink_client
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=".cmds"))
     print(f'We have logged in as {client.user}')
 
@@ -825,16 +826,16 @@ async def dice(ctx, rolls: int = 1):
 async def play(ctx, *, query: str):
     if not ctx.voice_client:
         if ctx.author.voice:
-            await ctx.author.voice.channel.connect(cls=wavelink.Player)
+            await ctx.author.voice.channel.connect()
         else:
             await ctx.send("You need to be in a voice channel to use this command.")
             return
 
     player = ctx.voice_client
-    track = await wavelink.YouTubeTrack.search(query=query, return_first=True)
+    track = await client.lavalink.get_tracks(query)
     if track:
-        await player.play(track)
-        await ctx.send(f'Now playing: {track.title}')
+        await player.play(track[0].uri)
+        await ctx.send(f'Now playing: {track[0].title}')
     else:
         await ctx.send("Could not find any tracks.")
 
