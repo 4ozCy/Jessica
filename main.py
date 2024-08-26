@@ -19,10 +19,17 @@ voice_clients = {}
 youtube_base_url = 'https://www.youtube.com/'
 youtube_results_url = youtube_base_url + 'results?'
 youtube_watch_url = youtube_base_url + 'watch?v='
-yt_dl_options = {"format": "bestaudio/best"}
-ytdl = yt_dlp.YoutubeDL(yt_dl_options)
+yt_dl_options = {
+        "format": "bestaudio/best",
+        "noplaylist": True,
+        "quiet": True,
+        "nocheckcertificate": True,
+        "geo_bypass": True,
+        "sleep_interval_requests": 1,
+    }
+    ytdl = yt_dlp.YoutubeDL(yt_dl_options)
 
-ffmpeg_options = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5','options': '-vn -filter:a "volume=0.25"'}
+    ffmpeg_options = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn -filter:a "volume=0.25"'}
 
 load_dotenv()
 
@@ -829,40 +836,35 @@ async def dice(ctx, rolls: int = 1):
     await ctx.send(embed=embed)
 
 @client.command(name="play")
-async def play(ctx, *, query):
+async def play(ctx, *, link):
     try:
-        voice_client = await ctx.author.voice.channel.connect()
-        voice_clients[voice_client.guild.id] = voice_client
-    except Exception as e:
-        print(e)
+        if ctx.guild.id not in voice_clients:
+            voice_client = await ctx.author.voice.channel.connect()
+            voice_clients[voice_client.guild.id] = voice_client
+        else:
+            voice_client = voice_clients[ctx.guild.id]
 
-    try:
-        if youtube_base_url not in query:
-            query_string = urllib.parse.urlencode({
-                'search_query': query
-            })
-
-            content = urllib.request.urlopen(
-                youtube_results_url + query_string
-            )
-
+        if youtube_base_url not in link:
+            query_string = urllib.parse.urlencode({'search_query': link})
+            content = urllib.request.urlopen(youtube_results_url + query_string)
             search_results = re.findall(r'/watch\?v=(.{11})', content.read().decode())
 
             if not search_results:
                 await ctx.send("No results found on YouTube.")
                 return
 
-            query = youtube_watch_url + search_results[0]
+            link = youtube_watch_url + search_results[0]
 
         loop = asyncio.get_event_loop()
-        data = await loop.run_in_executor(None, lambda: ytdl.extract_info(query, download=False))
+        data = await loop.run_in_executor(None, lambda: ytdl.extract_info(link, download=False))
 
         song = data['url']
         title = data.get('title', 'Unknown title')
         player = discord.FFmpegOpusAudio(song, **ffmpeg_options)
 
-        voice_clients[ctx.guild.id].play(player, after=lambda e: asyncio.run_coroutine_threadsafe(play_next(ctx), client.loop))
+        voice_client.play(player, after=lambda e: asyncio.run_coroutine_threadsafe(play_next(ctx), client.loop))
         await ctx.send(f"Now playing: {title}")
+
     except Exception as e:
         print(e)
         await ctx.send("An error occurred while trying to play the song.")
