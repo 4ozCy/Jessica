@@ -10,7 +10,9 @@ from datetime import datetime
 import random
 import requests
 import openai
-import wavelink
+import urllib.parse, urllib.request, re
+import asyncio 
+import yt_dlp
 afk_users = {}
 
 load_dotenv()
@@ -32,6 +34,16 @@ if __name__ == "__main__":
     keep_alive()
 
 client = commands.Bot(command_prefix='.', intents=discord.Intents.all())
+
+queues = {}
+    voice_clients = {}
+    youtube_base_url = 'https://www.youtube.com/'
+    youtube_results_url = youtube_base_url + 'results?'
+    youtube_watch_url = youtube_base_url + 'watch?v='
+    yt_dl_options = {"format": "bestaudio/best"}
+    ytdl = yt_dlp.YoutubeDL(yt_dl_options)
+
+    ffmpeg_options = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5','options': '-vn -filter:a "volume=0.25"'}
 
 roasts = [
     "Don't let the door hit you on the way out!",
@@ -72,14 +84,13 @@ async def fetch_quote():
 
 @client.event
 async def on_ready():
-    node = wavelink.Node(
-        uri='http://us1.lavalink.creavite.co:20080', 
-        password='auto.creavite.co',
-        secure=False
-    )
-    await wavelink.NodePool.connect(client=client, nodes=[node])
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=".cmds"))
     print(f'We have logged in as {client.user}')
+
+async def play_next(ctx):
+        if queues[ctx.guild.id] != []:
+            link = queues[ctx.guild.id].pop(0)
+            await play(ctx, link=link)
   
 @client.command(name='quote')
 async def send_quote(ctx):
@@ -818,50 +829,75 @@ async def dice(ctx, rolls: int = 1):
 
     await ctx.send(embed=embed)
 
-@client.command(name='play')
-async def play(ctx, *, search: str):
-    if not ctx.author.voice:
-        await ctx.send("You need to be in a voice channel to use this command.")
-        return
+@client.command(name="play")
+    async def play(ctx, *, link):
+        try:
+            voice_client = await ctx.author.voice.channel.connect()
+            voice_clients[voice_client.guild.id] = voice_client
+        except Exception as e:
+            print(e)
 
-    channel = ctx.author.voice.channel
-    player = wavelink.NodePool.get_node().get_player(ctx.guild)
+        try:
 
-    if not player.is_connected:
-        await player.connect(channel.id)
+            if youtube_base_url not in link:
+                query_string = urllib.parse.urlencode({
+                    'search_query': link
+                })
 
-    track = await wavelink.YouTubeTrack.search(search, return_first=True)
-    await player.play(track)
-    await ctx.send(f'Now playing: {track.title}')
+                content = urllib.request.urlopen(
+                    youtube_results_url + query_string
+                )
 
-@client.command(name='stop')
-async def stop(ctx):
-    player = wavelink.NodePool.get_node().get_player(ctx.guild)
-    await player.disconnect()
-    await ctx.send("Disconnected.")
+                search_results = re.findall(r'/watch\?v=(.{11})', content.read().decode())
 
-@client.command(name='pitch')
-async def pitch(ctx, value: float):
-    player = wavelink.NodePool.get_node().get_player(ctx.guild)
+                link = youtube_watch_url + search_results[0]
 
-    if not player.is_playing():
-        await ctx.send("No music is playing right now.")
-        return
+            loop = asyncio.get_event_loop()
+            data = await loop.run_in_executor(None, lambda: ytdl.extract_info(link, download=False))
 
-    filter = wavelink.Filter(pitch=value)
-    await player.set_filter(filter)
-    await ctx.send(f"Pitch set to {value}")
+            song = data['url']
+            player = discord.FFmpegOpusAudio(song, **ffmpeg_options)
 
-@client.command(name='volume')
-async def volume(ctx, value: int):
-    player = wavelink.NodePool.get_node().get_player(ctx.guild)
+            voice_clients[ctx.guild.id].play(player, after=lambda e: asyncio.run_coroutine_threadsafe(play_next(ctx), client.loop))
+        except Exception as e:
+            print(e)
 
-    if not player.is_playing():
-        await ctx.send("No music is playing right now.")
-        return
+    @client.command(name="clear_queue")
+    async def clear_queue(ctx):
+        if ctx.guild.id in queues:
+            queues[ctx.guild.id].clear()
+            await ctx.send("Queue cleared!")
+        else:
+            await ctx.send("There is no queue to clear")
 
-    value = max(0, min(1000, value))
-    await player.set_volume(value)
-    await ctx.send(f"Volume set to {value}")
+    @client.command(name="pause")
+    async def pause(ctx):
+        try:
+            voice_clients[ctx.guild.id].pause()
+        except Exception as e:
+            print(e)
+
+    @client.command(name="resume")
+    async def resume(ctx):
+        try:
+            voice_clients[ctx.guild.id].resume()
+        except Exception as e:
+            print(e)
+
+    @client.command(name="stop")
+    async def stop(ctx):
+        try:
+            voice_clients[ctx.guild.id].stop()
+            await voice_clients[ctx.guild.id].disconnect()
+            del voice_clients[ctx.guild.id]
+        except Exception as e:
+            print(e)
+
+    @client.command(name="queue")
+    async def queue(ctx, *, url):
+        if ctx.guild.id not in queues:
+            queues[ctx.guild.id] = []
+        queues[ctx.guild.id].append(url)
+        await ctx.send("Added to queue!")
     
 client.run(os.getenv('TOKEN'))
