@@ -11,7 +11,7 @@ import random
 import requests
 import openai
 import asyncio
-import pylink
+import magma
 afk_users = {}
 
 load_dotenv()
@@ -34,7 +34,7 @@ if __name__ == "__main__":
 
 client = commands.Bot(command_prefix='.', intents=discord.Intents.all())
 
-lavalink_client = pylink.Client(
+magma_client = magma.Client(
     host='v4.lavalink.rocks',
     port=443,
     password='horizxon.tech',
@@ -832,10 +832,13 @@ async def play(ctx, *, query: str):
             return
 
     player = ctx.voice_client
-    track = await client.lavalink.get_tracks(query)
-    if track:
-        await player.play(track[0].uri)
-        await ctx.send(f'Now playing: {track[0].title}')
+    lavalink_node = magma_client.get_node()
+    tracks = await lavalink_node.get_tracks(query)
+    
+    if tracks:
+        track = tracks[0]
+        await player.play(track.uri)
+        await ctx.send(f'Now playing: {track.title}')
     else:
         await ctx.send("Could not find any tracks.")
 
