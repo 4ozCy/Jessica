@@ -11,7 +11,6 @@ import random
 import requests
 import openai
 import asyncio
-import magma
 afk_users = {}
 
 load_dotenv()
@@ -33,13 +32,6 @@ if __name__ == "__main__":
     keep_alive()
 
 client = commands.Bot(command_prefix='.', intents=discord.Intents.all())
-
-magma_client = magma.Client(
-    host='v4.lavalink.rocks',
-    port=443,
-    password='horizxon.tech',
-    secure=True
-)
 
 roasts = [
     "Don't let the door hit you on the way out!",
@@ -821,34 +813,5 @@ async def dice(ctx, rolls: int = 1):
         embed.set_footer(text=f"Rolled {rolls} dice.")
 
     await ctx.send(embed=embed)
-
-@client.command(name="play")
-async def play(ctx, *, query: str):
-    if not ctx.voice_client:
-        if ctx.author.voice:
-            await ctx.author.voice.channel.connect()
-        else:
-            await ctx.send("You need to be in a voice channel to use this command.")
-            return
-
-    player = ctx.voice_client
-    lavalink_node = magma_client.get_node()
-    tracks = await lavalink_node.get_tracks(query)
-    
-    if tracks:
-        track = tracks[0]
-        await player.play(track.uri)
-        await ctx.send(f'Now playing: {track.title}')
-    else:
-        await ctx.send("Could not find any tracks.")
-
-@client.command(name="stop")
-async def stop(ctx):
-    if ctx.voice_client:
-        ctx.voice_client.stop()
-        await ctx.voice_client.disconnect()
-        await ctx.send("Stopped and disconnected.")
-    else:
-        await ctx.send("I am not connected to any voice channel.")
     
 client.run(os.getenv('TOKEN'))
