@@ -5,6 +5,4 @@ python-dotenv
 Flask
 requests
 openai
-wavelink
 PyNaCl
-magma
