@@ -33,16 +33,6 @@ if __name__ == "__main__":
 
 client = commands.Bot(command_prefix='.', intents=discord.Intents.all())
 
-roasts = [
-    "Don't let the door hit you on the way out!",
-    "Well, that escalated quickly...",
-    "Maybe you'll find better luck elsewhere.",
-    "It's not me, it's you.",
-    "why did you broke the rules",
-    "lollll ez",
-    "noob"
-]
-
 async def fetch_pickup_line():
     try:
         async with aiohttp.ClientSession() as session:
@@ -262,6 +252,11 @@ async def on_member_join(member):
     else:
         print("Autorole not set.")
 
+@client.command(name='say')
+async def say(ctx, *, message: str):
+    await ctx.message.delete()
+    await ctx.send(message)
+
 @client.command(name='punch', aliases=['p'])
 async def punch_member(ctx, member: discord.Member):
     async with aiohttp.ClientSession() as session:
@@ -300,16 +295,8 @@ async def give(ctx, subcommand: str = None, member: discord.Member = None, role:
         await ctx.send(embed=embed)
 
 @client.command(name='purge')
+@commands.has_permissions(manage_messages=True)
 async def purge(ctx, amount: int, *, target: discord.Member = None):
-    if not ctx.author.guild_permissions.manage_messages:
-        embed = discord.Embed(
-            title="Permission Denied",
-            description="You do not have permission to manage messages.",
-            color=discord.Color.red()
-        )
-        await ctx.send(embed=embed)
-        return
-
     if amount <= 0:
         embed = discord.Embed(
             title="Invalid Amount",
@@ -424,7 +411,6 @@ async def on_message(message):
             afk_users[mention.id] = afk_data
 
     await client.process_commands(message)
-    
     
 @client.command(name='spam')
 async def spam(ctx, message: str, member: discord.Member, count: int):
@@ -710,43 +696,32 @@ async def unmute(ctx, target: discord.Member = None):
 
 @client.command(name='kick')
 @commands.has_permissions(kick_members=True)
-async def kick(ctx, member: discord.Member, *, reason=None):
-    if reason is None:
-        reason = "No reason provided"
-
+async def kick(ctx, member: discord.Member, *, reason="No reason provided"):
     await member.kick(reason=reason)
-    gif = random.choice(kick_gifs)
-    roast = random.choice(roasts)
-    embed = discord.Embed(title=f'{member} has been kicked!', description=f'Reason: {reason}\n{roast}', color=discord.Color.blurple())
+    embed = discord.Embed(
+        title=f'{member} has been kicked!',
+        description=f'Reason: {reason}',
+        color=discord.Color.blurple()
+    )
     embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
     embed.timestamp = discord.utils.utcnow()
     await ctx.send(embed=embed)
-    
-    log_channel = discord.utils.get(ctx.guild.text_channels, name='log-channel')
-    if log_channel:
-        await log_channel.send(f'{member} was kicked by {ctx.author} for: {reason}')
 
 @client.command(name='ban')
 @commands.has_permissions(ban_members=True)
-async def ban(ctx, member: discord.Member, *, reason=None):
-    if reason is None:
-        reason = "No reason provided"
-
+async def ban(ctx, member: discord.Member, *, reason="No reason provided"):
     await member.ban(reason=reason)
-    gif = random.choice(ban_gifs)
-    roast = random.choice(roasts)
-    embed = discord.Embed(title=f'{member} has been banned!', description=f'Reason: {reason}\n{roast}', color=discord.Color.blurple())
+    embed = discord.Embed(
+        title=f'{member} has been banned!',
+        description=f'Reason: {reason}',
+        color=discord.Color.blurple()
+    )
     embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
     embed.timestamp = discord.utils.utcnow()
     await ctx.send(embed=embed)
-    
-    log_channel = discord.utils.get(ctx.guild.text_channels, name='log-channel')
-    if log_channel:
-        await log_channel.send(f'{member} was banned by {ctx.author} for: {reason}')
 
-@kick.error
-@ban.error
-async def kick_ban_error(ctx, error):
+@client.event
+async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingPermissions):
         await ctx.send("You don't have permission to do that!")
     elif isinstance(error, commands.MissingRequiredArgument):
