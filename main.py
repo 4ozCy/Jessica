@@ -62,7 +62,6 @@ async def fetch_quote():
 
 @client.event
 async def on_ready():
-    client.lavalink = lavalink_client
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=".cmds"))
     print(f'We have logged in as {client.user}')
 
