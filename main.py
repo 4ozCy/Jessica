@@ -190,7 +190,7 @@ async def slap(ctx, member: discord.Member):
         return
 
     async with aiohttp.ClientSession() as session:
-        async with session.get("https://api.otakugifs.xyz/gif?reaction=slap&format=gif") as response:
+        async with session.get("https://purrbot.site/api/img/sfw/slap/gif") as response:
             if response.status == 200:
                 data = await response.json()
                 gif_url = data['url']
