@@ -193,7 +193,7 @@ async def slap(ctx, member: discord.Member):
         async with session.get("https://purrbot.site/api/img/sfw/slap/gif") as response:
             if response.status == 200:
                 data = await response.json()
-                gif_url = data['url']
+                gif_url = data['link']
                 embed = discord.Embed(title="slap you in the face because i wanted to.", description=f"{ctx.author.mention} slaps {member.mention}!!", color=discord.Color.blurple())
                 embed.set_image(url=gif_url)
                 embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
