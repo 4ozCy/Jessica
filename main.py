@@ -451,35 +451,6 @@ async def server(ctx, subcommand: str = None):
         embed = discord.Embed(description="Invalid command. Use ```.server info``` to get server information.", color=discord.Color.red())
         await ctx.send(embed=embed)
         
-@client.command(name='dare')
-async def dare(ctx):
-    async with aiohttp.ClientSession() as session:
-        async with session.get('https://api.truthordarebot.xyz/v1/dare') as response:
-            if response.status == 200:
-                data = await response.json()
-                dare_question = data['question']
-                embed = discord.Embed(title="Dare", description=dare_question, color=discord.Color.blurple())
-                embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
-                embed.timestamp = discord.utils.utcnow()
-                await ctx.send(embed=embed)
-            else:
-                await ctx.send("I couldn't dare you at the moment, please try again later.")
-
-@client.command(name='truth')
-async def truth(ctx):
-    async with aiohttp.ClientSession() as session:
-        async with session.get('https://api.truthordarebot.xyz/v1/truth') as response:
-            if response.status == 200:
-                data = await response.json()
-                truth_question = data['question']
-                embed = discord.Embed(title="Truth", description=truth_question, color=discord.Color.blurple())
-                embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
-                embed.timestamp = discord.utils.utcnow()
-                await ctx.send(embed=embed)
-            else:
-                await ctx.send("I couldn't send a question at the moment, please try again later.")
-
-
 @client.command(name='delete', aliases=['dc'])
 async def delete(ctx, subcommand: str = None, channel: discord.TextChannel = None):
     if subcommand == 'channel' and channel:
