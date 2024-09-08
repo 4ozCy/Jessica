@@ -8,8 +8,7 @@ from flask import Flask
 from threading import Thread
 from datetime import datetime
 import random
-import requests
-import openai
+import request
 import asyncio
 afk_users = {}
 
@@ -468,9 +467,9 @@ async def delete(ctx, subcommand: str = None, channel: discord.TextChannel = Non
         embed = discord.Embed(description="Invalid subcommand. Use `.delete channel <channel>` to delete a channel.", color=discord.Color.red())
         await ctx.send(embed=embed)
         
-@client.command(name='add', aliases=['ad'])
-async def emoji(ctx, subcommand: str = None, name: str = None, emoji_url: str = None):
-    if subcommand == 'emoji' and name and emoji_url:
+@client.command(name='ad')
+async def addemoji(ctx, name: str = None, emoji_url: str = None):
+    if emoji_url:
         if not ctx.author.guild_permissions.manage_emojis:
             embed = discord.Embed(
                 title="Permission Denied",
@@ -490,6 +489,10 @@ async def emoji(ctx, subcommand: str = None, name: str = None, emoji_url: str = 
                     )
                     await ctx.send(embed=embed)
                     return
+
+                # Use a random name if none is provided
+                if not name:
+                    name = generate_random_name()
 
                 async with aiohttp.ClientSession() as session:
                     async with session.get(emoji_url) as response:
@@ -537,8 +540,8 @@ async def emoji(ctx, subcommand: str = None, name: str = None, emoji_url: str = 
                 await ctx.send(embed=embed)
     else:
         embed = discord.Embed(
-            title="add emoji Command",
-            description="Use `.add emoji <name> <url>` to add an emoji.",
+            title="Add Emoji Command",
+            description="Use `.addemoji <name> <url>` to add an emoji.",
             color=discord.Color.blurple()
         )
         await ctx.send(embed=embed)
