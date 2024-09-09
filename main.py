@@ -59,6 +59,9 @@ async def fetch_quote():
         print(f"An error occurred while fetching quote: {e}")
         return None
 
+def generate_random_name(length=4):
+    return ''.join(random.choices(string.ascii_lowercase, k=length))
+
 @client.event
 async def on_ready():
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=".cmds"))
@@ -490,7 +493,6 @@ async def addemoji(ctx, name: str = None, emoji_url: str = None):
                     await ctx.send(embed=embed)
                     return
 
-                # Use a random name if none is provided
                 if not name:
                     name = generate_random_name()
 
@@ -538,13 +540,6 @@ async def addemoji(ctx, name: str = None, emoji_url: str = None):
                     color=discord.Color.blurple()
                 )
                 await ctx.send(embed=embed)
-    else:
-        embed = discord.Embed(
-            title="Add Emoji Command",
-            description="Use `.addemoji <name> <url>` to add an emoji.",
-            color=discord.Color.blurple()
-        )
-        await ctx.send(embed=embed)
             
 @client.command(name='lock')
 async def channel_lock(ctx, channel: discord.TextChannel):
