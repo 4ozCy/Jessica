@@ -12,7 +12,7 @@ NC='\033[0m' # No Color
 function show_menu() {
     clear
     echo -e "${CYAN}=============================${NC}"
-    echo -e "${GREEN}      
+    echo -e "${RED}      
 ██╗  ██╗ ██████╗ ███████╗ ██████╗██╗   ██╗██╗███╗   ██╗████████╗
 ██║  ██║██╔═══██╗╚══███╔╝██╔════╝╚██╗ ██╔╝██║████╗  ██║╚══██╔══╝
 ███████║██║   ██║  ███╔╝ ██║      ╚████╔╝ ██║██╔██╗ ██║   ██║   
@@ -24,126 +24,176 @@ function show_menu() {
     echo -e "${YELLOW}2.${NC} Install a package"
     echo -e "${YELLOW}3.${NC} Clear storage"
     echo -e "${YELLOW}4.${NC} Show disk usage"
-    echo -e "${YELLOW}5.${NC} Exit"
+    echo -e "${YELLOW}5.${NC} Check system info"
+    echo -e "${YELLOW}6.${NC} View logs"
+    echo -e "${YELLOW}7.${NC} Backup files"
+    echo -e "${YELLOW}8.${NC} Manage files"
+    echo -e "${YELLOW}9.${NC} Show battery status"
+    echo -e "${YELLOW}10.${NC} List running processes"
+    echo -e "${YELLOW}11.${NC} Custom command"
+    echo -e "${YELLOW}12.${NC} Check network status"
+    echo -e "${YELLOW}13.${NC} Run a security scan"
+    echo -e "${YELLOW}14.${NC} Display system information"
+    echo -e "${YELLOW}15.${NC} Schedule a task"
+    echo -e "${YELLOW}16.${NC} Manage user accounts"
+    echo -e "${YELLOW}17.${NC} Showing network interface"
+    echo -e "${YELLOW}18.${NC} Exit"
     echo -e "${CYAN}=============================${NC}"
 }
 
-function menu() {
-    clear
-    display_banner
-    echo -e "${CYAN}1. View Network Connections${NC}"
-    echo -e "${CYAN}2. Check System Load${NC}"
-    echo -e "${CYAN}3. Show Disk I/O Statistics${NC}"
-    echo -e "${CYAN}4. Check Memory Usage${NC}"
-    echo -e "${CYAN}5. Show System Logs${NC}"
-    echo -e "${CYAN}6. Manage Installed Packages${NC}"
-    echo -e "${CYAN}7. Show Active Users${NC}"
-    echo -e "${CYAN}8. Restart Termux${NC}"
-    echo -e "${CYAN}9. Show Scheduled Tasks${NC}"
-    echo -e "${CYAN}10. Cancel a Scheduled Task${NC}"
-    echo -e "${CYAN}11. List Available Updates${NC}"
-    echo -e "${CYAN}12. Display System Date and Time${NC}"
-    echo -e "${CYAN}13. Check Uptime${NC}"
-    echo -e "${CYAN}14. Display System Temperature${NC}"
-    echo -e "${CYAN}15. Show Network Interfaces${NC}"
-    echo -e "${CYAN}16. Change Directory${NC}"
-    echo -e "${CYAN}17. View File Contents${NC}"
-    echo -e "${CYAN}18. Edit a File${NC}"
-    echo -e "${CYAN}19. Create a Directory${NC}"
-    echo -e "${CYAN}20. Delete a Directory${NC}"
-    echo -e "${CYAN}21. Create a File${NC}"
-    echo -e "${CYAN}22. Delete a File${NC}"
-    echo -e "${CYAN}23. Check for Disk Errors${NC}"
-    echo -e "${CYAN}24. Show Last Login Information${NC}"
-    echo -e "${CYAN}25. Monitor System Performance${NC}"
-    echo -e "${CYAN}26. Check for Available Disk Space${NC}"
-    echo -e "${CYAN}27. View System Processes${NC}"
-    echo -e "${CYAN}28. List Open Files${NC}"
-    echo -e "${CYAN}29. View Network Statistics${NC}"
-    echo -e "${CYAN}30. Show Kernel Version${NC}"
-    echo -e "${CYAN}31. List Services${NC}"
-    echo -e "${CYAN}32. Check Battery Health${NC}"
-    echo -e "${CYAN}33. Backup System Configuration${NC}"
-    echo -e "${CYAN}34. Restore System Configuration${NC}"
-    echo -e "${CYAN}35. Network Troubleshooting${NC}"
-    echo -e "${CYAN}36. Monitor Disk Usage${NC}"
-    echo -e "${CYAN}37. Check System Integrity${NC}"
-    echo -e "${CYAN}38. View Package Version${NC}"
-    echo -e "${CYAN}39. Scan for Malware${NC}"
-    echo -e "${CYAN}40. Show User Groups${NC}"
-    echo -e "${CYAN}41. Manage Startup Applications${NC}"
-    echo -e "${CYAN}42. Check System Security${NC}"
-    echo -e "${CYAN}43. Display System Environment Variables${NC}"
-    echo -e "${CYAN}44. List Available Commands${NC}"
-    echo -e "${CYAN}45. View System Configuration Files${NC}"
-    echo -e "${CYAN}46. Manage System Users${NC}"
-    echo -e "${CYAN}47. View Running Services${NC}"
-    echo -e "${CYAN}48. Show Process Statistics${NC}"
-    echo -e "${CYAN}49. System Health Check${NC}"
-    echo -e "${CYAN}50. Exit${NC}"
+function update_packages() {
+    echo -e "${GREEN}Updating packages...${NC}"
+    pkg update && pkg upgrade
+    read -p "Press enter to continue..."
 }
 
-function handle_choice() {
-    local choice
-    read -p "Enter your choice: " choice
+# Function for installing a package
+function install_package() {
+    read -p "Enter the name of the package to install: " package
+    echo -e "${GREEN}Installing $package...${NC}"
+    pkg install $package
+    read -p "Press enter to continue..."
+}
 
+# Function for clearing storage
+function clear_storage() {
+    echo -e "${RED}Clearing storage...${NC}"
+    termux-setup-storage
+    rm -rf /data/data/com.termux/files/home/storage/*
+    read -p "Press enter to continue..."
+}
+
+# Function for showing disk usage
+function show_disk_usage() {
+    echo -e "${CYAN}Showing disk usage...${NC}"
+    df -h
+    read -p "Press enter to continue..."
+}
+
+# Function for checking system info
+function check_system_info() {
+    echo -e "${GREEN}Checking system info...${NC}"
+    uname -a
+    read -p "Press enter to continue..."
+}
+
+# Function for viewing logs
+function view_logs() {
+    echo -e "${CYAN}Viewing logs...${NC}"
+    logcat -d | less
+    read -p "Press enter to continue..."
+}
+
+# Function for backing up files
+function backup_files() {
+    echo -e "${YELLOW}Backing up files...${NC}"
+    read -p "Enter backup destination directory: " backup_dir
+    mkdir -p "$backup_dir"
+    cp -r /data/data/com.termux/files/home/* "$backup_dir"
+    echo -e "${GREEN}Backup completed to $backup_dir${NC}"
+    read -p "Press enter to continue..."
+}
+
+# Function for managing files
+function manage_files() {
+    echo -e "${CYAN}Managing files...${NC}"
+    read -p "Enter directory to manage: " dir
+    ls -al "$dir"
+    read -p "Press enter to continue..."
+}
+
+# Function for showing battery status
+function show_battery_status() {
+    echo -e "${GREEN}Showing battery status...${NC}"
+    termux-battery-status
+    read -p "Press enter to continue..."
+}
+
+# Function for listing running processes
+function list_running_processes() {
+    echo -e "${CYAN}Listing running processes...${NC}"
+    ps aux
+    read -p "Press enter to continue..."
+}
+
+# Function for executing a custom command
+function custom_command() {
+    echo -e "${YELLOW}Executing custom command...${NC}"
+    read -p "Enter your command: " cmd
+    eval $cmd
+    read -p "Press enter to continue..."
+}
+
+# Function for checking network status
+function check_network_status() {
+    echo -e "${CYAN}Checking network status...${NC}"
+    ifconfig
+    read -p "Press enter to continue..."
+}
+
+# Function for running a security scan
+function run_security_scan() {
+    echo -e "${RED}Running security scan...${NC}"
+    pkg install lynis -y
+    lynis audit system
+    read -p "Press enter to continue..."
+}
+
+function display_system_info() {
+    echo -e "${GREEN}Displaying system information...${NC}"
+    lscpu
+    free -h
+    top -n 1
+    read -p "Press enter to continue..."
+}
+
+# Function for scheduling a task
+function schedule_task() {
+    echo -e "${YELLOW}Scheduling a task...${NC}"
+    read -p "Enter the task command: " task_cmd
+    read -p "Enter the time (e.g., 'now + 1 hour'): " task_time
+    echo "$task_cmd" | at "$task_time"
+    echo -e "${GREEN}Task scheduled.${NC}"
+    read -p "Press enter to continue..."
+}
+
+# Function for managing user accounts
+function manage_user_accounts() {
+    echo -e "${CYAN}Managing user accounts...${NC}"
+    read -p "Enter username to add: " username
+    useradd $username
+    echo -e "${GREEN}User $username added.${NC}"
+    read -p "Press enter to continue..."
+}
+
+function show_network_interfaces() {
+    echo -e "${CYAN}Showing network interfaces...${NC}"
+    ip link show
+    read -p "Press enter to continue..."
+}
+
+while true
+do
+    show_menu
+    read -p "Choose an option [1-17]: " choice
     case $choice in
-        1) netstat -tuln ;;
-        2) uptime ;;
-        3) iostat ;;
-        4) free -h ;;
-        5) dmesg | less ;;
-        6) pkg list-installed ;;
-        7) who ;;
-        8) termux-reload-settings ;;
-        9) atq ;;
-        10) atrm ;;
-        11) apt update ;;
-        12) date ;;
-        13) uptime ;;
-        14) cat /sys/class/thermal/thermal_zone0/temp | awk '{print $1/1000 "°C"}' ;;
-        15) ifconfig ;;
-        16) cd ;;
-        17) cat ;;
-        18) nano ;;
-        19) mkdir ;;
-        20) rmdir ;;
-        21) touch ;;
-        22) rm ;;
-        23) fsck ;;
-        24) last ;;
-        25) top ;;
-        26) df -h ;;
-        27) ps aux ;;
-        28) lsof ;;
-        29) ss ;;
-        30) uname -r ;;
-        31) service --status-all ;;
-        32) termux-battery-status ;;
-        33) cp -r /data/data/com.termux/files/home /data/data/com.termux/files/home_backup ;;
-        34) cp -r /data/data/com.termux/files/home_backup /data/data/com.termux/files/home ;;
-        35) ping google.com ;;
-        36) du -sh ;;
-        37) debsums ;;
-        38) apt list --installed ;;
-        39) clamscan ;;
-        40) groups ;;
-        41) termux-wake-lock ;;
-        42) lynis audit system ;;
-        43) printenv ;;
-        44) compgen -c ;;
-        45) ls /etc ;;
-        46) usermod ;;
-        47) systemctl status ;;
-        48) ps auxf ;;
-        49) top ;;
-        50) exit 0 ;;
-        *) echo -e "${RED}Invalid choice. Please try again.${NC}" ;;
+        1) update_packages ;;
+        2) install_package ;;
+        3) clear_storage ;;
+        4) show_disk_usage ;;
+        5) check_system_info ;;
+        6) view_logs ;;
+        7) backup_files ;;
+        8) manage_files ;;
+        9) show_battery_status ;;
+        10) list_running_processes ;;
+        11) custom_command ;;
+        12) check_network_status ;;
+        13) run_security_scan ;;
+        14) display_system_info ;;
+        15) schedule_task ;;
+        16) manage_user_accounts ;;
+        17) echo -e "${GREEN}Goodbye!${NC}"; exit ;;
+        *) echo -e "${RED}Invalid choice!${NC}" ;;
     esac
-}
-
-# Main Loop
-while true; do
-    menu
-    handle_choice
 done
