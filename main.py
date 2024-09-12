@@ -18,7 +18,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "made by: @nozcy."
+    return "online" # put whatever you want here
 
 def run():
     app.run(host="0.0.0.0", port=8080)
@@ -58,9 +58,6 @@ async def fetch_quote():
     except Exception as e:
         print(f"An error occurred while fetching quote: {e}")
         return None
-
-def generate_random_name(length=4):
-    return ''.join(random.choices(string.ascii_lowercase, k=length))
 
 @client.event
 async def on_ready():
@@ -166,24 +163,6 @@ async def send_help(ctx):
     
     view = HelpView()
     await ctx.send(embed=embed, view=view)
-      
-@client.command(name='anime')
-async def anime(ctx, *, subcommand=None):
-    if subcommand == 'quote':
-        try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get("https://nozcy-api.onrender.com/anime/quote") as response:
-                    data = await response.json()
-                    quote = data['quote']
-                    character = data['character']
-                    anime = data['anime']
-                    embed = discord.Embed(description=f'"{quote}"\n-{character} ({anime})', color=discord.Color.blurple())
-                    embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
-                    embed.timestamp = discord.utils.utcnow()
-                    await ctx.send(embed=embed)
-        except Exception as e:
-            print(f"An error occurred while fetching anime quote: {e}")
-            await ctx.send("Sorry, I couldn't send an anime quote at the moment.")
             
 @client.command(name='slap')
 async def slap(ctx, member: discord.Member):
@@ -273,7 +252,7 @@ async def punch_member(ctx, member: discord.Member):
             else:
                 await ctx.send("You're to weak you can't punch someone")
 
-@client.command(name='give', aliases=['gr'])
+@client.command(name='give')
 async def give(ctx, subcommand: str = None, member: discord.Member = None, role: discord.Role = None):
     if subcommand == 'role':
         if ctx.author.guild_permissions.manage_roles:
@@ -412,19 +391,6 @@ async def on_message(message):
             afk_users[mention.id] = afk_data
 
     await client.process_commands(message)
-    
-@client.command(name='spam')
-async def spam(ctx, message: str, member: discord.Member, count: int):
-    allowed_user_id = '1107744228773220473'
-    if str(ctx.author.id) != allowed_user_id:
-        await ctx.send("You are not authorized to use this command. (bot owner only)")
-        return
-    await ctx.message.delete()
-    if count > 50:
-        await ctx.send("Error: Too many messages to spam.")
-        return
-    for _ in range(count):
-        await ctx.send(f"{message} {member.mention}")
         
 @client.command(name='avatar', aliases=['av'])
 async def avatar(ctx, *, member: discord.Member = None):
@@ -434,7 +400,7 @@ async def avatar(ctx, *, member: discord.Member = None):
     embed.set_image(url=member.avatar.url if member.avatar else member.default_avatar.url)
     await ctx.send(embed=embed)
 
-@client.command(name='server', aliases=['sf'])
+@client.command(name='server')
 async def server(ctx, subcommand: str = None):
     if subcommand == 'info':
         guild = ctx.guild
@@ -453,7 +419,7 @@ async def server(ctx, subcommand: str = None):
         embed = discord.Embed(description="Invalid command. Use ```.server info``` to get server information.", color=discord.Color.red())
         await ctx.send(embed=embed)
         
-@client.command(name='delete', aliases=['dc'])
+@client.command(name='delete')
 async def delete(ctx, subcommand: str = None, channel: discord.TextChannel = None):
     if subcommand == 'channel' and channel:
         if ctx.author.guild_permissions.manage_channels:
@@ -469,77 +435,6 @@ async def delete(ctx, subcommand: str = None, channel: discord.TextChannel = Non
     else:
         embed = discord.Embed(description="Invalid subcommand. Use `.delete channel <channel>` to delete a channel.", color=discord.Color.red())
         await ctx.send(embed=embed)
-        
-@client.command(name='ad')
-async def addemoji(ctx, name: str = None, emoji_url: str = None):
-    if emoji_url:
-        if not ctx.author.guild_permissions.manage_emojis:
-            embed = discord.Embed(
-                title="Permission Denied",
-                description="You don't have permission to use this command.",
-                color=discord.Color.blurple()
-            )
-            await ctx.send(embed=embed)
-            return
-
-        async with ctx.typing():
-            try:
-                if not any(emoji_url.endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.gif']):
-                    embed = discord.Embed(
-                        title="Invalid URL",
-                        description="Please provide a valid image URL that ends with `.png`, `.jpg`, `.jpeg`, or `.gif`.",
-                        color=discord.Color.blurple()
-                    )
-                    await ctx.send(embed=embed)
-                    return
-
-                if not name:
-                    name = generate_random_name()
-
-                async with aiohttp.ClientSession() as session:
-                    async with session.get(emoji_url) as response:
-                        if response.status != 200:
-                            embed = discord.Embed(
-                                title="Failed to Fetch Image",
-                                description=f"Failed to retrieve image from the provided URL. Status code: {response.status}",
-                                color=discord.Color.blurple()
-                            )
-                            await ctx.send(embed=embed)
-                            return
-                        image_data = await response.read()
-
-                emoji = await ctx.guild.create_custom_emoji(name=name, image=image_data)
-
-                embed = discord.Embed(
-                    title="Emoji Added",
-                    description=f"Emoji `{emoji.name}` has been successfully added!",
-                    color=discord.Color.blurple()
-                )
-                await ctx.send(embed=embed)
-
-            except discord.Forbidden:
-                embed = discord.Embed(
-                    title="Insufficient Permissions",
-                    description="Failed to add emoji due to insufficient permissions.",
-                    color=discord.Color.blurple()
-                )
-                await ctx.send(embed=embed)
-
-            except discord.HTTPException as e:
-                embed = discord.Embed(
-                    title="HTTP Error",
-                    description=f"Failed to add emoji: {e}",
-                    color=discord.Color.blurple()
-                )
-                await ctx.send(embed=embed)
-
-            except Exception as e:
-                embed = discord.Embed(
-                    title="An Error Occurred",
-                    description=f"An unexpected error occurred: {e}",
-                    color=discord.Color.blurple()
-                )
-                await ctx.send(embed=embed)
             
 @client.command(name='lock')
 async def channel_lock(ctx, channel: discord.TextChannel):
