@@ -74,6 +74,52 @@ async def on_ready():
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=".cmds"))
     print(f'We have logged in as {bot.user}')
 
+@bot.command(name='cmds')
+async def send_help(ctx):
+    class HelpSelect(Select):
+        def __init__(self):
+            options = [
+                discord.SelectOption(label="General", description="General commands", emoji="🔧"),
+                discord.SelectOption(label="Fun", description="Fun commands", emoji="🎉")
+            ]
+            super().__init__(placeholder='Choose a category...', min_values=1, max_values=1, options=options)
+
+        async def callback(self, interaction: discord.Interaction):
+            embed = discord.Embed(title=f"{self.values[0]} Commands", color=discord.Color.blurple())
+            embed.set_thumbnail(url=bot.user.avatar.url)
+            embed.set_footer(text=f"Requested by {interaction.user}", icon_url=interaction.user.avatar.url)
+            embed.timestamp = discord.utils.utcnow()
+            if self.values[0] == "General":
+                embed.add_field(name="`avatar/av`", value="Display user avatar", inline=False)
+                embed.add_field(name="`server_info/sf`", value="Get server information", inline=False)
+                embed.add_field(name="`bot-info`", value="Get bot information", inline=False)
+            elif self.values[0] == "Fun":
+                embed.add_field(name="`quote`", value="Send a random inspirational quote", inline=False)
+                embed.add_field(name="`rizz`", value="Rizz You Up", inline=False)
+                embed.add_field(name="`joke`", value="Tell a random joke", inline=False)
+                embed.add_field(name="`anime quote/aq`", value="Send a random anime quote", inline=False)
+                embed.add_field(name="`slap`", value="Slap someone", inline=False)
+                embed.add_field(name="`Breakup/bp`", value="Break up with your love", inline=False)
+                embed.add_field(name="`punch/p`", value="Punch someone", inline=False)
+                embed.add_field(name="`dare/truth`", value="Play truth or dare", inline=False)
+                embed.add_field(name="`coin flip`", value="Play coin flip", inline=False)
+                embed.add_field(name="`8ball`", value="Magic 8-ball that gives a random response to yes/no questions", inline=False)
+                embed.add_field(name="`dice`", value="Roll a dice", inline=False)
+            await interaction.response.edit_message(embed=embed, view=self.view)
+
+    class HelpView(View):
+        def __init__(self):
+            super().__init__()
+            self.add_item(HelpSelect())
+
+    embed = discord.Embed(title="Commands List", description="Select a category to view commands.", color=discord.Color.blurple())
+    embed.set_thumbnail(url=bot.user.avatar.url)
+    embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
+    embed.timestamp = discord.utils.utcnow()
+    
+    view = HelpView()
+    await ctx.send(embed=embed, view=view)
+
 @bot.command(name='quote')
 async def send_quote(ctx):
     quote = await fetch_quote()
