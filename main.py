@@ -212,7 +212,7 @@ async def afk(ctx, *, reason="No reason provided"):
 
     await ctx.send(response)
 
-@client.event
+@bot.event
 async def on_message(message):
     if message.author.bot:
         return
