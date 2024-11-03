@@ -96,7 +96,7 @@ async def send_rizz(ctx):
     else:
         await ctx.send("Sorry, I couldn't fetch a pickup line at the moment.")
 
-@bot.command(name='connect4', aliases=['c4'])
+@bot.command(name='c4')
 async def connect4(ctx, opponent: discord.User):
     if ctx.channel.id in connect4_games:
         await ctx.send("A game is already in progress in this channel!")
@@ -137,4 +137,4 @@ async def say(ctx, *, message: str):
     await ctx.message.delete()
     await ctx.send(message)
 
-bot.run(os.getenv('YOUR_BOT_TOKEN'))
+bot.run(os.getenv('TOKEN'))
