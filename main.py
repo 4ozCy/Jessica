@@ -255,6 +255,6 @@ async def on_message(message):
             afk_data['message_count'] += 1
             afk_users[mention.id] = afk_data
 
-    await client.process_commands(message)
+    await bot.process_commands(message)
 
 bot.run(os.getenv('TOKEN'))
