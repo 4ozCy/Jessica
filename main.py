@@ -142,6 +142,21 @@ async def send_rizz(ctx):
     else:
         await ctx.send("Sorry, I couldn't fetch a pickup line at the moment.")
 
+@bot.command(name='punch', aliases=['p'])
+async def punch_member(ctx, member: discord.Member):
+    async with aiohttp.ClientSession() as session:
+        async with session.get("https://api.otakugifs.xyz/gif?reaction=punch&format=gif") as response:
+            if response.status == 200:
+                data = await response.json()
+                gif_url = data['url']
+                embed = discord.Embed(title="punch you in the face because I'm bored.", description=f"{ctx.author.mention} punches {member.mention}!", color=discord.Color.blurple())
+                embed.set_image(url=gif_url)
+                embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
+                embed.timestamp = discord.utils.utcnow()
+                await ctx.send(embed=embed)
+            else:
+                await ctx.send("You're to weak you can't punch someone")
+
 @bot.command(name='c4')
 async def connect4(ctx, opponent: discord.User):
     if ctx.channel.id in connect4_games:
@@ -182,5 +197,64 @@ async def on_message(message):
 async def say(ctx, *, message: str):
     await ctx.message.delete()
     await ctx.send(message)
+
+@bot.command(name='afk')
+async def afk(ctx, *, reason="No reason provided"):
+    afk_users[ctx.author.id] = {'reason': reason, 'time': datetime.utcnow(), 'message_count': 0}
+
+    response = (
+        f"**AFK Status**\n"
+        f"{ctx.author.mention} is now AFK.\n"
+        f"**Reason:** {reason}\n"
+        f"**AFK Since:** {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')}\n"
+        "You will be removed from AFK status when you send a message."
+    )
+
+    await ctx.send(response)
+
+@client.event
+async def on_message(message):
+    if message.author.bot:
+        return
+
+    current_time = datetime.utcnow()
+
+    if message.author.id in afk_users:
+        afk_time = afk_users[message.author.id]['time']
+        duration = current_time - afk_time
+        hours, remainder = divmod(int(duration.total_seconds()), 3600)
+        minutes, seconds = divmod(remainder, 60)
+
+        response = (
+            f"**Welcome Back!**\n"
+            f"{message.author.mention}, you are no longer AFK.\n"
+            f"**AFK Duration:** {hours} hours, {minutes} minutes, and {seconds} seconds."
+        )
+
+        await message.channel.send(response)
+        afk_users.pop(message.author.id)
+
+    else:
+        mentions = [mention for mention in message.mentions if mention.id in afk_users]
+        for mention in mentions:
+            afk_data = afk_users[mention.id]
+            afk_time = afk_data['time']
+            duration = current_time - afk_time
+            hours, remainder = divmod(int(duration.total_seconds()), 3600)
+            minutes, seconds = divmod(remainder, 60)
+
+            response = (
+                f"**AFK Notification**\n"
+                f"{mention.mention} is currently AFK.\n"
+                f"**Reason:** {afk_data['reason']}\n"
+                f"**AFK Duration:** {hours} hours, {minutes} minutes, and {seconds} seconds."
+            )
+
+            await message.channel.send(response)
+
+            afk_data['message_count'] += 1
+            afk_users[mention.id] = afk_data
+
+    await client.process_commands(message)
 
 bot.run(os.getenv('TOKEN'))
