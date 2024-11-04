@@ -38,8 +38,8 @@ async def send_help(ctx):
     class HelpSelect(Select):
         def __init__(self):
             options = [
-                discord.SelectOption(label="General", description="General commands", emoji="🔧"),
-                discord.SelectOption(label="Fun", description="Fun commands", emoji="🎉")
+                discord.SelectOption(label="General", description="General commands", emoji="user.gif"),
+                discord.SelectOption(label="Fun", description="Fun commands", emoji="confetti.gif")
             ]
             super().__init__(placeholder='Choose a category...', min_values=1, max_values=1, options=options)
 
@@ -60,7 +60,7 @@ async def send_help(ctx):
                 embed.add_field(name="slap", value="Slap someone", inline=False)
                 embed.add_field(name="punch/p", value="Punch someone", inline=False)
                 embed.add_field(name="coin flip", value="Play coin flip", inline=False)
-                embed.add_field(name="8ball", value="Magic 8-ball that gives a random response to yes/no questions", inline=False)
+                embed.add_field(name="8ball", value="Magic 8-ball that response to yes/no questions", inline=False)
                 
             await interaction.response.edit_message(embed=embed, view=self.view)
 
@@ -106,8 +106,7 @@ async def bot_info(ctx):
     
     embed.add_field(name="Bot Name", value=bot.user.name, inline=True)
     embed.add_field(name="Bot ID", value=bot.user.id, inline=True)
-    embed.add_field(name="Bot Src", value=" || https://github.com/4ozCy/Jessica ||", inline=True)
-
+    
     owner = await bot.fetch_user(bot.application.owner.id)
     embed.add_field(name="Bot Owner", value="@n.int", inline=True)
     embed.add_field(name="Owner ID", value=owner.id, inline=True)
