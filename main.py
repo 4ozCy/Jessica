@@ -109,7 +109,7 @@ async def xo(ctx, opponent: discord.Member):
 
     invitation_view = InvitationView()
     invitation_message = await ctx.send(
-        f"Hey {opponent.mention}, {ctx.author.mention} has challenge you to play XO", 
+        f"{opponent.mention}, {ctx.author.mention} has challenged you to a game of Tic-Tac-Toe! Do you accept?", 
         view=invitation_view
     )
     await invitation_view.wait()
