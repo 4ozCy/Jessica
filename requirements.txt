@@ -1,4 +1,5 @@
 discord.py==2.4.0
+discord-ui
 aiohttp
 python-dotenv
 Flask
