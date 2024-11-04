@@ -177,7 +177,6 @@ async def server(ctx):
     embed.add_field(name="Role Count", value=len(guild.roles), inline=True)
     embed.add_field(name="Emoji Count", value=len(guild.emojis), inline=True)
     embed.add_field(name="Verification Level", value=guild.verification_level, inline=True)
-    embed.add_field(name="Region", value=guild.region, inline=True)
     embed.add_field(name="Boost Count", value=guild.premium_subscription_count, inline=True)
 
     top_roles = ', '.join([role.name for role in guild.roles if role.name != "@everyone"][:5]) or 'None'
