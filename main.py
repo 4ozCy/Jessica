@@ -149,12 +149,12 @@ async def bot_info(ctx):
     embed.add_field(name="Bot ID", value=bot.user.id, inline=True)
 
     owner = await bot.fetch_user(bot.application.owner.id)
-    embed.add_field(name="Bot Owner", value=owner.mention, inline=True)
+    embed.add_field(name="Bot Owner", value="@n.int", inline=True)
     embed.add_field(name="Owner ID", value=owner.id, inline=True)
 
     embed.add_field(name="Server Count", value=len(bot.guilds), inline=True)
     embed.add_field(name="User Count", value=len(set(bot.get_all_members())), inline=True)
-    embed.add_field(name="Ping", value=f"```{round(bot.latency * 1000)}ms```", inline=True)
+    embed.add_field(name="Ping", value=f"{round(bot.latency * 1000)}ms", inline=True)
     
     embed.add_field(name="Creation Date", value=bot.user.created_at.strftime("%Y-%m-%d %H:%M:%S"), inline=False)
     embed.add_field(name="Avatar URL", value=bot.user.avatar.url, inline=False)
