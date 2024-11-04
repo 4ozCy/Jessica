@@ -39,8 +39,8 @@ async def send_help(ctx):
     class HelpSelect(Select):
         def __init__(self):
             options = [
-                discord.SelectOption(label="General", description="General commands", emoji="https://cdn.discordapp.com/attachments/1233503643500675252/1302993748959035392/user.gif?ex=672a22fe&is=6728d17e&hm=1c054e27a98acd4d4d4ed78a2017446aa98cd89dcd52b5ae24b49e2a02299537&"),
-                discord.SelectOption(label="Fun", description="Fun commands", emoji="https://cdn.discordapp.com/attachments/1233503643500675252/1302993749332201502/confetti.gif?ex=672a22fe&is=6728d17e&hm=78f2992dbba01308c3b5bff9674cba63f3e2d9b149f5e49bb96acd7b9f0c22f3&")
+                discord.SelectOption(label="General", description="General commands", emoji="<a:confetti:1303003580122529852>"),
+                discord.SelectOption(label="Fun", description="Fun commands", emoji="<a:general:1303003546387480606>")
             ]
             super().__init__(placeholder='Choose a category...', min_values=1, max_values=1, options=options)
 
@@ -106,19 +106,29 @@ async def xo(ctx, opponent: discord.Member):
             self.stop()
 
     invitation_view = InvitationView()
-    await ctx.send(f"{opponent.mention}, {ctx.author.mention} has challenged you to a game of XO! Do you accept?", view=invitation_view)
+    invitation_message = await ctx.send(
+        f"{opponent.mention}, {ctx.author.mention} Nea lg XO ot", 
+        view=invitation_view
+    )
     await invitation_view.wait()
+    await invitation_message.delete()
 
     if invitation_view.value is None:
         await ctx.send("Invitation timed out.")
         return
     elif not invitation_view.value:
-        await ctx.send(f"{opponent.mention} declined the invitation.")
+        await ctx.send(f"{opponent.mention} ot lg te")
         return
 
+    if random.choice([True, False]):
+        players = {ctx.author: "X", opponent: "O"}
+        first_player = ctx.author
+    else:
+        players = {ctx.author: "O", opponent: "X"}
+        first_player = opponent
+
     board = [["", "", ""], ["", "", ""], ["", "", ""]]
-    players = {ctx.author: "X", opponent: "O"}
-    current_player = ctx.author
+    current_player = first_player
 
     def check_winner():
         for i in range(3):
@@ -163,7 +173,7 @@ async def xo(ctx, opponent: discord.Member):
                 elif check_tie():
                     for button in view.children:
                         button.disabled = True
-                    await ctx.send("It's a tie!")
+                    await ctx.send("Smer knea")
                 else:
                     current_player = opponent if current_player == ctx.author else ctx.author
 
@@ -172,7 +182,10 @@ async def xo(ctx, opponent: discord.Member):
         for y in range(3):
             view.add_item(TicTacToeButton(x, y))
 
-    await ctx.send(f"Tic-Tac-Toe! {ctx.author.mention} (**X**) vs {opponent.mention} (**O**). {ctx.author.mention} goes first!", view=view)
+    await ctx.send(
+        f"XO {ctx.author.mention} (**{players[ctx.author]}**) vs {opponent.mention} (**{players[opponent]}**). {first_player.mention} goes first!",
+        view=view
+    )
 
 @bot.command(name='rizz', aliases=['r'])
 async def send_rizz(ctx, member: discord.Member = None):
