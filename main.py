@@ -71,7 +71,7 @@ async def send_help(ctx):
             self.add_item(HelpSelect())
 
     embed = discord.Embed(title="Commands List", description="Select a category to view commands.", color=discord.Color.blurple())
-    embed.set_thumbnail(url=client.user.avatar.url)
+    embed.set_thumbnail(url=bot.user.avatar.url)
     embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
     embed.timestamp = discord.utils.utcnow()
     
