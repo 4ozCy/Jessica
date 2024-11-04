@@ -13,7 +13,6 @@ load_dotenv()
 
 bot = commands.Bot(command_prefix='.', intents=discord.Intents.all())
 afk_users = {}
-connect4_games = {}
 
 app = FastAPI()
 
@@ -46,7 +45,7 @@ async def send_help(ctx):
 
         async def callback(self, interaction: discord.Interaction):
             embed = discord.Embed(title=f"{self.values[0]} Commands", color=discord.Color.blurple())
-            embed.set_thumbnail(url=client.user.avatar.url)
+            embed.set_thumbnail(url=bot.user.avatar.url)
             embed.set_footer(text=f"Requested by {interaction.user}", icon_url=interaction.user.avatar.url)
             embed.timestamp = discord.utils.utcnow()
 
