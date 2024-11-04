@@ -174,7 +174,7 @@ async def xo(ctx, opponent: discord.Member):
                 await interaction.message.edit(view=self)
                 self.stop()
                 return
-            elif all(cell != " " for row in board for cell in row):
+            elif all(cell != "‎ ‎ " for row in board for cell in row):
                 await ctx.send(f"It's a tie!\n\n{board_to_string()}")
                 await self.disable_all_buttons()
                 await interaction.message.edit(view=self)
@@ -184,39 +184,39 @@ async def xo(ctx, opponent: discord.Member):
             current_player = opponent if current_player == ctx.author else ctx.author
             await ctx.send(f"It's {current_player.mention}'s turn.")
 
-        @discord.ui.button(label="‎ ", row=0, style=discord.ButtonStyle.secondary)
+        @discord.ui.button(label="‎ ‎ ", row=0, style=discord.ButtonStyle.secondary)
         async def button_0(self, interaction: discord.Interaction, button: discord.ui.Button):
             await self.handle_move(interaction, 0, 0, button)
 
-        @discord.ui.button(label="‎ ", row=0, style=discord.ButtonStyle.secondary)
+        @discord.ui.button(label="‎ ‎ ", row=0, style=discord.ButtonStyle.secondary)
         async def button_1(self, interaction: discord.Interaction, button: discord.ui.Button):
             await self.handle_move(interaction, 0, 1, button)
 
-        @discord.ui.button(label="‎ ", row=0, style=discord.ButtonStyle.secondary)
+        @discord.ui.button(label="‎ ‎ ", row=0, style=discord.ButtonStyle.secondary)
         async def button_2(self, interaction: discord.Interaction, button: discord.ui.Button):
             await self.handle_move(interaction, 0, 2, button)
 
-        @discord.ui.button(label="‎ ", row=1, style=discord.ButtonStyle.secondary)
+        @discord.ui.button(label="‎‎  ", row=1, style=discord.ButtonStyle.secondary)
         async def button_3(self, interaction: discord.Interaction, button: discord.ui.Button):
             await self.handle_move(interaction, 1, 0, button)
 
-        @discord.ui.button(label="‎‎ ", row=1, style=discord.ButtonStyle.secondary)
+        @discord.ui.button(label="‎ ‎‎ ", row=1, style=discord.ButtonStyle.secondary)
         async def button_4(self, interaction: discord.Interaction, button: discord.ui.Button):
             await self.handle_move(interaction, 1, 1, button)
 
-        @discord.ui.button(label="‎‎ ", row=1, style=discord.ButtonStyle.secondary)
+        @discord.ui.button(label="‎‎ ‎ ", row=1, style=discord.ButtonStyle.secondary)
         async def button_5(self, interaction: discord.Interaction, button: discord.ui.Button):
             await self.handle_move(interaction, 1, 2, button)
 
-        @discord.ui.button(label="‎ ", row=2, style=discord.ButtonStyle.secondary)
+        @discord.ui.button(label="‎ ‎ ", row=2, style=discord.ButtonStyle.secondary)
         async def button_6(self, interaction: discord.Interaction, button: discord.ui.Button):
             await self.handle_move(interaction, 2, 0, button)
 
-        @discord.ui.button(label="‎ ", row=2, style=discord.ButtonStyle.secondary)
+        @discord.ui.button(label="‎ ‎ ", row=2, style=discord.ButtonStyle.secondary)
         async def button_7(self, interaction: discord.Interaction, button: discord.ui.Button):
             await self.handle_move(interaction, 2, 1, button)
 
-        @discord.ui.button(label="‎ ", row=2, style=discord.ButtonStyle.secondary)
+        @discord.ui.button(label="‎‎  ", row=2, style=discord.ButtonStyle.secondary)
         async def button_8(self, interaction: discord.Interaction, button: discord.ui.Button):
             await self.handle_move(interaction, 2, 2, button)
 
