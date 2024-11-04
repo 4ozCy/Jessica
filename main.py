@@ -38,8 +38,8 @@ async def send_help(ctx):
     class HelpSelect(Select):
         def __init__(self):
             options = [
-                discord.SelectOption(label="General", description="General commands", emoji="user.gif"),
-                discord.SelectOption(label="Fun", description="Fun commands", emoji="confetti.gif")
+                discord.SelectOption(label="General", description="General commands", emoji="https://filebox.lol/b9d9e.gif"),
+                discord.SelectOption(label="Fun", description="Fun commands", emoji="https://filebox.lol/2732d.gif")
             ]
             super().__init__(placeholder='Choose a category...', min_values=1, max_values=1, options=options)
 
