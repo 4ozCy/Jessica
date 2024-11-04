@@ -278,7 +278,7 @@ async def connect4(ctx, opponent: discord.User):
         return message.author == opponent and message.content.lower() in ["yes", "no"] and message.channel == ctx.channel
 
     try:
-        response = await bot.wait_for("message", check=check, timeout=30.0)
+        response = await bot.wait_for("message", check=check, timeout=300.0)
         if response.content.lower() == "yes":
             connect4_games[ctx.channel.id] = Connect4()
             embed = discord.Embed(
