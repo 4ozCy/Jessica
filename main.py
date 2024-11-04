@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands, tasks
-from discord.ui import Select, View, Button
+from discord import ButtonStyle, Interaction
+from discord.ui import Select, View
 import asyncio
 import aiohttp
 from fastapi import FastAPI
@@ -38,8 +39,8 @@ async def send_help(ctx):
     class HelpSelect(Select):
         def __init__(self):
             options = [
-                discord.SelectOption(label="General", description="General commands", emoji="https://filebox.lol/b9d9e.gif"),
-                discord.SelectOption(label="Fun", description="Fun commands", emoji="https://filebox.lol/2732d.gif")
+                discord.SelectOption(label="General", description="General commands", emoji="https://cdn.discordapp.com/attachments/1233503643500675252/1302993748959035392/user.gif?ex=672a22fe&is=6728d17e&hm=1c054e27a98acd4d4d4ed78a2017446aa98cd89dcd52b5ae24b49e2a02299537&"),
+                discord.SelectOption(label="Fun", description="Fun commands", emoji="https://cdn.discordapp.com/attachments/1233503643500675252/1302993749332201502/confetti.gif?ex=672a22fe&is=6728d17e&hm=78f2992dbba01308c3b5bff9674cba63f3e2d9b149f5e49bb96acd7b9f0c22f3&")
             ]
             super().__init__(placeholder='Choose a category...', min_values=1, max_values=1, options=options)
 
@@ -76,6 +77,102 @@ async def send_help(ctx):
     
     view = HelpView()
     await ctx.send(embed=embed, view=view)
+
+@bot.command(name='xo')
+async def xo(ctx, opponent: discord.Member):
+    if opponent == ctx.author:
+        await ctx.send("You can't play against yourself!")
+        return
+
+    class InvitationView(discord.ui.View):
+        def __init__(self):
+            super().__init__(timeout=60)
+            self.value = None
+
+        @discord.ui.button(label="Accept", style=ButtonStyle.success)
+        async def accept(self, interaction: Interaction, button: discord.ui.Button):
+            if interaction.user != opponent:
+                await interaction.response.send_message("Only the invited player can accept!", ephemeral=True)
+                return
+            self.value = True
+            self.stop()
+
+        @discord.ui.button(label="Decline", style=ButtonStyle.danger)
+        async def decline(self, interaction: Interaction, button: discord.ui.Button):
+            if interaction.user != opponent:
+                await interaction.response.send_message("Only the invited player can decline!", ephemeral=True)
+                return
+            self.value = False
+            self.stop()
+
+    invitation_view = InvitationView()
+    await ctx.send(f"{opponent.mention}, {ctx.author.mention} has challenged you to a game of XO! Do you accept?", view=invitation_view)
+    await invitation_view.wait()
+
+    if invitation_view.value is None:
+        await ctx.send("Invitation timed out.")
+        return
+    elif not invitation_view.value:
+        await ctx.send(f"{opponent.mention} declined the invitation.")
+        return
+
+    board = [["", "", ""], ["", "", ""], ["", "", ""]]
+    players = {ctx.author: "X", opponent: "O"}
+    current_player = ctx.author
+
+    def check_winner():
+        for i in range(3):
+            if board[i][0] == board[i][1] == board[i][2] != "":
+                return True
+            if board[0][i] == board[1][i] == board[2][i] != "":
+                return True
+        if board[0][0] == board[1][1] == board[2][2] != "":
+            return True
+        if board[0][2] == board[1][1] == board[2][0] != "":
+            return True
+        return False
+
+    def check_tie():
+        for row in board:
+            if "" in row:
+                return False
+        return True
+
+    class TicTacToeButton(discord.ui.Button):
+        def __init__(self, x, y):
+            super().__init__(style=ButtonStyle.secondary, label="\u200b", row=x)
+            self.x = x
+            self.y = y
+
+        async def callback(self, interaction: Interaction):
+            nonlocal current_player
+            if interaction.user != current_player:
+                await interaction.response.send_message("It's not your turn!", ephemeral=True)
+                return
+            if board[self.x][self.y] == "":
+                board[self.x][self.y] = players[current_player]
+                self.label = players[current_player]
+                self.style = ButtonStyle.success if players[current_player] == "X" else ButtonStyle.danger
+                self.disabled = True
+                await interaction.response.edit_message(view=view)
+
+                if check_winner():
+                    for button in view.children:
+                        button.disabled = True
+                    await ctx.send(f"Game Over! **{players[current_player]}** ({current_player.mention}) wins!")
+                elif check_tie():
+                    for button in view.children:
+                        button.disabled = True
+                    await ctx.send("It's a tie!")
+                else:
+                    current_player = opponent if current_player == ctx.author else ctx.author
+
+    view = discord.ui.View()
+    for x in range(3):
+        for y in range(3):
+            view.add_item(TicTacToeButton(x, y))
+
+    await ctx.send(f"Tic-Tac-Toe! {ctx.author.mention} (**X**) vs {opponent.mention} (**O**). {ctx.author.mention} goes first!", view=view)
 
 @bot.command(name='rizz', aliases=['r'])
 async def send_rizz(ctx, member: discord.Member = None):
