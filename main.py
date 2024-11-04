@@ -106,7 +106,7 @@ async def bot_info(ctx):
     
     embed.add_field(name="Bot Name", value=bot.user.name, inline=True)
     embed.add_field(name="Bot ID", value=bot.user.id, inline=True)
-    embed.adf_field(name="Bot Src", value=" || https://github.com/4ozCy/Jessica ||", inline=True)
+    embed.add_field(name="Bot Src", value=" || https://github.com/4ozCy/Jessica ||", inline=True)
 
     owner = await bot.fetch_user(bot.application.owner.id)
     embed.add_field(name="Bot Owner", value="@n.int", inline=True)
