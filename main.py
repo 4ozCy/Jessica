@@ -156,7 +156,6 @@ async def bot_info(ctx):
     embed.add_field(name="Ping", value=f"```{round(bot.latency * 1000)}ms```", inline=True)
     
     embed.add_field(name="Creation Date", value=bot.user.created_at.strftime("%Y-%m-%d %H:%M:%S"), inline=False)
-    embed.add_field(name="Activity", value=str(bot.user.activity) if bot.user.activity else "None", inline=True)
     embed.add_field(name="Avatar URL", value=bot.user.avatar.url, inline=False)
     embed.add_field(name="Banner URL", value=bot.user.banner.url if bot.user.banner else "None", inline=False)
     embed.add_field(name="Language", value="Python", inline=True)
