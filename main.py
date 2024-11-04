@@ -4,6 +4,7 @@ from discord import ButtonStyle, Interaction
 from discord.ui import Select, View
 import asyncio
 import aiohttp
+import random
 from fastapi import FastAPI
 from uvicorn import Config, Server
 import os
