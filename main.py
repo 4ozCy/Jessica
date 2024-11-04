@@ -3,6 +3,7 @@
 import discord
 from discord.ext import commands, tasks
 import asyncio
+import aiohttp
 import numpy as np
 from fastapi import FastAPI
 from uvicorn import Config, Server
