@@ -156,13 +156,12 @@ async def bot_info(ctx):
     embed.add_field(name="Ping", value=f"```{round(bot.latency * 1000)}ms```", inline=True)
     
     embed.add_field(name="Creation Date", value=bot.user.created_at.strftime("%Y-%m-%d %H:%M:%S"), inline=False)
-    embed.add_field(name="Status", value=str(bot.user.status).capitalize(), inline=True)
     embed.add_field(name="Activity", value=str(bot.user.activity) if bot.user.activity else "None", inline=True)
     embed.add_field(name="Avatar URL", value=bot.user.avatar.url, inline=False)
     embed.add_field(name="Banner URL", value=bot.user.banner.url if bot.user.banner else "None", inline=False)
     embed.add_field(name="Language", value="Python", inline=True)
     embed.add_field(name="Library", value="discord.py", inline=True)
-    embed.add_field(name="Version", value="1.0.0", inline=True)
+    embed.add_field(name="Version", value="2.0.0", inline=True)
     embed.add_field(name="Total Commands", value=len(bot.commands), inline=True)
     
     uptime = discord.utils.utcnow() - bot.start_time
