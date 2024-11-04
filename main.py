@@ -91,16 +91,16 @@ async def xo(ctx, opponent: discord.Member):
             super().__init__(timeout=60)
             self.value = None
 
-        @discord.ui.button(label="Accept", style=ButtonStyle.success)
-        async def accept(self, interaction: Interaction, button: discord.ui.Button):
+        @discord.ui.button(label="Accept", style=discord.ButtonStyle.success)
+        async def accept(self, interaction: discord.Interaction, button: discord.ui.Button):
             if interaction.user != opponent:
                 await interaction.response.send_message("Only the invited player can accept!", ephemeral=True)
                 return
             self.value = True
             self.stop()
 
-        @discord.ui.button(label="Decline", style=ButtonStyle.danger)
-        async def decline(self, interaction: Interaction, button: discord.ui.Button):
+        @discord.ui.button(label="Decline", style=discord.ButtonStyle.danger)
+        async def decline(self, interaction: discord.Interaction, button: discord.ui.Button):
             if interaction.user != opponent:
                 await interaction.response.send_message("Only the invited player can decline!", ephemeral=True)
                 return
@@ -149,67 +149,76 @@ async def xo(ctx, opponent: discord.Member):
         def __init__(self):
             super().__init__(timeout=60)
 
-        async def interaction_check(self, interaction: Interaction) -> bool:
+        async def interaction_check(self, interaction: discord.Interaction) -> bool:
             if interaction.user != current_player:
                 await interaction.response.send_message("It's not your turn!", ephemeral=True)
                 return False
             return True
 
-        @discord.ui.button(label=" ", row=0, style=ButtonStyle.secondary)
-        async def button_0(self, interaction: Interaction, button: discord.ui.Button):
-            await self.handle_move(interaction, 0, 0, button)
+        async def disable_all_buttons(self):
+            for item in self.children:
+                item.disabled = True
 
-        @discord.ui.button(label=" ", row=0, style=ButtonStyle.secondary)
-        async def button_1(self, interaction: Interaction, button: discord.ui.Button):
-            await self.handle_move(interaction, 0, 1, button)
-
-        @discord.ui.button(label=" ", row=0, style=ButtonStyle.secondary)
-        async def button_2(self, interaction: Interaction, button: discord.ui.Button):
-            await self.handle_move(interaction, 0, 2, button)
-
-        @discord.ui.button(label=" ", row=1, style=ButtonStyle.secondary)
-        async def button_3(self, interaction: Interaction, button: discord.ui.Button):
-            await self.handle_move(interaction, 1, 0, button)
-
-        @discord.ui.button(label=" ", row=1, style=ButtonStyle.secondary)
-        async def button_4(self, interaction: Interaction, button: discord.ui.Button):
-            await self.handle_move(interaction, 1, 1, button)
-
-        @discord.ui.button(label=" ", row=1, style=ButtonStyle.secondary)
-        async def button_5(self, interaction: Interaction, button: discord.ui.Button):
-            await self.handle_move(interaction, 1, 2, button)
-
-        @discord.ui.button(label=" ", row=2, style=ButtonStyle.secondary)
-        async def button_6(self, interaction: Interaction, button: discord.ui.Button):
-            await self.handle_move(interaction, 2, 0, button)
-
-        @discord.ui.button(label=" ", row=2, style=ButtonStyle.secondary)
-        async def button_7(self, interaction: Interaction, button: discord.ui.Button):
-            await self.handle_move(interaction, 2, 1, button)
-
-        @discord.ui.button(label=" ", row=2, style=ButtonStyle.secondary)
-        async def button_8(self, interaction: Interaction, button: discord.ui.Button):
-            await self.handle_move(interaction, 2, 2, button)
-
-        async def handle_move(self, interaction: Interaction, row: int, col: int, button: discord.ui.Button):
+        async def handle_move(self, interaction: discord.Interaction, row: int, col: int, button: discord.ui.Button):
             nonlocal current_player
             symbol = players[current_player]
             board[row][col] = symbol
             button.label = f" {symbol} "
-            button.style = ButtonStyle.success if symbol == "X" else ButtonStyle.danger
+            button.style = discord.ButtonStyle.success if symbol == "X" else discord.ButtonStyle.danger
             button.disabled = True
             await interaction.response.edit_message(view=self)
 
             if check_winner():
                 await ctx.send(f"{current_player.mention} wins!\n\n{board_to_string()}")
+                await self.disable_all_buttons()
+                await interaction.message.edit(view=self)
                 self.stop()
                 return
             elif all(cell != " " for row in board for cell in row):
                 await ctx.send(f"It's a tie!\n\n{board_to_string()}")
+                await self.disable_all_buttons()
+                await interaction.message.edit(view=self)
                 self.stop()
                 return
+
             current_player = opponent if current_player == ctx.author else ctx.author
             await ctx.send(f"It's {current_player.mention}'s turn.")
+
+        @discord.ui.button(label="‎ ", row=0, style=discord.ButtonStyle.secondary)
+        async def button_0(self, interaction: discord.Interaction, button: discord.ui.Button):
+            await self.handle_move(interaction, 0, 0, button)
+
+        @discord.ui.button(label="‎ ", row=0, style=discord.ButtonStyle.secondary)
+        async def button_1(self, interaction: discord.Interaction, button: discord.ui.Button):
+            await self.handle_move(interaction, 0, 1, button)
+
+        @discord.ui.button(label="‎ ", row=0, style=discord.ButtonStyle.secondary)
+        async def button_2(self, interaction: discord.Interaction, button: discord.ui.Button):
+            await self.handle_move(interaction, 0, 2, button)
+
+        @discord.ui.button(label="‎ ", row=1, style=discord.ButtonStyle.secondary)
+        async def button_3(self, interaction: discord.Interaction, button: discord.ui.Button):
+            await self.handle_move(interaction, 1, 0, button)
+
+        @discord.ui.button(label="‎‎ ", row=1, style=discord.ButtonStyle.secondary)
+        async def button_4(self, interaction: discord.Interaction, button: discord.ui.Button):
+            await self.handle_move(interaction, 1, 1, button)
+
+        @discord.ui.button(label="‎‎ ", row=1, style=discord.ButtonStyle.secondary)
+        async def button_5(self, interaction: discord.Interaction, button: discord.ui.Button):
+            await self.handle_move(interaction, 1, 2, button)
+
+        @discord.ui.button(label="‎ ", row=2, style=discord.ButtonStyle.secondary)
+        async def button_6(self, interaction: discord.Interaction, button: discord.ui.Button):
+            await self.handle_move(interaction, 2, 0, button)
+
+        @discord.ui.button(label="‎ ", row=2, style=discord.ButtonStyle.secondary)
+        async def button_7(self, interaction: discord.Interaction, button: discord.ui.Button):
+            await self.handle_move(interaction, 2, 1, button)
+
+        @discord.ui.button(label="‎ ", row=2, style=discord.ButtonStyle.secondary)
+        async def button_8(self, interaction: discord.Interaction, button: discord.ui.Button):
+            await self.handle_move(interaction, 2, 2, button)
 
     await ctx.send(f"Game Start! {ctx.author.mention} is `{players[ctx.author]}`, {opponent.mention} is `{players[opponent]}`. {current_player.mention} goes first.", view=TicTacToeView())
     
