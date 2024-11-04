@@ -31,6 +31,7 @@ async def start_fastapi():
 @bot.event
 async def on_ready():
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=".cmds"))
+    bot.start_time = discord.utils.utcnow()
     print(f'Bot connected as {bot.user}')
     start_fastapi.start()
 
@@ -143,35 +144,35 @@ async def send_rizz(ctx, member: discord.Member = None):
 async def bot_info(ctx):
     embed = discord.Embed(title="Bot Information", color=discord.Color.blurple())
     
-    embed.add_field(name="Bot Name", value=client.user.name, inline=True)
-    embed.add_field(name="Bot ID", value=client.user.id, inline=True)
+    embed.add_field(name="Bot Name", value=bot.user.name, inline=True)
+    embed.add_field(name="Bot ID", value=bot.user.id, inline=True)
 
-    owner = await client.fetch_user(client.application.owner.id)
+    owner = await bot.fetch_user(bot.application.owner.id)
     embed.add_field(name="Bot Owner", value=owner.mention, inline=True)
     embed.add_field(name="Owner ID", value=owner.id, inline=True)
 
-    embed.add_field(name="Server Count", value=len(client.guilds), inline=True)
-    embed.add_field(name="User Count", value=len(set(client.get_all_members())), inline=True)
-    embed.add_field(name="Ping", value=f"```{round(client.latency * 1000)}ms```", inline=True)
+    embed.add_field(name="Server Count", value=len(bot.guilds), inline=True)
+    embed.add_field(name="User Count", value=len(set(bot.get_all_members())), inline=True)
+    embed.add_field(name="Ping", value=f"```{round(bot.latency * 1000)}ms```", inline=True)
     
-    embed.add_field(name="Creation Date", value=client.user.created_at.strftime("%Y-%m-%d %H:%M:%S"), inline=False)
-    embed.add_field(name="Status", value=str(client.user.status).capitalize(), inline=True)
-    embed.add_field(name="Activity", value=str(client.user.activity) if client.user.activity else "None", inline=True)
-    embed.add_field(name="Avatar URL", value=client.user.avatar.url, inline=False)
-    embed.add_field(name="Banner URL", value=client.user.banner.url if client.user.banner else "None", inline=False)
+    embed.add_field(name="Creation Date", value=bot.user.created_at.strftime("%Y-%m-%d %H:%M:%S"), inline=False)
+    embed.add_field(name="Status", value=str(bot.user.status).capitalize(), inline=True)
+    embed.add_field(name="Activity", value=str(bot.user.activity) if bot.user.activity else "None", inline=True)
+    embed.add_field(name="Avatar URL", value=bot.user.avatar.url, inline=False)
+    embed.add_field(name="Banner URL", value=bot.user.banner.url if bot.user.banner else "None", inline=False)
     embed.add_field(name="Language", value="Python", inline=True)
     embed.add_field(name="Library", value="discord.py", inline=True)
     embed.add_field(name="Version", value="1.0.0", inline=True)
     embed.add_field(name="Total Commands", value=len(bot.commands), inline=True)
     
-    uptime = discord.utils.utcnow() - client.start_time
+    uptime = discord.utils.utcnow() - bot.start_time
     embed.add_field(name="Uptime", value=str(uptime).split(".")[0], inline=True)
     
     embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
     embed.timestamp = discord.utils.utcnow()
     
     await ctx.send(embed=embed)
-
+    
 @bot.command(name='cf')
 async def coin(ctx):
     result = random.choice(['Heads', 'Tails'])
