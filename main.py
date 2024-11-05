@@ -127,7 +127,7 @@ async def xo(ctx, opponent: discord.Member):
 
     class TicTacToeButton(discord.ui.Button):
         def __init__(self, x, y):
-            super().__init__(style=discord.ButtonStyle.secondary, label="-", row=y)
+            super().__init__(style=discord.ButtonStyle.secondary, label="====", row=y)
             self.x = x
             self.y = y
 
@@ -136,7 +136,7 @@ async def xo(ctx, opponent: discord.Member):
             if interaction.user != current_player:
                 await interaction.response.send_message("It's not your turn!", ephemeral=True)
                 return
-            if self.label != "‎ ‎ ‎ ‎ -‎ ‎ ‎ ‎ ":
+            if self.label != "‎====":
                 await interaction.response.send_message("This spot is already taken!", ephemeral=True)
                 return
             self.label = players[current_player]
@@ -158,14 +158,14 @@ async def xo(ctx, opponent: discord.Member):
 
     def check_winner():
         for row in board:
-            if row[0].label == row[1].label == row[2].label != " ‎ ‎ ‎ -‎  ‎ ‎ ":
+            if row[0].label == row[1].label == row[2].label != "====":
                 return True
         for col in range(3):
-            if board[0][col].label == board[1][col].label == board[2][col].label != "‎ ‎ ‎ ‎ -‎ ‎ ‎ ‎ ":
+            if board[0][col].label == board[1][col].label == board[2][col].label != "‎====":
                 return True
-        if board[0][0].label == board[1][1].label == board[2][2].label != " ‎ ‎ ‎ -‎ ‎ ‎ ‎ ":
+        if board[0][0].label == board[1][1].label == board[2][2].label != "====":
             return True
-        if board[0][2].label == board[1][1].label == board[2][0].label != "‎ ‎ ‎ ‎ -‎ ‎ ‎ ‎ ":
+        if board[0][2].label == board[1][1].label == board[2][0].label != "‎====":
             return True
         return False
 
