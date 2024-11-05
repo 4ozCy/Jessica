@@ -15,6 +15,8 @@ bot = commands.Bot(command_prefix='.', intents=discord.Intents.all())
 
 app = FastAPI()
 
+bot = discord.Bot()
+
 @app.get("/")
 async def read_root():
     return {"status": "online"}
@@ -37,43 +39,52 @@ xo.setup_xo(bot)
 
 @bot.event
 async def on_message(message):
-    if message.author == bot.user or not isinstance(message.channel, discord.DMChannel):
+    if message.author == bot.user:
         return
-    
-    if message.content.lower() == "remove bg" and message.attachments:
-        attachment = message.attachments[0]
-        if attachment.content_type and ("image" in attachment.content_type or "video" in attachment.content_type):
-            await message.channel.send("Removing background...")
 
-            file_data = await attachment.read()
+    if "host file" in message.content.lower():
+        await message.channel.send("Processing your request...")
 
-            unscreen_response = requests.post(
-                "https://api.unscreen.com/v1.0/videos",
-                files={"file": file_data},
-                headers={"X-API-KEY": "U4hFDFY2js7m8Ng6t8sQtRp5"}
-            )
+        file_url = None
 
-            if unscreen_response.status_code != 200:
-                await message.channel.send("Failed to remove the background.")
-                return
+        if message.attachments:
+            file_url = message.attachments[0].url
+            filename = message.attachments[0].filename
 
-            unscreen_data = unscreen_response.content
+        if not file_url:
+            words = message.content.split()
+            for word in words:
+                if word.startswith("http://") or word.startswith("https://"):
+                    file_url = word
+                    filename = file_url.split("/")[-1]
+                    break
+
+        if not file_url:
+            await message.channel.send("Please attach a file or provide a URL.")
+            return
+
+        try:
+            response = requests.get(file_url)
+            with open(filename, "wb") as file:
+                file.write(response.content)
+
             filebox_response = requests.post(
                 "https://filebox.lol/api/file",
-                files={"file": unscreen_data}
+                files={"file": open(filename, "rb")}
             )
 
-            if filebox_response.status_code != 200:
-                await message.channel.send("Failed to upload to Filebox.")
-                return
+            filebox_data = filebox_response.json()
 
-            file_url = filebox_response.json().get("url")
-            await message.channel.send(f"Background removed! Hosted file: {file_url}")
-        else:
-            await message.channel.send("Please send an image, GIF, or video to process along with 'remove bg'.")
-    
-    await bot.process_commands(message)
+            if filebox_response.status_code == 200 and "url" in filebox_data:
+                await message.channel.send(f"File hosted successfully! Here's your link: {filebox_data['url']}")
+            else:
+                await message.channel.send("Error: Could not upload to Filebox.")
 
+            os.remove(filename)
+
+        except Exception as e:
+            await message.channel.send(f"An error occurred: {e}")
+            
 @bot.command(name='rizz', aliases=['r'])
 async def send_rizz(ctx, member: discord.Member = None):
     try:
