@@ -10,7 +10,7 @@ def setup_xo(bot):
             await ctx.send("You can't play against yourself!")
             return
 
-        players = {ctx.author: "X", opponent: "O"} if random.choice([True, False]) else {ctx.author: "O", opponent: "X"}
+        players = {ctx.author: "❌", opponent: "⭕"} if random.choice([True, False]) else {ctx.author: "⭕", opponent: "❌"}
         current_player = random.choice([ctx.author, opponent])
 
         class InvitationView(discord.ui.View):
@@ -26,7 +26,7 @@ def setup_xo(bot):
                 self.value = True
                 self.stop()
 
-            @discord.ui.button(label="Decline", style=discord.ButtonStyle.danger)
+            @discord.ui.button(label="Decline", style=discord.ButtonStyle.secondary)
             async def decline(self, interaction: discord.Interaction, button: discord.ui.Button):
                 if interaction.user != opponent:
                     await interaction.response.send_message("Only the invited player can decline!", ephemeral=True)
@@ -64,9 +64,8 @@ def setup_xo(bot):
                     await interaction.response.send_message("This spot is already taken!", ephemeral=True)
                     return
                 self.label = players[current_player]
-                self.style = discord.ButtonStyle.success if players[current_player] == "X" else discord.ButtonStyle.danger
+                self.style = discord.ButtonStyle.primary
                 self.disabled = True
-                await interaction.response.edit_message(view=self.view)
 
                 if check_winner():
                     for child in self.view.children:
