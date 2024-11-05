@@ -3,7 +3,6 @@ from discord.ext import commands, tasks
 from fastapi import FastAPI
 from uvicorn import Config, Server
 import os
-from flask import flask
 from dotenv import load_dotenv
 from datetime import datetime
 import requests
