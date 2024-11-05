@@ -36,7 +36,7 @@ def setup_xo(bot):
 
         invitation_view = InvitationView()
         invitation_message = await ctx.send(
-            f"{opponent.mention}, {ctx.author.mention} has challenged you to a game of Tic-Tac-Toe! Do you accept <a:question:1303337143099330590>", 
+            f"{opponent.mention}, {ctx.author.mention} has challenged you to a game of Tic-Tac-Toe! Do you accept?", 
             view=invitation_view
         )
         await invitation_view.wait()
