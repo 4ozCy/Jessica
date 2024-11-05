@@ -15,8 +15,6 @@ bot = commands.Bot(command_prefix='.', intents=discord.Intents.all())
 
 app = FastAPI()
 
-bot = discord.Bot()
-
 @app.get("/")
 async def read_root():
     return {"status": "online"}
