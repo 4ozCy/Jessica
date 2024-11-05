@@ -36,7 +36,7 @@ def setup_xo(bot):
 
         invitation_view = InvitationView()
         invitation_message = await ctx.send(
-            f"{opponent.mention}, {ctx.author.mention} has challenged you to a game of Tic-Tac-Toe! Do you accept <a:QuestionMark:1303303608191942699>", 
+            f"{opponent.mention}, {ctx.author.mention} has challenged you to a game of Tic-Tac-Toe! Do you accept <a:question:1303337143099330590>", 
             view=invitation_view
         )
         await invitation_view.wait()
@@ -70,7 +70,7 @@ def setup_xo(bot):
                 if check_winner():
                     for child in self.view.children:
                         child.disabled = True
-                    await interaction.response.edit_message(content=f"{current_player.mention} wins! <a:Trophy:1303302176885571614>", view=self.view)
+                    await interaction.response.edit_message(content=f"{current_player.mention} wins! <a:Trophy:1303337085658464318>", view=self.view)
                     return
                 elif all(button.disabled for button in self.view.children):
                     await interaction.response.edit_message(content="It's a tie!", view=self.view)
@@ -99,5 +99,4 @@ def setup_xo(bot):
                 view.add_item(button)
 
         await ctx.send(
-            f"Game Start! {ctx.author.mention} is `{players[ctx.author]}`, {opponent.mention} is `{players[opponent]}`. {current_player.mention} goes first.", 
-            view=view)
+            f"Game Start! {ctx.author.mention} is `{players[ctx.author]}`, {opponent.mention} is `{players[opponent]}`. {current_player.mention} goes first.", view=view)
