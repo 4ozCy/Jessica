@@ -70,7 +70,7 @@ def setup_xo(bot):
                 if check_winner():
                     for child in self.view.children:
                         child.disabled = True
-                    await interaction.response.edit_message(content=f"{current_player.mention} wins!", view=self.view)
+                    await interaction.response.edit_message(content=f"{current_player.mention} wins! <a:Trophy:1303302176885571614>", view=self.view)
                     return
                 elif all(button.disabled for button in self.view.children):
                     await interaction.response.edit_message(content="It's a tie!", view=self.view)
