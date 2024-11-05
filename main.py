@@ -35,53 +35,34 @@ async def on_ready():
 cmds.setup_cmds(bot)
 xo.setup_xo(bot)
 
-@bot.event
-async def on_message(message):
-    if message.author == bot.user:
-        return
+@bot.command(name="uf")
+async def userinfo(ctx, member: discord.Member = None):
+    member = member or ctx.author
+    roles = [role.mention for role in member.roles[1:]]
+    created_at = member.created_at.strftime("%Y-%m-%d %H:%M:%S")
+    joined_at = member.joined_at.strftime("%Y-%m-%d %H:%M:%S") if member.joined_at else "N/A"
+    status = str(member.status).title()  # Online, Idle, Do Not Disturb, Offline
+    activity = member.activity.name if member.activity else "None"
+    permissions = [perm[0].replace('_', ' ').title() for perm in member.guild_permissions if perm[1]]
+    highest_role = member.top_role.mention
 
-    if "host file" in message.content.lower():
-        await message.channel.send("Processing your request...")
+    embed = discord.Embed(title=f"User Information - {member}", color=member.color)
+    embed.set_thumbnail(url=member.avatar.url if member.avatar else member.default_avatar.url)
+    embed.add_field(name="Username", value=member.name, inline=True)
+    embed.add_field(name="Discriminator", value=member.discriminator, inline=True)
+    embed.add_field(name="ID", value=member.id, inline=True)
+    embed.add_field(name="Created On", value=created_at, inline=True)
+    embed.add_field(name="Joined On", value=joined_at, inline=True)
+    embed.add_field(name="Status", value=status, inline=True)
+    embed.add_field(name="Activity", value=activity, inline=True)
+    embed.add_field(name="Roles", value=", ".join(roles) if roles else "No roles", inline=False)
+    embed.add_field(name="Permissions", value=", ".join(permissions) if permissions else "No special permissions", inline=False)
+    embed.add_field(name="Highest Role", value=highest_role, inline=True)
+    embed.add_field(name="Boosting Server", value="Yes" if member.premium_since else "No", inline=True)
+    embed.add_field(name="Bot", value="Yes" if member.bot else "No", inline=True)
+    embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
 
-        file_url = None
-
-        if message.attachments:
-            file_url = message.attachments[0].url
-            filename = message.attachments[0].filename
-
-        if not file_url:
-            words = message.content.split()
-            for word in words:
-                if word.startswith("http://") or word.startswith("https://"):
-                    file_url = word
-                    filename = file_url.split("/")[-1]
-                    break
-
-        if not file_url:
-            await message.channel.send("Please attach a file or provide a URL.")
-            return
-
-        try:
-            response = requests.get(file_url)
-            with open(filename, "wb") as file:
-                file.write(response.content)
-
-            filebox_response = requests.post(
-                "https://filebox.lol/api/file",
-                files={"file": open(filename, "rb")}
-            )
-
-            filebox_data = filebox_response.json()
-
-            if filebox_response.status_code == 200 and "url" in filebox_data:
-                await message.channel.send(f"File hosted successfully! Here's your link: {filebox_data['url']}")
-            else:
-                await message.channel.send("Error: Could not upload to Filebox.")
-
-            os.remove(filename)
-
-        except Exception as e:
-            await message.channel.send(f"An error occurred: {e}")
+    await ctx.send(embed=embed)
             
 @bot.command(name='rizz', aliases=['r'])
 async def send_rizz(ctx, member: discord.Member = None):
