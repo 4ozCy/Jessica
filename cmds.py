@@ -24,6 +24,7 @@ def setup_cmds(bot):
                     embed.add_field(name="av", value="Display user avatar", inline=True)
                     embed.add_field(name="sf", value="Get server information", inline=True)
                     embed.add_field(name="binfo", value="Get bot information", inline=True)
+                    embed.add_field(name="uf", value="Get user information", inline=True)
 
                 elif self.values[0] == "Fun":
                     embed.add_field(name="xo", value="Play XO with someone", inline=True)
