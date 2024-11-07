@@ -8,6 +8,7 @@ from datetime import datetime
 import requests
 import cmds
 import xo
+import rps
 
 load_dotenv()
 
@@ -34,6 +35,7 @@ async def on_ready():
 
 cmds.setup_cmds(bot)
 xo.setup_xo(bot)
+rps.setup_rps(bot)
 
 @bot.command(name="uf")
 async def userinfo(ctx, member: discord.Member = None):
@@ -41,7 +43,7 @@ async def userinfo(ctx, member: discord.Member = None):
     roles = [role.mention for role in member.roles[1:]]
     created_at = member.created_at.strftime("%Y-%m-%d %H:%M:%S")
     joined_at = member.joined_at.strftime("%Y-%m-%d %H:%M:%S") if member.joined_at else "N/A"
-    status = str(member.status).title()  # Online, Idle, Do Not Disturb, Offline
+    status = str(member.status).title()
     activity = member.activity.name if member.activity else "None"
     permissions = [perm[0].replace('_', ' ').title() for perm in member.guild_permissions if perm[1]]
     highest_role = member.top_role.mention
