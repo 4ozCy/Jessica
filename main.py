@@ -9,10 +9,10 @@ import os
 from dotenv import load_dotenv
 from datetime import datetime
 import requests
+import trivia
 import cmds
 import xo
 import rps
-import trivia
 
 load_dotenv()
 
@@ -32,7 +32,7 @@ async def start_fastapi():
 
 @bot.event
 async def on_ready():
-    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=".cmds"))
+    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name=".cmds"))
     bot.start_time = discord.utils.utcnow()
     print(f'Bot connected as {bot.user}')
     start_fastapi.start()
