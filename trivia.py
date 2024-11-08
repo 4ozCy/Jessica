@@ -7,7 +7,7 @@ import random
 user_streaks = {}
 highest_streak = {"user_id": None, "streak": 0}
 
-async def setup_trivia(bot):
+def setup_trivia(bot):
     @bot.command(name="trivia", aliases=['tr'])
     async def trivia(ctx):
         url = "https://opentdb.com/api.php?amount=1&type=multiple"
