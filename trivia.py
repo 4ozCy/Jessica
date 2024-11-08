@@ -19,24 +19,23 @@ def setup_trivia(bot):
         random.shuffle(all_answers)
 
         embed = discord.Embed(title="Trivia Game", description=question, color=discord.Color.blurple())
-        buttons = []
-
-        for answer in all_answers:
-            button = Button(label=answer, style=discord.ButtonStyle.secondary)
-            buttons.append(button)
 
         class TriviaView(View):
             def __init__(self, correct_answer):
                 super().__init__()
                 self.correct_answer = correct_answer
 
-            @discord.ui.button(label="Answer", style=discord.ButtonStyle.secondary)
-            async def answer_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+            async def button_callback(self, interaction: discord.Interaction, button: Button):
                 if button.label == self.correct_answer:
-                    await interaction.response.send_message("Correct!")
+                    await interaction.response.send_message("Correct!", ephemeral=True)
                 else:
-                    await interaction.response.send_message(f"Wrong! The correct answer was: {self.correct_answer}")
+                    await interaction.response.send_message(f"Wrong! The correct answer was: {self.correct_answer}", ephemeral=True)
 
         trivia_view = TriviaView(correct_answer)
+
+        for answer in all_answers:
+            button = Button(label=answer, style=discord.ButtonStyle.secondary)
+            button.callback = lambda interaction, answer=answer: trivia_view.button_callback(interaction, button)
+            trivia_view.add_item(button)
 
         await ctx.send(embed=embed, view=trivia_view)
