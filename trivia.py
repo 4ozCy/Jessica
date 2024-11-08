@@ -4,8 +4,8 @@ from discord.ui import Button, View
 import requests
 import random
 
-async def setup_trivia(bot):
-    @bot.command(name="trivia")
+def setup_trivia(bot):
+    @bot.command(name="trivia", aliases=['tr'])
     async def trivia(ctx):
         url = "https://opentdb.com/api.php?amount=1&type=multiple"
         response = requests.get(url)
