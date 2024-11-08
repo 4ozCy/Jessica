@@ -1,17 +1,15 @@
 import discord
 from discord.ext import commands
 from discord.ui import Button, View
-import httpx
+import requests
 import random
 
 async def setup_trivia(bot):
     @bot.command(name="trivia")
     async def trivia(ctx):
         url = "https://opentdb.com/api.php?amount=1&type=multiple"
-
-        async with httpx.AsyncClient() as client:
-            response = await client.get(url)
-            data = response.json()
+        response = requests.get(url)
+        data = response.json()
 
         question_data = data['results'][0]
         question = question_data['question']
