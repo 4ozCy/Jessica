@@ -12,6 +12,7 @@ import requests
 import cmds
 import xo
 import rps
+import trivia
 
 load_dotenv()
 
@@ -39,6 +40,7 @@ async def on_ready():
 cmds.setup_cmds(bot)
 xo.setup_xo(bot)
 rps.setup_rps(bot)
+trivia.setup_trivia(bot)
 
 @bot.command(name="uf")
 async def userinfo(ctx, member: discord.Member = None):
