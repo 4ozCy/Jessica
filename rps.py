@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+from discord.ui import Button
 import random
 
 class RPSView(discord.ui.View):
