@@ -32,6 +32,7 @@ def setup_cmds(bot):
                     embed.add_field(name="slap", value="Slap someone", inline=True)
                     embed.add_field(name="coin flip", value="Play coin flip", inline=True)
                     embed.add_field(name="8ball", value="Magic 8-ball response", inline=True)
+                    embed.add_field(name="rps", value="Play Rock Paper Scissor", inline=True)
 
                 await interaction.response.edit_message(embed=embed, view=self.view)
 
