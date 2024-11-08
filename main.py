@@ -4,6 +4,7 @@ from discord.ui import Button
 from discord import ButtonStyle, Interaction
 from fastapi import FastAPI
 from uvicorn import Config, Server
+import random
 import os
 from dotenv import load_dotenv
 from datetime import datetime
