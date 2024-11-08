@@ -31,7 +31,7 @@ class AnswerButton(Button):
             await interaction.response.send_message("Incorrect!", ephemeral=True)
 
 async def setup_trivia(bot):
-    @bot.command(name="trivia")
+@bot.command(name="tr")
     async def trivia(ctx):
         question, correct_answer, all_answers = await fetch_trivia()
         if not question:
