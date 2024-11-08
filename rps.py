@@ -1,5 +1,7 @@
 import discord
 from discord.ext import commands
+from discord import ButtonStyle, Interaction
+from discord.ui import Button
 import random
 
 class RPSView(discord.ui.View):
@@ -10,12 +12,12 @@ class RPSView(discord.ui.View):
         self.user_choice = None
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
-        return interaction.user == self.ctx.author or interaction.user == self.opponent
+        return interaction.user == self.ctx.author or (self.opponent and interaction.user == self.opponent)
 
     async def play_rps(self, interaction: discord.Interaction, user_choice):
         self.user_choice = user_choice
         choices = ['rock', 'paper', 'scissors']
-        opponent_choice = random.choice(choices) if not self.opponent else random.choice(choices)
+        opponent_choice = random.choice(choices)
 
         result = None
         if user_choice == opponent_choice:
@@ -34,20 +36,20 @@ class RPSView(discord.ui.View):
         )
         await interaction.response.edit_message(embed=embed, view=None)
 
-    @discord.ui.button(emoji="🪨", custom_id="rock")
-    async def rock_button(self, button: discord.ui.Button, interaction: discord.Interaction):
+    @discord.ui.button(emoji="🪨", label="Rock", style=discord.ButtonStyle.primary)
+    async def rock_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         await self.play_rps(interaction, 'rock')
 
-    @discord.ui.button(emoji="📄", custom_id="paper")
-    async def paper_button(self, button: discord.ui.Button, interaction: discord.Interaction):
+    @discord.ui.button(emoji="📄", label="Paper", style=discord.ButtonStyle.success)
+    async def paper_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         await self.play_rps(interaction, 'paper')
 
-    @discord.ui.button(emoji="✂️", custom_id="scissors")
-    async def scissors_button(self, button: discord.ui.Button, interaction: discord.Interaction):
+    @discord.ui.button(emoji="✂️", label="Scissors", style=discord.ButtonStyle.danger)
+    async def scissors_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         await self.play_rps(interaction, 'scissors')
 
 def setup_rps(bot):
-    @bot.command(name='rps')
+    @bot.command(name='pav')
     async def rps(ctx, member: discord.Member = None):
         if member:
             if member == ctx.author:
@@ -56,38 +58,14 @@ def setup_rps(bot):
 
             embed = discord.Embed(
                 title="Rock-Paper-Scissors Invitation",
-                description=f"{member.mention}, {ctx.author.mention} has invited you to play Rock-Paper-Scissors! React with ✅ to accept or ❌ to decline.",
-                color=discord.Color.orange()
-            )
-
-            confirm_msg = await ctx.send(embed=embed)
-          
-            await confirm_msg.add_reaction("✅")
-            await confirm_msg.add_reaction("❌")
-
-            def check(reaction, user):
-                return user == member and str(reaction.emoji) in ["✅", "❌"] and reaction.message.id == confirm_msg.id
-
-            try:
-                reaction, user = await bot.wait_for("reaction_add", timeout=60.0, check=check)
-                if str(reaction.emoji) == "✅":
-                    await ctx.send(f"{member.mention} accepted the invitation! Let's play!")
-                    view = RPSView(ctx, opponent=member)
-                    game_embed = discord.Embed(
-                        title="Rock-Paper-Scissors",
-                        description=f"{member.mention} vs {ctx.author.mention}\nChoose your move by clicking a button below!",
-                        color=discord.Color.green()
-                    )
-                    await ctx.send(embed=game_embed, view=view)
-                else:
-                    await ctx.send(f"{member.mention} declined the invitation.")
-            except discord.TimeoutError:
-                await ctx.send(f"{member.mention} did not respond in time. Invitation cancelled.")
-        else:
-            view = RPSView(ctx)
-            embed = discord.Embed(
-                title="Rock-Paper-Scissors",
-                description="Choose your move by clicking a button below!",
+                description=f"{member.mention}, {ctx.author.mention} has invited you to play Rock-Paper-Scissors! React below to accept.",
                 color=discord.Color.green()
             )
-            await ctx.send(embed=embed, view=view)
+            await ctx.send(embed=embed, view=RPSView(ctx, opponent=member))
+        else:
+            embed = discord.Embed(
+                title="Rock-Paper-Scissors Game",
+                description="Choose your move below!",
+                color=discord.Color.blue()
+            )
+            await ctx.send(embed=embed, view=RPSView(ctx))
