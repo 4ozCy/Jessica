@@ -1,71 +1,69 @@
 import discord
 from discord.ext import commands
 from discord import ButtonStyle, Interaction
-from discord.ui import Button
 import random
 
 class RPSView(discord.ui.View):
-    def __init__(self, ctx, opponent=None):
-        super().__init__(timeout=70)
-        self.ctx = ctx
+    def __init__(self, opponent=None):
+        super().__init__(timeout=60)
         self.opponent = opponent
-        self.user_choice = None
+        self.result = None
 
-    async def interaction_check(self, interaction: discord.Interaction) -> bool:
-        return interaction.user == self.ctx.author or (self.opponent and interaction.user == self.opponent)
+    @discord.ui.button(emoji="<:Rock:1304345338630504489>", style=ButtonStyle.secondary, custom_id="rock")
+    async def rock_button(self, interaction: Interaction, button: discord.ui.Button):
+        await self.handle_interaction(interaction, "rock")
 
-    async def play_rps(self, interaction: discord.Interaction, user_choice):
-        self.user_choice = user_choice
-        choices = ['rock', 'paper', 'scissors']
-        opponent_choice = random.choice(choices)
+    @discord.ui.button(emoji="<:Paper:1304345295672442891>", style=ButtonStyle.secondary, custom_id="paper")
+    async def paper_button(self, interaction: Interaction, button: discord.ui.Button):
+        await self.handle_interaction(interaction, "paper")
 
-        result = None
-        if user_choice == opponent_choice:
-            result = "It's a tie!"
-        elif (user_choice == 'rock' and opponent_choice == 'scissors') or \
-             (user_choice == 'scissors' and opponent_choice == 'paper') or \
-             (user_choice == 'paper' and opponent_choice == 'rock'):
-            result = f"{interaction.user.mention} wins!"
-        else:
-            result = f"{self.opponent.mention if self.opponent else 'Bot'} wins!"
+    @discord.ui.button(emoji="<:Scissor:1304346304243306596>", style=ButtonStyle.secondary, custom_id="scissors")
+    async def scissors_button(self, interaction: Interaction, button: discord.ui.Button):
+        await self.handle_interaction(interaction, "scissors")
 
-        embed = discord.Embed(
-            title="Rock-Paper-Scissors",
-            description=f"**{interaction.user.mention}** chose {user_choice}.\n**{self.opponent.mention if self.opponent else 'Bot'}** chose {opponent_choice}.\n\n{result}",
-            color=discord.Color.blue()
-        )
-        await interaction.response.edit_message(embed=embed, view=None)
+    async def handle_interaction(self, interaction: Interaction, choice: str):
+        if self.opponent and interaction.user != self.opponent:
+            await interaction.response.send_message("This game isn't for you!", ephemeral=True)
+            return
+        self.result = choice
+        self.stop()
+        await interaction.response.defer()
 
-    @discord.ui.button(emoji="🪨", label="Rock", style=discord.ButtonStyle.primary)
-    async def rock_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await self.play_rps(interaction, 'rock')
+async def play_rps(ctx, opponent=None):
+    choices = ["rock", "paper", "scissors"]
+    if opponent:
+        embed = discord.Embed(title=f"{ctx.author.display_name} has invited {opponent.display_name} to a Rock Paper Scissors game!", color=discord.Color.blurple())
+    else:
+        embed = discord.Embed(title="Rock Paper Scissors - Challenge the bot!", color=discord.Color.blurple())
+    view = RPSView(opponent=opponent)
+    await ctx.send(embed=embed, view=view)
+    await view.wait()
 
-    @discord.ui.button(emoji="📄", label="Paper", style=discord.ButtonStyle.success)
-    async def paper_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await self.play_rps(interaction, 'paper')
+    if not view.result:
+        await ctx.send("The game timed out!")
+        return
 
-    @discord.ui.button(emoji="✂️", label="Scissors", style=discord.ButtonStyle.danger)
-    async def scissors_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await self.play_rps(interaction, 'scissors')
+    player_choice = view.result
+    bot_choice = random.choice(choices)
+
+    if opponent:
+        embed_result = discord.Embed(title="Game Result", description=f"{ctx.author.display_name} chose {player_choice}\n{opponent.display_name} chose {bot_choice}", color=discord.Color.green())
+    else:
+        embed_result = discord.Embed(title="Game Result", description=f"You chose {player_choice}\nBot chose {bot_choice}", color=discord.Color.green())
+
+    if player_choice == bot_choice:
+        embed_result.add_field(name="Outcome", value="It's a tie!")
+    elif (player_choice == "rock" and bot_choice == "scissors") or (player_choice == "scissors" and bot_choice == "paper") or (player_choice == "paper" and bot_choice == "rock"):
+        embed_result.add_field(name="Outcome", value="You win!")
+    else:
+        embed_result.add_field(name="Outcome", value="You lose!")
+
+    await ctx.send(embed=embed_result)
 
 def setup_rps(bot):
-    @bot.command(name='pav')
-    async def rps(ctx, member: discord.Member = None):
+    @bot.command(name="rps")
+    async def rps_command(ctx, member: discord.Member = None):
         if member:
-            if member == ctx.author:
-                await ctx.send("You can't invite yourself to play!")
-                return
-
-            embed = discord.Embed(
-                title="Rock-Paper-Scissors Invitation",
-                description=f"{member.mention}, {ctx.author.mention} has invited you to play Rock-Paper-Scissors! React below to accept.",
-                color=discord.Color.green()
-            )
-            await ctx.send(embed=embed, view=RPSView(ctx, opponent=member))
+            await play_rps(ctx, opponent=member)
         else:
-            embed = discord.Embed(
-                title="Rock-Paper-Scissors Game",
-                description="Choose your move below!",
-                color=discord.Color.blue()
-            )
-            await ctx.send(embed=embed, view=RPSView(ctx))
+            await play_rps(ctx)
