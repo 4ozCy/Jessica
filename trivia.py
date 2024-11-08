@@ -1,48 +1,34 @@
 import discord
 from discord.ext import commands
-from discord.ui import Button, View
 import aiohttp
 import random
 
-def fetch_trivia():
-    url = "https://opentdb.com/api.php?amount=1&type=multiple"
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
-            data = await response.json()
-            if data["response_code"] == 0:
-                question_data = data["results"][0]
-                question = question_data["question"]
-                correct_answer = question_data["correct_answer"]
-                incorrect_answers = question_data["incorrect_answers"]
-                all_answers = incorrect_answers + [correct_answer]
-                random.shuffle(all_answers)
-                return question, correct_answer, all_answers
-            else:
-                return None, None, None
-
-class AnswerButton(Button):
-    def __init__(self, label, is_correct, *args, **kwargs):
-        super().__init__(label=label, *args, **kwargs)
-        self.is_correct = is_correct
-
-    async def callback(self, interaction: discord.Interaction):
-        if self.is_correct:
-            await interaction.response.send_message("Correct!", ephemeral=True)
-        else:
-            await interaction.response.send_message("Incorrect!", ephemeral=True)
-
 def setup_trivia(bot):
-    @bot.command(name="trivia")
+    @bot.command(name="trivia", aliases=['tr'])
     async def trivia(ctx):
-        question, correct_answer, all_answers = await fetch_trivia()
-        if not question:
-            await ctx.send("Failed to retrieve a trivia question. Please try again.")
-            return
+        async with aiohttp.ClientSession() as session:
+            async with session.get("https://opentdb.com/api.php?amount=1") as response:
+                data = await response.json()
 
-        buttons = [AnswerButton(label=answer, is_correct=(answer == correct_answer)) for answer in all_answers]
-        view = View(timeout=30)
-        for button in buttons:
-            view.add_item(button)
+        question_data = data["results"][0]
+        question = question_data["question"]
+        correct_answer = question_data["correct_answer"]
+        incorrect_answers = question_data["incorrect_answers"]
+        all_answers = incorrect_answers + [correct_answer]
+        random.shuffle(all_answers)
 
         embed = discord.Embed(title="Trivia Time!", description=question, color=discord.Color.blurple())
+        view = discord.ui.View()
+        for answer in all_answers:
+            button = discord.ui.Button(label=answer, style=discord.ButtonStyle.secondary)
+            async def button_callback(interaction):
+                if interaction.user != ctx.author:
+                    return await interaction.response.send_message("This isn't your game!", ephemeral=True)
+                if button.label == correct_answer:
+                    embed.description = f"✅ Correct! The answer is {correct_answer}."
+                else:
+                    embed.description = f"❌ Wrong! The correct answer was {correct_answer}."
+                await interaction.response.edit_message(embed=embed, view=None)
+            button.callback = button_callback
+            view.add_item(button)
         await ctx.send(embed=embed, view=view)
