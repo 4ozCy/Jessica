@@ -4,7 +4,7 @@ from discord.ui import Button, View
 import aiohttp
 import random
 
-async def fetch_trivia():
+def fetch_trivia():
     url = "https://opentdb.com/api.php?amount=1&type=multiple"
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
@@ -32,7 +32,7 @@ class AnswerButton(Button):
             await interaction.response.send_message("Incorrect!", ephemeral=True)
 
 def setup_trivia(bot):
-    @bot.command(name="tr")
+    @bot.command(name="trivia")
     async def trivia(ctx):
         question, correct_answer, all_answers = await fetch_trivia()
         if not question:
