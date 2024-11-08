@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands
-from discord.ui import Button
 from discord import ButtonStyle, Interaction
 import random
 
@@ -37,29 +36,37 @@ async def play_rps(ctx, opponent=None):
     else:
         embed = discord.Embed(title="Rock Paper Scissors - Challenge the bot!", color=discord.Color.blurple())
     view = RPSView(opponent=opponent)
-    await ctx.send(embed=embed, view=view)
+    message = await ctx.send(embed=embed, view=view)
     await view.wait()
 
     if not view.result:
-        await ctx.send("The game timed out!")
+        embed.description = "The game timed out!"
+        await message.edit(embed=embed, view=None)
         return
 
     player_choice = view.result
     bot_choice = random.choice(choices)
 
     if opponent:
-        embed_result = discord.Embed(title="Game Result", description=f"{ctx.author.display_name} chose {player_choice}\n{opponent.display_name} chose {bot_choice}", color=discord.Color.green())
+        embed.description = f"{ctx.author.display_name} chose {player_choice}\n{opponent.display_name} chose {bot_choice}"
     else:
-        embed_result = discord.Embed(title="Game Result", description=f"You chose {player_choice}\nBot chose {bot_choice}", color=discord.Color.green())
+        embed.description = f"You chose {player_choice}\nBot chose {bot_choice}"
 
+    winner_thumbnail = None
     if player_choice == bot_choice:
-        embed_result.add_field(name="Outcome", value="It's a tie!")
+        embed.add_field(name="Outcome", value="It's a tie!")
+        winner_thumbnail = None
     elif (player_choice == "rock" and bot_choice == "scissors") or (player_choice == "scissors" and bot_choice == "paper") or (player_choice == "paper" and bot_choice == "rock"):
-        embed_result.add_field(name="Outcome", value="You win!")
+        embed.add_field(name="Outcome", value="You win!")
+        winner_thumbnail = ctx.author.avatar.url  # Player's avatar as winner thumbnail
     else:
-        embed_result.add_field(name="Outcome", value="You lose!")
+        embed.add_field(name="Outcome", value="You lose!")
+        winner_thumbnail = "https://cdn.discordapp.com/icons/1020864330173129728/a_44123ecf57b0348f76f5ab22cd5b95a5.gif"  # Bot thumbnail
 
-    await ctx.send(embed=embed_result)
+    if winner_thumbnail:
+        embed.set_thumbnail(url=winner_thumbnail)
+
+    await message.edit(embed=embed, view=None)
 
 def setup_rps(bot):
     @bot.command(name="rps")
