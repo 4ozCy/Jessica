@@ -31,14 +31,12 @@ async def start_fastapi():
     server = Server(config)
     await server.serve()
 
-@tasks.loop(count=5)
-async def start_combined_loop():
 statuses = [
             discord.Activity(type=discord.ActivityType.playing, name=".cmds"),
             discord.Activity(type=discord.ActivityType.watching, name="filebox.lol"),
             discord.Activity(type=discord.ActivityType.listening, name="your heart beat"),
             discord.Activity(type=discord.ActivityType.streaming, url="https://youtube.com/@nozcy")
-            ]
+]
 
         for status in statuses:
             await bot.change_presence(activity=status)
@@ -49,7 +47,6 @@ async def on_ready():
     bot.start_time = discord.utils.utcnow()
     print(f'Bot connected as {bot.user}')
     start_fastapi.start()
-    start_combined_loop.start()
     
 cmds.setup_cmds(bot)
 xo.setup_xo(bot)
