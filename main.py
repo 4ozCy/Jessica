@@ -26,11 +26,13 @@ async def read_root():
     return {"status": "online"}
 
 @tasks.loop(count=1)
-async def start_combined_loop():
+async def start_fastapi():
     config = Config(app=app, host="0.0.0.0", port=8080, log_level="info")
     server = Server(config)
     await server.serve()
-    
+
+@tasks.loop(count=5)
+async def start_combined_loop():
 while True:
         statuses = [
             discord.Activity(type=discord.ActivityType.playing, name=".cmds"),
@@ -47,6 +49,7 @@ while True:
 async def on_ready():
     bot.start_time = discord.utils.utcnow()
     print(f'Bot connected as {bot.user}')
+    start_fastapi.start()
     start_combined_loop.start()
     
 cmds.setup_cmds(bot)
