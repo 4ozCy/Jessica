@@ -31,18 +31,18 @@ async def start_combined_loop():
     server = Server(config)
     await server.serve()
     
-    while True:
+while True:
         statuses = [
-            (discord.Activity(type=discord.ActivityType.playing, name=".cmds"), discord.Status.online),
-            (discord.Activity(type=discord.ActivityType.watching, name="filebox.lol"), discord.Status.idle),
-            (discord.Activity(type=discord.ActivityType.listening, name="Music"), discord.Status.dnd),
-            (discord.Activity(type=discord.ActivityType.streaming, url="https://youtube.com/@nozcy"), discord.Status.online)
+            discord.Activity(type=discord.ActivityType.playing, name=".cmds"),
+            discord.Activity(type=discord.ActivityType.watching, name="over filebox.lol"),
+            discord.Activity(type=discord.ActivityType.listening, name="your heart beat"),
+            discord.Activity(type=discord.ActivityType.streaming, url="https://youtube.com/@nozcy")
         ]
 
-        for activity, status in statuses:
-            await bot.change_presence(activity=activity, status=status)
+        for status in statuses:
+            await bot.change_presence(activity=status)
             await asyncio.sleep(5)
-            
+    
 @bot.event
 async def on_ready():
     bot.start_time = discord.utils.utcnow()
