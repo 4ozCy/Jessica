@@ -41,7 +41,7 @@ async def start_fastapi():
 
         new_status = random.choice(status_list)
         await bot.change_presence(activity=new_status)
-        await discord.utils.sleep_until(discord.utils.utcnow() + discord.timedelta(seconds=10))
+        await discord.utils.sleep_until(discord.utils.utcnow() + discord.timedelta(seconds=3))
 
 @bot.event
 async def on_ready():
