@@ -33,13 +33,12 @@ async def start_fastapi():
 
 @tasks.loop(count=5)
 async def start_combined_loop():
-while True:
-        statuses = [
+statuses = [
             discord.Activity(type=discord.ActivityType.playing, name=".cmds"),
             discord.Activity(type=discord.ActivityType.watching, name="over filebox.lol"),
             discord.Activity(type=discord.ActivityType.listening, name="your heart beat"),
             discord.Activity(type=discord.ActivityType.streaming, url="https://youtube.com/@nozcy")
-        ]
+            ]
 
         for status in statuses:
             await bot.change_presence(activity=status)
