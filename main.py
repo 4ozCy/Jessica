@@ -35,7 +35,7 @@ async def start_fastapi():
 async def start_combined_loop():
 statuses = [
             discord.Activity(type=discord.ActivityType.playing, name=".cmds"),
-            discord.Activity(type=discord.ActivityType.watching, name="over filebox.lol"),
+            discord.Activity(type=discord.ActivityType.watching, name="filebox.lol"),
             discord.Activity(type=discord.ActivityType.listening, name="your heart beat"),
             discord.Activity(type=discord.ActivityType.streaming, url="https://youtube.com/@nozcy")
             ]
