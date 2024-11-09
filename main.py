@@ -28,15 +28,27 @@ async def read_root():
 async def start_fastapi():
     config = Config(app=app, host="0.0.0.0", port=8080, log_level="info")
     server = Server(config)
-    await server.serve()
+    bot.loop.create_task(server.serve())
+
+    while True:
+        server_count = len(bot.guilds)
+        status_list = [
+            discord.Activity(name=f'in {server_count} servers', type=discord.ActivityType.streaming),
+            discord.Activity(name='.cmds', type=discord.ActivityType.playing),
+            discord.Activity(name='.cmds', type=discord.ActivityType.watching),
+            discord.Activity(name='.cmds', type=discord.ActivityType.listening),
+        ]
+
+        new_status = random.choice(status_list)
+        await bot.change_presence(activity=new_status)
+        await discord.utils.sleep_until(discord.utils.utcnow() + discord.timedelta(seconds=10))
 
 @bot.event
 async def on_ready():
-    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name=".cmds"))
     bot.start_time = discord.utils.utcnow()
     print(f'Bot connected as {bot.user}')
     start_fastapi.start()
-
+    
 cmds.setup_cmds(bot)
 xo.setup_xo(bot)
 rps.setup_rps(bot)
