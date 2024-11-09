@@ -1,13 +1,17 @@
 import discord
 from discord.ext import commands
+from discord.ui import View
 from discord import ButtonStyle, Interaction
 import random
 
 class RPSView(discord.ui.View):
-    def __init__(self, opponent=None):
-        super().__init__(timeout=60)
-        self.opponent = opponent
-        self.result = None
+    def __init__(self, player1, player2):
+        super().__init__(timeout=120)
+        self.player1 = player1
+        self.player2 = player2
+        self.player1_choice = None
+        self.player2_choice = None
+        self.result_ready = False
 
     @discord.ui.button(emoji="<:Rock:1304345338630504489>", style=ButtonStyle.secondary, custom_id="rock")
     async def rock_button(self, interaction: Interaction, button: discord.ui.Button):
@@ -22,56 +26,65 @@ class RPSView(discord.ui.View):
         await self.handle_interaction(interaction, "scissors")
 
     async def handle_interaction(self, interaction: Interaction, choice: str):
-        if self.opponent and interaction.user != self.opponent:
+        if interaction.user == self.player1:
+            if self.player1_choice:
+                await interaction.response.send_message("You have already chosen!", ephemeral=True)
+                return
+            self.player1_choice = choice
+            await interaction.response.send_message("You chose your move! Waiting for your opponent...", ephemeral=True)
+
+        elif interaction.user == self.player2:
+            if self.player2_choice:
+                await interaction.response.send_message("You have already chosen!", ephemeral=True)
+                return
+            self.player2_choice = choice
+            await interaction.response.send_message("You chose your move! Waiting for results...", ephemeral=True)
+
+        else:
             await interaction.response.send_message("This game isn't for you!", ephemeral=True)
             return
-        self.result = choice
-        self.stop()
-        await interaction.response.defer()
 
-async def play_rps(ctx, opponent=None):
-    choices = ["rock", "paper", "scissors"]
-    if opponent:
-        embed = discord.Embed(title=f"{ctx.author.display_name} has invited {opponent.display_name} to a Rock Paper Scissors game!", color=discord.Color.blurple())
-    else:
-        embed = discord.Embed(title="Rock Paper Scissors - Challenge the bot!", color=discord.Color.blurple())
-    view = RPSView(opponent=opponent)
+        if self.player1_choice and self.player2_choice:
+            self.result_ready = True
+            self.stop()
+
+async def play_rps(ctx, opponent):
+    embed = discord.Embed(
+        title=f"{ctx.author.display_name} has invited {opponent.display_name} to a Rock Paper Scissors game!",
+        color=discord.Color.blurple()
+    )
+    view = RPSView(player1=ctx.author, player2=opponent)
     message = await ctx.send(embed=embed, view=view)
     await view.wait()
 
-    if not view.result:
-        embed.description = "The game timed out!"
+    if not view.result_ready:
+        embed.description = "The game timed out due to inactivity!"
         await message.edit(embed=embed, view=None)
         return
 
-    player_choice = view.result
-    bot_choice = random.choice(choices)
+    player1_choice = view.player1_choice
+    player2_choice = view.player2_choice
 
-    if opponent:
-        embed.description = f"{ctx.author.display_name} chose {player_choice}\n{opponent.display_name} chose {bot_choice}"
-    else:
-        embed.description = f"You chose {player_choice}\nBot chose {bot_choice}"
+    embed.description = (
+        f"{ctx.author.display_name} chose {player1_choice}\n"
+        f"{opponent.display_name} chose {player2_choice}\n"
+    )
 
-    winner_thumbnail = None
-    if player_choice == bot_choice:
+    if player1_choice == player2_choice:
         embed.add_field(name="Outcome", value="It's a tie!")
-        winner_thumbnail = None
-    elif (player_choice == "rock" and bot_choice == "scissors") or (player_choice == "scissors" and bot_choice == "paper") or (player_choice == "paper" and bot_choice == "rock"):
-        embed.add_field(name="Outcome", value="You win!")
-        winner_thumbnail = ctx.author.avatar.url  # Player's avatar as winner thumbnail
+    elif (player1_choice == "rock" and player2_choice == "scissors") or \
+         (player1_choice == "scissors" and player2_choice == "paper") or \
+         (player1_choice == "paper" and player2_choice == "rock"):
+        embed.add_field(name="Outcome", value=f"{ctx.author.display_name} wins!")
     else:
-        embed.add_field(name="Outcome", value="You lose!")
-        winner_thumbnail = "https://cdn.discordapp.com/icons/1020864330173129728/a_44123ecf57b0348f76f5ab22cd5b95a5.gif"  # Bot thumbnail
-
-    if winner_thumbnail:
-        embed.set_thumbnail(url=winner_thumbnail)
+        embed.add_field(name="Outcome", value=f"{opponent.display_name} wins!")
 
     await message.edit(embed=embed, view=None)
 
 def setup_rps(bot):
     @bot.command(name="rps")
-    async def rps_command(ctx, member: discord.Member = None):
+    async def rps_command(ctx, member: discord.Member):
         if member:
             await play_rps(ctx, opponent=member)
         else:
-            await play_rps(ctx)
+            await ctx.send("You need to mention an opponent to play!")
