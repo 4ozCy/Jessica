@@ -27,6 +27,10 @@ async def read_root():
 
 @tasks.loop(count=1)
 async def start_combined_loop():
+    config = Config(app=app, host="0.0.0.0", port=8080, log_level="info")
+    server = Server(config)
+    await server.serve()
+    
     while True:
         statuses = [
             (discord.Activity(type=discord.ActivityType.playing, name=".cmds"), discord.Status.online),
