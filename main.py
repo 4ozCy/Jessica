@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from uvicorn import Config, Server
 import random
 import os
+import asyncio
 from dotenv import load_dotenv
 from datetime import datetime
 import requests
@@ -25,29 +26,28 @@ async def read_root():
     return {"status": "online"}
 
 @tasks.loop(count=1)
-async def start_fastapi():
+async def start_combined_loop():
     config = Config(app=app, host="0.0.0.0", port=8080, log_level="info")
     server = Server(config)
-    bot.loop.create_task(server.serve())
+    asyncio.create_task(server.serve())
 
     while True:
-        server_count = len(bot.guilds)
-        status_list = [
-            discord.Activity(name=f'in {server_count} servers', type=discord.ActivityType.streaming),
-            discord.Activity(name='.cmds', type=discord.ActivityType.playing),
-            discord.Activity(name='.cmds', type=discord.ActivityType.watching),
-            discord.Activity(name='.cmds', type=discord.ActivityType.listening),
+        statuses = [
+            discord.Activity(type=discord.ActivityType.playing, name=".cmds"),
+            discord.Activity(type=discord.ActivityType.watching, name="over filebox.lol"),
+            discord.Activity(type=discord.ActivityType.listening, name="to your heart beat"),
+            discord.Activity(type=discord.ActivityType.streaming, name=f"over {len(bot.guilds)} servers")
         ]
 
-        new_status = random.choice(status_list)
-        await bot.change_presence(activity=new_status)
-        await discord.utils.sleep_until(discord.utils.utcnow() + discord.timedelta(seconds=3))
+        for status in statuses:
+            await bot.change_presence(activity=status)
+            await asyncio.sleep(10)
 
 @bot.event
 async def on_ready():
     bot.start_time = discord.utils.utcnow()
     print(f'Bot connected as {bot.user}')
-    start_fastapi.start()
+    start_combined_loop.start()
     
 cmds.setup_cmds(bot)
 xo.setup_xo(bot)
