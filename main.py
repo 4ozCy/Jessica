@@ -36,7 +36,7 @@ async def start_combined_loop():
             discord.Activity(type=discord.ActivityType.playing, name=".cmds"),
             discord.Activity(type=discord.ActivityType.watching, name="over filebox.lol"),
             discord.Activity(type=discord.ActivityType.listening, name="to your heart beat"),
-            discord.Activity(type=discord.ActivityType.streaming, name=f"over {len(bot.guilds)} servers")
+            discord.Activity(type=discord.ActivityType.streaming, name=f"over {len(bot.guilds)} servers", url=" ")
         ]
 
         for status in statuses:
