@@ -7,15 +7,17 @@ from uvicorn import Config, Server
 import random
 import os
 import asyncio
+import aiohttp
 from dotenv import load_dotenv
 from datetime import datetime
 import requests
-import trivia
 import cmds
 import xo
-import rps
 
 load_dotenv()
+
+TARGET_USER_ID = 828451317650292777
+AVATAR_FOLDER = "img"
 
 bot = commands.Bot(command_prefix='.', intents=discord.Intents.all())
 
@@ -31,6 +33,19 @@ async def start_fastapi():
     server = Server(config)
     await server.serve()
 
+    user = await bot.fetch_user(USER)
+    avatar_url = user.display_avatar.url
+    print(f"HD PFP of {user}: {avatar_url}")
+
+    if not os.path.exists(AVATAR_FOLDER):
+        os.makedirs(AVATAR_FOLDER)
+
+    async with aiohttp.ClientSession() as session:
+        async with session.get(avatar_url) as response:
+            if response.status == 200:
+                file_path = os.path.join(AVATAR_FOLDER, f"{user.id}_avatar.png")
+                with open(file_path, "wb") as file:
+                    file.write(await response.read())
 @tasks.loop(seconds=5)
 async def change_bot_status():
     statuses = [
@@ -52,11 +67,6 @@ async def on_ready():
     start_fastapi.start()
     change_bot_status.start()
     
-cmds.setup_cmds(bot)
-xo.setup_xo(bot)
-rps.setup_rps(bot)
-trivia.setup_trivia(bot)
-
 @bot.command(name="uf")
 async def userinfo(ctx, member: discord.Member = None):
     member = member or ctx.author
