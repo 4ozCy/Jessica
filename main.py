@@ -13,7 +13,7 @@ from datetime import datetime
 import requests
 import cmds
 import xo
-import sqlite3
+import json
 
 load_dotenv()
 
@@ -24,18 +24,19 @@ app = FastAPI()
 @app.get("/")
 async def read_root():
     return {"status": "online"}
-
-conn = sqlite3.connect("invites.db")
-cursor = conn.cursor()
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS invite_tracker (
-    inviter_id TEXT,
-    invites INTEGER DEFAULT 0
-)
-""")
-conn.commit()
+def load_invite_data():
+    try:
+        with open("invite_tracker.json", "r") as file:
+            return json.load(file)
+    except FileNotFoundError:
+        return {}
+        
+def save_invite_data(data):
+    with open("invite_tracker.json", "w") as file:
+        json.dump(data, file, indent=4)
 
 invites_cache = {}
+invite_data = load_invite_data()
 
 LOG_CHANNEL_ID = 1310098528210653256
 
@@ -73,25 +74,25 @@ async def on_member_join(member):
 
     if used_invite:
         inviter = used_invite.inviter
-        cursor.execute("SELECT invites FROM invite_tracker WHERE inviter_id = ?", (str(inviter.id),))
-        row = cursor.fetchone()
-        if row:
-            cursor.execute("UPDATE invite_tracker SET invites = invites + 1 WHERE inviter_id = ?", (str(inviter.id),))
-        else:
-            cursor.execute("INSERT INTO invite_tracker (inviter_id, invites) VALUES (?, ?)", (str(inviter.id), 1))
-        conn.commit()
+        inviter_id = str(inviter.id)
 
-        total_invites = row[0] + 1 if row else 1
+        if inviter_id not in invite_data:
+            invite_data[inviter_id] = {"invites": 0}
+
+        invite_data[inviter_id]["invites"] += 1
+        save_invite_data(invite_data)
+
+        total_invites = invite_data[inviter_id]["invites"]
 
         embed = discord.Embed(
-            title="New Member Joined",
+            title="New Member Joined!",
             timestamp=member.joined_at
         )
         embed.add_field(name="Member", value=f"{member} ({member.id})", inline=True)
         embed.add_field(name="Inviter", value=f"{inviter} ({inviter.id})", inline=True)
         embed.add_field(name="Invite Code", value=used_invite.code, inline=True)
         embed.add_field(name="Total Invites by Inviter", value=str(total_invites), inline=True)
-        embed.set_footer(text="Powered by: @n.int | Invite Tracker")
+        embed.set_footer(text="Invite Tracker")
 
         log_channel = guild.get_channel(LOG_CHANNEL_ID)
         if log_channel:
