@@ -13,11 +13,9 @@ from datetime import datetime
 import requests
 import cmds
 import xo
+import sqlite3
 
 load_dotenv()
-
-TARGET_USER_ID = 828451317650292777
-AVATAR_FOLDER = "img"
 
 bot = commands.Bot(command_prefix='.', intents=discord.Intents.all())
 
@@ -27,45 +25,77 @@ app = FastAPI()
 async def read_root():
     return {"status": "online"}
 
+conn = sqlite3.connect("invites.db")
+cursor = conn.cursor()
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS invite_tracker (
+    inviter_id TEXT,
+    invites INTEGER DEFAULT 0
+)
+""")
+conn.commit()
+
+invites_cache = {}
+
+LOG_CHANNEL_ID = 1310098528210653256
+
 @tasks.loop(count=1)
 async def start_fastapi():
     config = Config(app=app, host="0.0.0.0", port=8080, log_level="info")
     server = Server(config)
     await server.serve()
-
-    user = await bot.fetch_user(USER)
-    avatar_url = user.display_avatar.url
-    print(f"HD PFP of {user}: {avatar_url}")
-
-    if not os.path.exists(AVATAR_FOLDER):
-        os.makedirs(AVATAR_FOLDER)
-
-    async with aiohttp.ClientSession() as session:
-        async with session.get(avatar_url) as response:
-            if response.status == 200:
-                file_path = os.path.join(AVATAR_FOLDER, f"{user.id}_avatar.png")
-                with open(file_path, "wb") as file:
-                    file.write(await response.read())
-@tasks.loop(seconds=5)
-async def change_bot_status():
-    statuses = [
-        discord.Activity(type=discord.ActivityType.playing, name=".cmds"),
-        discord.Activity(type=discord.ActivityType.watching, name="filebox.lol"),
-        discord.Activity(type=discord.ActivityType.listening, name="your heart beat"),
-        discord.Activity(type=discord.ActivityType.competing, name="a Tournament")
-    ]
-
-    for status in statuses:
-        await bot.change_presence(activity=status)
-        await asyncio.sleep(5)
-
     
 @bot.event
 async def on_ready():
     bot.start_time = discord.utils.utcnow()
     print(f'Bot connected as {bot.user}')
+    discord.Activity(type=discord.ActivityType.playing, name=".cmds")
+    for guild in bot.guilds:
+        try:
+            invites_cache[guild.id] = await guild.invites()
+        except Exception as e:
+            print(f"Failed to fetch invites for {guild.name}: {e}")
     start_fastapi.start()
-    change_bot_status.start()
+
+@bot.event
+async def on_member_join(member):
+    guild = member.guild
+    cached_invites = invites_cache.get(guild.id, [])
+    new_invites = await guild.invites()
+    invites_cache[guild.id] = new_invites
+
+    used_invite = None
+    for invite in new_invites:
+        for cached_invite in cached_invites:
+            if invite.code == cached_invite.code and invite.uses > cached_invite.uses:
+                used_invite = invite
+                break
+
+    if used_invite:
+        inviter = used_invite.inviter
+        cursor.execute("SELECT invites FROM invite_tracker WHERE inviter_id = ?", (str(inviter.id),))
+        row = cursor.fetchone()
+        if row:
+            cursor.execute("UPDATE invite_tracker SET invites = invites + 1 WHERE inviter_id = ?", (str(inviter.id),))
+        else:
+            cursor.execute("INSERT INTO invite_tracker (inviter_id, invites) VALUES (?, ?)", (str(inviter.id), 1))
+        conn.commit()
+
+        total_invites = row[0] + 1 if row else 1
+
+        embed = discord.Embed(
+            title="New Member Joined",
+            timestamp=member.joined_at
+        )
+        embed.add_field(name="Member", value=f"{member} ({member.id})", inline=True)
+        embed.add_field(name="Inviter", value=f"{inviter} ({inviter.id})", inline=True)
+        embed.add_field(name="Invite Code", value=used_invite.code, inline=True)
+        embed.add_field(name="Total Invites by Inviter", value=str(total_invites), inline=True)
+        embed.set_footer(text="Powered by: @n.int | Invite Tracker")
+
+        log_channel = guild.get_channel(LOG_CHANNEL_ID)
+        if log_channel:
+            await log_channel.send(embed=embed)
     
 @bot.command(name="uf")
 async def userinfo(ctx, member: discord.Member = None):
