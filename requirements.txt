@@ -7,4 +7,3 @@ requests
 numpy
 fastapi
 uvicorn
-sqlite
