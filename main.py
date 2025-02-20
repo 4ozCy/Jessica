@@ -28,7 +28,7 @@ async def start_fastapi():
 async def on_ready():
     bot.start_time = discord.utils.utcnow()
     print(f'Bot connected as {bot.user}')
-    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name=".cmds"))
+    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="laufey"))
     start_fastapi.start()
 
 @bot.command(name='cmds')
