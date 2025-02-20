@@ -1,9 +1,7 @@
-discord.py==2.5.0
-discord-ui
+discord.py
 aiohttp
 python-dotenv
 Flask
 requests
-numpy
 fastapi
 uvicorn
